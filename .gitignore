@@ -1,0 +1,9 @@
+.precomp
+*/.precomp
+.directory
+*.xml
+*.xsl
+*.log
+spellTmp*
+Old/*
+~*
