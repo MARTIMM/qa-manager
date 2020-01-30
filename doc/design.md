@@ -10,11 +10,13 @@ Questionnaires and configurations have all some form of key - value sheets servi
 * Check QA input. All values can be checked for its type and definedness.
 * QA graphical user interface. A QA sheet can be presented and filled in. After pressing Ok, Apply or Cancel, the QA sheet is removed from display and the result returned.
 
-## Storage of QA sets
+## Categories
 
-To keep all sets in a file would perhaps become unwieldy so it is maybe best to have sets in different files which are then catagorized by these files. E.g. All internet sets in an `internet.cfg` or specific sets about politics into `politics.cfg`.
+To keep all sets in a single file would perhaps become unwieldy so it is maybe best to have sets in different files which are then categorized by these files. E.g. All internet sets in an `internet.cfg` or specific sets about politics into `politics.cfg`.
 
-Directory where the set catagories are stored will be `$*HOME/.config/QAManager/QA.d` on `*ux` systems. <!-- and `$*HOME/QAManager/QA.d` on Windows.-->
+Directory where the set categories are stored will be `$*HOME/.config/QAManager/QA.d` on `*ux` systems. <!-- and `$*HOME/QAManager/QA.d` on Windows.-->
+
+Categories can also have a description and a title.
 
 ## Sets
 
@@ -51,7 +53,7 @@ Summarized
   * Boolean; Hash of required, default
   * Image; Hash of required
   * Array; Hash of required
-  * Set; Hash of required, catagory name, set name
+  * Set; Hash of required, category name, set name
 * Widget representation. Entry when absent. Each of the representations must show a clue as to whether the field is required. Default values must be filled in (light gray) when value is absent. When another set is referred, a button is placed to show a new dialog with the QA from that set. A boolean value displayed in a ComboBox has two entries with 'Yes' or 'No' as well as for two RadioButtons with 'Yes' or 'No' text.
   * Number; Entry, Scale
   * String; Entry, TextView, ComboBox
@@ -60,75 +62,91 @@ Summarized
   * Color; ColorChooserDialog
   * File; FileChooserDialog, Drag and Drop
   * Array; ComboBox, CheckButton
-  * Set; Button
+  * Set; Button -> Dialog, 2nd page of a Stack or a NoteBook
 
 # Examples
 
 Representation of QA sheet
 
 ```
-set1:
-  name,
-  description,
-  keys: [
-    key1: [ description, type, limits, representation ],
-    key2: [ ... ]
-  ]
+title,
+description,
+sets: {
+  set1:
+    name,
+    description,
+    keys: {
+      key1: { description, type, limits, representation },
+      key2: { ... }
+    }
 ```
 
-Example of a set `credential`.
+Example of a set `credential` stored in category `accounting`.
 ```
-credential:
-  name: 'Credentials',
-  description: 'Name and password for account',
-  keys: [
-    username: [
-      'Username of account',
-      string,
-      { :required },
-    ],
-    password: [
-      'Password for username',
-      string,
-      { :encode, :stars },
+title: 'Accounting',
+description: 'QA sheets centered around username, passwords, etc.',
+sets: {
+  credential:
+    title: 'Credentials',
+    description: 'Name and password for account',
+    keys: {
+      username: {
+        description: 'Username of account',
+        type: string,
+        :required,
+        :widget(Entry),
+      },
+      password: {
+        'Password for username',
+        type: string,
+        :encode,
+        :stars,
+        :widget(Entry),
+      ]
     ]
-  ]
+  }
 ```
 
-Example of a set `database` using also above set `credential`.
+Example of a set `database` in some other category, using also the above set `credential`.
 
 ```
-database:
-  name: 'Mongodb',
-  description: 'Mongodb database server data',
-  keys: [
-    hostname: [
-      'Server where database resides',
-      string,
-      { :default<localhost> },
-    ],
-    portnumber: [
-      'Service port',
-      number,
-      { :default(27017) },
-    ],
-    user-access: [
-      'Database credentials',
-      set,
-      { },
-      Dialog
+title: 'Services',
+description: 'QA sheets for server services',
+sets: {
+  database:
+    name: 'Mongodb',
+    description: 'Mongodb database server data',
+    keys: {
+      hostname: {
+        description: 'Server where database resides',
+        type: string,
+        :default<localhost>,
+      },
+      portnumber: {
+        description: 'Service port',
+        type: number,
+        :default(27017),
+      },
+      user-access: {
+        description: 'Database credentials',
+        type: set,
+        :category('accounting'),
+        :set('credential'),
+        :widget(Dialog),
+      ]
     ]
-  ]
+  }
 ```
 
-The data returned from the questionnaire is a hash could then be something like below if the set `database` was used.
+The data returned from the questionnaire is a hash and could contain something like below if the set `database` was used.
 ```
 { database => {
-  :hostname('mdb.example.com'),
-  :portnumber(27017),
-  user-access => {
-    :username('mickey'),
-    :password('47c5c28cae2574cdf5a194fe7717de68f8276f4bf83e653830925056aeb32a48')
+    :hostname('mdb.example.com'),
+    :portnumber(27017),
+    user-access => {
+      :username('mickey'),
+      :password('47c5c28cae2574cdf5a194fe7717de68f8276f4bf83e653830925056aeb32a48')
+    }
   }
 }
 ```
