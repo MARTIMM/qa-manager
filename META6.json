@@ -1,7 +1,7 @@
 {
   "description": "Q & A Manager",
   "name": "QAManager",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "authors": [ "Marcel Timmerman"],
   "tags": [ "questionnaire", "configuration"],
 
@@ -9,7 +9,10 @@
   "license": "Artistic-2.0",
 
   "provides": {
-    "QAManager": "/lib/QAManager"
+    "QAManager::Category": "lib/QAManager/Category.pm6",
+    "QAManager::KV": "lib/QAManager/KV.pm6",
+    "QAManager::Set": "lib/QAManager/Set.pm6",
+    "QAManager": "lib/QAManager.pm6"
   },
 
   "source-url": "git://github.com/MARTIMM/qa-manager.git",
