@@ -10,9 +10,15 @@ Questionnaires and configurations have all some form of key - value sheets servi
 * Check QA input. All values can be checked for its type and definedness.
 * QA graphical user interface. A QA sheet can be presented and filled in. After pressing Ok, Apply or Cancel, the QA sheet is removed from display and the result returned.
 
+## Storage of QA sets
+
+To keep all sets in a file would perhaps become unwieldy so it is maybe best to have sets in different files which are then catagorized by these files. E.g. All internet sets in an `internet.cfg` or specific sets about politics into `politics.cfg`.
+
+Directory where the set catagories are stored will be `$*HOME/.config/QAManager/QA.d` on `*ux` systems. <!-- and `$*HOME/QAManager/QA.d` on Windows.-->
+
 ## Sets
 
-A set is a single level of key - value pairs. The key is a string of letters, digits or underscores. A set has also a name and a short and long description. All texts can be specified in other languages as long the program can access it using an extension on a key. See [freedesktop]()
+A set is a single level of key - value pairs. The key is a string of letters, digits or underscores. A set has also a name and a short and long description. All texts can be specified in other languages as long the program can access it using an extension on a key.
 
 Summarized
 * Name
@@ -45,7 +51,7 @@ Summarized
   * Boolean; Hash of required, default
   * Image; Hash of required
   * Array; Hash of required
-  * Set; Hash of required, set name
+  * Set; Hash of required, catagory name, set name
 * Widget representation. Entry when absent. Each of the representations must show a clue as to whether the field is required. Default values must be filled in (light gray) when value is absent. When another set is referred, a button is placed to show a new dialog with the QA from that set. A boolean value displayed in a ComboBox has two entries with 'Yes' or 'No' as well as for two RadioButtons with 'Yes' or 'No' text.
   * Number; Entry, Scale
   * String; Entry, TextView, ComboBox
@@ -125,3 +131,4 @@ The data returned from the questionnaire is a hash could then be something like 
     :password('47c5c28cae2574cdf5a194fe7717de68f8276f4bf83e653830925056aeb32a48')
   }
 }
+```
