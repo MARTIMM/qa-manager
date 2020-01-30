@@ -4,10 +4,11 @@ use v6;
 use QAManager;
 
 my QAManager $qam .= new;
-$qam.load-catagory('accounting');
+$qam.load-Category('accounting');
 
 my Hash $qa = %(
-  :name('Credentials'),
+  :name('credentials'),
+  :title('Credentials'),
   :description('Name and password for account'),
   :keys( [ %(
         :username( [ 'Username of account', QAString, { :required }]),
@@ -18,4 +19,4 @@ my Hash $qa = %(
 );
 
 $qam.add-set( 'accounting', 'credential', $qa);
-$qam.save-catagory('accounting');
+$qam.save-Category('accounting');
