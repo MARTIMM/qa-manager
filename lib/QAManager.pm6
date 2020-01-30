@@ -5,15 +5,16 @@ use JSON::Fast;
 #-------------------------------------------------------------------------------
 unit class QAManager:auth<github:MARTIMM>;
 
-enum QATypes is export <QANumber QAString QABoolean QAImage QAArray QASet>;
+use QAManager::Category;
 
-# catagories are filenames holding sets
+# catagories are QAManager::Category classes holding sets
 has Hash $!catagories;
 
-has Str $!config-dir;
+#has Str $!config-dir;
 
 #-------------------------------------------------------------------------------
 submethod BUILD ( ) {
+#`{{
   if $*DISTRO.is-win {
   }
 
@@ -25,91 +26,120 @@ submethod BUILD ( ) {
     $!config-dir ~= '/QA.d';
     mkdir( $!config-dir, 0o760) unless $!config-dir.IO.d;
   }
+}}
 }
 
 #-------------------------------------------------------------------------------
-submethod load-catagory ( Str $catagory --> Bool ) {
+method load-category ( Str $category --> Bool ) {
 
-  # check if catagory is loaded, ok if it is
-  return True if $!catagories{$catagory}:exists;
+  # check if Category is loaded, ok if it is
+  return True if $!catagories{$category}:exists;
 
-  # check if catagory file exists then load, if not, catagory is created
-  my Str $catfile = "$!config-dir/$catagory.cfg";
+  my QAManager::Category $c .= new(:$category);
+  $!catagories{$category} = $c if $c.is-loaded;
+
+  True
+
+#`{{
+  # check if Category is loaded, ok if it is
+  return True if $!catagories{$category}:exists;
+
+  # check if Category file exists then load, if not, Category is created
+  my Str $catfile = "$!config-dir/$category.cfg";
   if $catfile.IO.r {
-    $!catagories{$catagory} = from-json($catfile.IO.slurp);
+    $!catagories{$category} = from-json($catfile.IO.slurp);
   }
 
   else {
-    $!catagories{$catagory} = { };
+    $!catagories{$category} = { };
   }
-
-  True
+}}
 }
 
 #-------------------------------------------------------------------------------
-submethod add-set ( Str $catagory, Str $name, Hash $qa --> Bool ) {
-
-  # check if catagory is loaded, fails if not
-  return False unless $!catagories{$catagory}.defined;
+method add-set ( Str $category, Str $name, Hash $qa --> Bool ) {
+#`{{
+  # check if Category is loaded, fails if not
+  return False unless $!catagories{$category}.defined;
 
   # check if set name exists, fails if it is
-  return False if $!catagories{$catagory}{$name}.defined;
+  return False if $!catagories{$category}{$name}.defined;
 
   # save new set
-  $!catagories{$catagory}{$name} = $qa;
+  $!catagories{$category}{$name} = $qa;
 
   True
+}}
 }
 
 #-------------------------------------------------------------------------------
-submethod replace-set ( Str $catagory, Str $name, Hash $qa --> Bool ) {
+method replace-set ( Str $category, Str $name, Hash $qa --> Bool ) {
+#`{{
 
-  # check if catagory is loaded
-  return False unless $!catagories{$catagory}:exists;
+  # check if Category is loaded
+  return False unless $!catagories{$category}:exists;
 
   # check if set name exists
-  return False if $!catagories{$catagory}{$name}:exists;
+  return False if $!catagories{$category}{$name}:exists;
 
   # save new set
-  $!catagories{$catagory}{$name} = $qa;
+  $!catagories{$category}{$name} = $qa;
+
+  True
+}}
+}
+
+
+#-------------------------------------------------------------------------------
+method purge-category ( Str $category --> Bool ) {
+
+  # check if category is loaded, ok if it is
+  return True if $!catagories{$category}:exists;
+
+  $!catagories{$category} = QAManager::Category.new(:$category);
 
   True
 }
 
 #-------------------------------------------------------------------------------
-submethod remove-set ( Str $catagory, Str $name --> Bool ) {
+method remove-set ( Str $category, Str $name --> Bool ) {
+#`{{
 
-  # check if catagory is loaded
-  return False unless $!catagories{$catagory}:exists;
+  # check if Category is loaded
+  return False unless $!catagories{$category}:exists;
 
   # check if set name exists, if it is then remove
-  return False unless $!catagories{$catagory}{$name}:exists;
+  return False unless $!catagories{$category}{$name}:exists;
 
-  $!catagories{$catagory}{$name}:delete;
+  $!catagories{$category}{$name}:delete;
 
   True
+}}
 }
 
 #-------------------------------------------------------------------------------
-submethod remove-catagory ( Str $catagory --> Bool ) {
+method remove-category ( Str $category --> Bool ) {
 
-  # check if catagory is loaded
-  return False unless $!catagories{$catagory}:exists;
+#`{{
+  # check if Category is loaded
+  return False unless $!catagories{$category}:exists;
 
-  $!catagories{$catagory}:delete;
-  unlink "$!config-dir/$catagory.cfg";
+  $!catagories{$category}:delete;
+  unlink "$!config-dir/$category.cfg";
 
   True
+}}
 }
 
 #-------------------------------------------------------------------------------
-method save-catagory ( Str $catagory --> Bool ) {
+method save-category ( Str $category --> Bool ) {
+#`{{
+  # check if Category is loaded, ok if it is
+  return False unless $!catagories{$category}:exists;
 
-  # check if catagory is loaded, ok if it is
-  return False unless $!catagories{$catagory}:exists;
-
-  # check if set name exists if not catagory is created
-  "$!config-dir/$catagory.cfg".IO.spurt(to-json($!catagories{$catagory}));
+  # check if set name exists if not Category is created
+  "$!config-dir/$category.cfg".IO.spurt(to-json($!catagories{$category}));
 
   True
+}}
 }
