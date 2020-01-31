@@ -1,56 +1,51 @@
 use v6.d;
 use Test;
 
-use QAManager;
+#use QAManager;
 use QAManager::Set;
 use QAManager::KV;
 use QAManager::Category;
 
 #-------------------------------------------------------------------------------
-my QAManager::Category $test2-cat .= new(:category('test2'));
-#-------------------------------------------------------------------------------
-subtest 'ISO-Test', {
-
-  isa-ok $test2-cat, QAManager::Category, 'QA Manager category';
-  ok $test2-cat.is-loaded, '.is-loaded()';
-}
-
-#-------------------------------------------------------------------------------
 subtest 'Manipulations', {
 
-  $test2-cat.title = 'Accounting';
-  $test2-cat.description = 'QA forms about credentials';
+  my QAManager::Category $category .= new(:category('__category'));
+  isa-ok $category, QAManager::Category, 'QA Manager category';
+  ok $category.is-loaded, '.is-loaded()';
 
-  my QAManager::Set $creds .= new(:name<credentials>);
-  is $creds.title, 'Credentials', '.title()';
-  $creds.description = 'Name and password for account';
+  $category.title = 'Accounting';
+  $category.description = 'QA forms about credentials';
+
+  my QAManager::Set $set .= new(:name<credentials>);
+  is $set.title, 'Credentials', '.title()';
+  $set.description = 'Name and password for account';
 
   my QAManager::KV $kv .= new(:name<username>);
   $kv.description = 'Username of account';
   $kv.required = True;
-#  $creds.add-kv($kv);
+  ok $set.add-kv($kv), '.add-kv() username';
 
   $kv .= new(:name<password>);
   $kv.description = 'Password for username';
   $kv.required = True;
   $kv.encode = True;
   $kv.stars = True;
-#  $creds.add-kv($kv);
+  ok $set.add-kv($kv), '.add-kv() password';
 
-#  $test2-cat.add-set($creds);
+  ok $category.add-set($set), '.add-set()';
+  ok $category.is-changed, '.is-changed()';
+  ok $category.save, '.save()';
+  nok $category.is-changed, 'saved -> not changed';
 
-  ok $test2-cat.save, '.save()';
-#note "TD: $test2-cat.title(), $test2-cat.description()";
+  my QAManager::Category $category2 .= new(:category('__category'));
+  nok $category2.is-loaded, '2nd time not loaded';
+  $category.purge;
+  nok $category2.remove, 'after purge no category';
+  $category2 .= new(:category('__category'));
+  ok $category2.is-loaded, 'now loaded';
 
-  my QAManager::Category $test2-cat2 .= new(:category('test2'));
-  nok $test2-cat2.is-loaded, '2nd time not loaded';
-  $test2-cat.purge;
-  nok $test2-cat2.remove, 'after purge no category';
-  $test2-cat2 .= new(:category('test2'));
-  ok $test2-cat2.is-loaded, 'now loaded';
-
-#  ok $test2-cat2.remove, '.remove()';
-#  nok $test2-cat2.remove, 'category already removed';
+  ok $category2.remove, '.remove()';
+  nok $category2.remove, 'category already removed';
 }
 
 #-------------------------------------------------------------------------------

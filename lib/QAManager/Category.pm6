@@ -18,6 +18,8 @@ has Str $.description is rw;
 # directory to store catagories
 has Str $!config-dir;
 
+has Bool $.is-changed;
+
 # this QAManager::Category's sets
 has Hash $!sets;
 
@@ -65,9 +67,8 @@ method load ( --> Bool ) {
     $!sets = %();
   }
 
+  $!is-changed = False;
   $opened-categories{$!category} = 1;
-
-#TODO is-changed()
 
   True
 }
@@ -83,13 +84,10 @@ method save ( --> Bool ) {
   # check if Category is loaded, ok if it is
   return False unless $!sets.defined;
 
-#TODO add title and description
-#TODO get set data from QAManager::Set
-
   # check if set name exists if not Category is created
   "$!config-dir/$!category.cfg".IO.spurt(to-json(self.category));
 
-#TODO is-changed()
+  $!is-changed = False;
 
   True
 }
@@ -97,14 +95,16 @@ method save ( --> Bool ) {
 #-------------------------------------------------------------------------------
 method category ( --> Hash ) {
 
-  %( :$!title, :$!description, keys => [map( { $_.set; }, $!sets.values)])
+  %( :$!title, :$!description, |($!sets.kv));
 }
 
 #-------------------------------------------------------------------------------
 # remove from memory
-method purge ( --> Bool ) {
+method purge ( Bool :$ignore-changes = False --> Bool ) {
 
-#TODO is-changed()
+  # check if Category is changed
+  return False if !$ignore-changes and $!is-changed;
+
   # check if Category is loaded
   return False unless $!sets.defined;
 
@@ -116,9 +116,13 @@ method purge ( --> Bool ) {
 
 #-------------------------------------------------------------------------------
 # remove from memory and disk
-method remove ( --> Bool ) {
+method remove ( Bool :$ignore-changes = False --> Bool ) {
 
-#TODO is-changed()
+  # check if Category is changed
+  return False if !$ignore-changes and $!is-changed;
+
+#TODO yes/no message
+
   # check if Category is loaded
   return False unless $!sets.defined;
 
@@ -131,23 +135,12 @@ method remove ( --> Bool ) {
 
 #-------------------------------------------------------------------------------
 method add-set ( QAManager::Set:D $set --> Bool ) {
-#`{{
-  # check if Category is loaded, fails if not
-  return False unless $!catagories{$category}.defined;
-
-  # check if set name exists, fails if it is
-  return False if $!catagories{$category}{$name}.defined;
-
-  # save new set
-  $!catagories{$category}{$name} = $qa;
-
-  True
-}}
 
   # check if set exists, don't overwrite
   return False if $!sets{$set.name}.defined;
 
-  $!sets{$set.name} = $set;
+  $!sets{$set.name} = $set.set;
+  $!is-changed = True;
 
   True
 }

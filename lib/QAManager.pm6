@@ -14,19 +14,6 @@ has Hash $!catagories;
 
 #-------------------------------------------------------------------------------
 submethod BUILD ( ) {
-#`{{
-  if $*DISTRO.is-win {
-  }
-
-  else {
-    $!config-dir = "$*HOME/.config";
-    mkdir( $!config-dir, 0o760) unless $!config-dir.IO.d;
-    $!config-dir ~= '/QAManager';
-    mkdir( $!config-dir, 0o760) unless $!config-dir.IO.d;
-    $!config-dir ~= '/QA.d';
-    mkdir( $!config-dir, 0o760) unless $!config-dir.IO.d;
-  }
-}}
 }
 
 #-------------------------------------------------------------------------------
@@ -57,8 +44,8 @@ method load-category ( Str $category --> Bool ) {
 }
 
 #-------------------------------------------------------------------------------
-method add-set ( Str $category, Str $name, Hash $qa --> Bool ) {
 #`{{
+method add-set ( Str $category, Str $name, Hash $qa --> Bool ) {
   # check if Category is loaded, fails if not
   return False unless $!catagories{$category}.defined;
 
@@ -69,12 +56,12 @@ method add-set ( Str $category, Str $name, Hash $qa --> Bool ) {
   $!catagories{$category}{$name} = $qa;
 
   True
-}}
 }
+}}
 
 #-------------------------------------------------------------------------------
-method replace-set ( Str $category, Str $name, Hash $qa --> Bool ) {
 #`{{
+method replace-set ( Str $category, Str $name, Hash $qa --> Bool ) {
 
   # check if Category is loaded
   return False unless $!catagories{$category}:exists;
@@ -86,10 +73,10 @@ method replace-set ( Str $category, Str $name, Hash $qa --> Bool ) {
   $!catagories{$category}{$name} = $qa;
 
   True
-}}
 }
+}}
 
-
+#`{{
 #-------------------------------------------------------------------------------
 method purge-category ( Str $category --> Bool ) {
 
@@ -100,10 +87,10 @@ method purge-category ( Str $category --> Bool ) {
 
   True
 }
-
+}}
 #-------------------------------------------------------------------------------
-method remove-set ( Str $category, Str $name --> Bool ) {
 #`{{
+method remove-set ( Str $category, Str $name --> Bool ) {
 
   # check if Category is loaded
   return False unless $!catagories{$category}:exists;
@@ -114,13 +101,13 @@ method remove-set ( Str $category, Str $name --> Bool ) {
   $!catagories{$category}{$name}:delete;
 
   True
-}}
 }
+}}
 
+#`{{
 #-------------------------------------------------------------------------------
 method remove-category ( Str $category --> Bool ) {
 
-#`{{
   # check if Category is loaded
   return False unless $!catagories{$category}:exists;
 
@@ -128,12 +115,12 @@ method remove-category ( Str $category --> Bool ) {
   unlink "$!config-dir/$category.cfg";
 
   True
-}}
 }
+}}
 
 #-------------------------------------------------------------------------------
-method save-category ( Str $category --> Bool ) {
 #`{{
+method save-category ( Str $category --> Bool ) {
   # check if Category is loaded, ok if it is
   return False unless $!catagories{$category}:exists;
 
@@ -141,5 +128,5 @@ method save-category ( Str $category --> Bool ) {
   "$!config-dir/$category.cfg".IO.spurt(to-json($!catagories{$category}));
 
   True
-}}
 }
+}}

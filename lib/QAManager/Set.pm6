@@ -56,8 +56,5 @@ method replace-kv ( QAManager::KV:D $kv --> Bool ) {
 #-------------------------------------------------------------------------------
 method set ( --> Hash ) {
 
-  %( $!name => %(
-      :$!title, :$!description, keys => [map( { $_.kv; }, @$!kv-data)]
-    )
-  )
+  %( :$!title, :$!description, keys => [ map( { $_.kv; }, @$!kv-data) ] )
 }
