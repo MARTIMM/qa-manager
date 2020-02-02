@@ -6,43 +6,55 @@ use JSON::Fast;
 unit class QAManager:auth<github:MARTIMM>;
 
 use QAManager::Category;
-
-# catagories are QAManager::Category classes holding sets
-has Hash $!catagories;
-
-#has Str $!config-dir;
+use QAManager::Gui::TopLevel;
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( ) {
-}
+# catagories are QAManager::Category classes holding sets
+has Array $!categories = [];
+has Hash $!cat-names = %();
 
 #-------------------------------------------------------------------------------
 method load-category ( Str $category --> Bool ) {
 
   # check if Category is loaded, ok if it is
-  return True if $!catagories{$category}:exists;
+  return True if $!cat-names{$category}:exists;
 
   my QAManager::Category $c .= new(:$category);
-  $!catagories{$category} = $c if $c.is-loaded;
-
-  True
-
-#`{{
-  # check if Category is loaded, ok if it is
-  return True if $!catagories{$category}:exists;
-
-  # check if Category file exists then load, if not, Category is created
-  my Str $catfile = "$!config-dir/$category.cfg";
-  if $catfile.IO.r {
-    $!catagories{$category} = from-json($catfile.IO.slurp);
+  if $c.is-loaded {
+    $!cat-names{$category} = $!categories.elems;
+    $!categories.push: $c;
   }
 
-  else {
-    $!catagories{$category} = { };
-  }
-}}
+  $c.is-loaded;
 }
 
+#-------------------------------------------------------------------------------
+method do-invoice ( --> Hash ) {
+
+  my QAManager::Gui::TopLevel $gui .= new(:$!categories);
+  $gui.do-invoice;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=finish
 #-------------------------------------------------------------------------------
 #`{{
 method add-set ( Str $category, Str $name, Hash $qa --> Bool ) {
