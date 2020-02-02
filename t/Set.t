@@ -33,7 +33,7 @@ subtest 'Manipulations', {
   ok $creds.add-kv($pw), '.add-kv()';
   ok $creds.replace-kv($pw), '.replace-kv()';
 
-  note $creds.set;
+#  note $creds.set;
 }
 
 #-------------------------------------------------------------------------------

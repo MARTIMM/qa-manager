@@ -16,6 +16,7 @@ has Array $!kv-data;
 
 #-------------------------------------------------------------------------------
 submethod BUILD ( Str:D :$!name, Str :$title ) {
+
   $!title = $title // $!name.tclc;
   $!keys = %();
   $!kv-data = [];
@@ -23,18 +24,6 @@ submethod BUILD ( Str:D :$!name, Str :$title ) {
 
 #-------------------------------------------------------------------------------
 method add-kv ( QAManager::KV:D $kv --> Bool ) {
-#`{{
-  # check if Category is loaded, fails if not
-  return False unless $!catagories{$category}.defined;
-
-  # check if set name exists, fails if it is
-  return False if $!catagories{$category}{$name}.defined;
-
-  # save new set
-  $!catagories{$category}{$name} = $qa;
-
-  True
-}}
 
   # check if key exists, don't overwrite
   return False if $!keys{$kv.name}.defined;
@@ -56,5 +45,5 @@ method replace-kv ( QAManager::KV:D $kv --> Bool ) {
 #-------------------------------------------------------------------------------
 method set ( --> Hash ) {
 
-  %( :$!title, :$!description, keys => [ map( { $_.kv; }, @$!kv-data) ] )
+  %( :$!title, :$!description, keys => [map( { .name => .kv-data; }, @$!kv-data)])
 }

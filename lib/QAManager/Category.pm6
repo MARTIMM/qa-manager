@@ -1,21 +1,23 @@
 use v6.d;
 
+#-------------------------------------------------------------------------------
+unit class QAManager::Category:auth<github:MARTIMM>;
+
 use QAManager::Set;
+use QAManager::KV;
 
 use JSON::Fast;
 
 #-------------------------------------------------------------------------------
-unit class QAManager::Category:auth<github:MARTIMM>;
-
 # need to know if same category is opened elsewhere
 my Hash $opened-categories = %();
 
 # catagories are filenames holding sets
-has Str $!category is required;
+has Str $.category is required;
 has Str $.title is rw;
 has Str $.description is rw;
 
-# directory to store catagories
+# directory to store categories
 has Str $!config-dir;
 
 has Bool $.is-changed;
@@ -24,7 +26,7 @@ has Bool $.is-changed;
 has Hash $!sets;
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( Str:D :$!category, Str :$title ) {
+submethod BUILD ( Str:D :$!category ) {
 
   if $*DISTRO.is-win {
   }
@@ -41,11 +43,8 @@ submethod BUILD ( Str:D :$!category, Str :$title ) {
   # test self to see if .= new() is used
   self.purge if self.defined;
 
-  # implicit load of catagories
-  unless self.load {
-    $!title = $title // $!category.tclc;
-    $!sets = Nil;
-  }
+  # implicit load of categories, clear if it fails.
+  $!sets = Nil unless self.load;
 }
 
 #-------------------------------------------------------------------------------
@@ -57,17 +56,48 @@ method load ( --> Bool ) {
   # check if Category is loaded, ok if it is
   return True if $!sets.defined;
 
+  # initialize sets
+  $!sets = %();
+
   # check if Category file exists then load, if not, Category is created
   my Str $catfile = "$!config-dir/$!category.cfg";
   if $catfile.IO.r {
-    $!sets = from-json($catfile.IO.slurp);
+    my Hash $cat = from-json($catfile.IO.slurp);
+    $!title = $cat<title>;
+    $!description = $cat<description>;
+
+    # the rest are sets
+    for $cat<sets>.keys -> Str $set-key {
+#note "Set: $set-key";
+      my QAManager::Set $set .= new(:name($set-key));
+
+      my Hash $h-set = $cat<sets>{$set-key};
+      $set.title = $h-set<title>;
+      $set.description = $h-set<description>;
+
+      # the rest are keys of this set
+      for @($h-set<keys>) -> Hash $h-kv {
+#note "  Key: $h-kv.perl()";
+        my QAManager::KV $kv;
+        for $h-kv.keys -> Str $kv-key {
+          $kv .= new( :name($kv-key), :kv($h-kv{$kv-key}));
+        }
+
+        $set.add-kv($kv);
+      }
+
+      $!sets{$set.name} = $set;
+    }
+
+    $!is-changed = False;
   }
 
   else {
-    $!sets = %();
+    $!title = $!category.tclc;
+    $!sets = %( :title($!title) );
+    $!is-changed = True;
   }
 
-  $!is-changed = False;
   $opened-categories{$!category} = 1;
 
   True
@@ -84,8 +114,25 @@ method save ( --> Bool ) {
   # check if Category is loaded, ok if it is
   return False unless $!sets.defined;
 
-  # check if set name exists if not Category is created
+  # if set name does not exist, the Category is created
   "$!config-dir/$!category.cfg".IO.spurt(to-json(self.category));
+
+  $!is-changed = False;
+
+  True
+}
+
+#-------------------------------------------------------------------------------
+method save-as ( Str $new-category --> Bool ) {
+
+  # check if this new category is loaded elsewhere
+  return False if $opened-categories{$new-category}.defined;
+
+  # if set name does not exist, the new category is created
+  "$!config-dir/$new-category.cfg".IO.spurt(to-json(self.category));
+
+  # rename category
+  $!category = $new-category;
 
   $!is-changed = False;
 
@@ -95,7 +142,11 @@ method save ( --> Bool ) {
 #-------------------------------------------------------------------------------
 method category ( --> Hash ) {
 
-  %( :$!title, :$!description, |($!sets.kv));
+  %( :$!title, :$!description,
+    |( map -> $k, $v { $v ~~ QAManager::Set ?? ($k => $v.set) !! ($k => $v) },
+       $!sets.kv
+    )
+  )
 }
 
 #-------------------------------------------------------------------------------
@@ -139,7 +190,7 @@ method add-set ( QAManager::Set:D $set --> Bool ) {
   # check if set exists, don't overwrite
   return False if $!sets{$set.name}.defined;
 
-  $!sets{$set.name} = $set.set;
+  $!sets{$set.name} = $set;
   $!is-changed = True;
 
   True

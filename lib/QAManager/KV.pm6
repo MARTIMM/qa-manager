@@ -27,11 +27,31 @@ has Str $.set is rw;            # when referring to other set
 #-------------------------------------------------------------------------------
 submethod BUILD ( Str:D :$!name, Hash :$kv ) {
 
-  $!type = $kv<type> // QAString;
+#note $kv.perl;
+
+  if $kv<type> ~~ QATypes {
+    $!type = $kv<type>;
+  }
+
+  elsif $kv<type> ~~ Str {
+    $!type = QATypes(QATypes.enums{$kv<type>});
+  }
+
+  else {
+    $!type = QAString;
+  }
+
+
+  # if field is defined
   if $kv<field> ~~ QAFieldTypes {
     $!field = $kv<field>;
   }
 
+  elsif $kv<field> ~~ Str {
+    $!field = QAFieldTypes(QAFieldTypes.enums{$kv<field>});
+  }
+
+  # if field is not defined (or wrong), try to find a default depending on type
   elsif $!type ~~ QASet {
     $!field = QAEntry;
   }
@@ -57,7 +77,7 @@ submethod BUILD ( Str:D :$!name, Hash :$kv ) {
 }
 
 #-------------------------------------------------------------------------------
-method kv ( --> Hash ) {
+method kv-data ( --> Hash ) {
   my Hash $kv = %( :$!type, :$!field, :$!required, :$!encode, :$!stars);
 
   $kv<title> = $!title if $!title.defined;
@@ -68,7 +88,7 @@ method kv ( --> Hash ) {
   $kv<category> = $!category if $!category.defined;
   $kv<set> = $!set if $!set.defined;
 
-  %$kv
+  $kv
 }
 
 #-------------------------------------------------------------------------------
