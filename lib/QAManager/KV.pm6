@@ -78,7 +78,9 @@ submethod BUILD ( Str:D :$!name, Hash :$kv ) {
 
 #-------------------------------------------------------------------------------
 method kv-data ( --> Hash ) {
-  my Hash $kv = %( :$!type, :$!field, :$!required, :$!encode, :$!stars);
+  my Hash $kv = %(
+    :$!name, :$!type, :$!field, :$!required, :$!encode, :$!stars
+  );
 
   $kv<title> = $!title if $!title.defined;
   $kv<description> = $!description if $!description.defined;

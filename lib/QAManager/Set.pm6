@@ -35,6 +35,12 @@ method add-kv ( QAManager::KV:D $kv --> Bool ) {
 }
 
 #-------------------------------------------------------------------------------
+method get-kv ( --> Array ) {
+
+  $!kv-data
+}
+
+#-------------------------------------------------------------------------------
 method replace-kv ( QAManager::KV:D $kv --> Bool ) {
 
   $!kv-data[$!keys{$kv.name}] = $kv;
@@ -45,5 +51,7 @@ method replace-kv ( QAManager::KV:D $kv --> Bool ) {
 #-------------------------------------------------------------------------------
 method set ( --> Hash ) {
 
-  %( :$!title, :$!description, keys => [map( { .name => .kv-data; }, @$!kv-data)])
+  %( :$!name, :$!title, :$!description,
+     entries => [map {.kv-data}, @$!kv-data]
+  )
 }

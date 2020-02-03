@@ -24,6 +24,7 @@ has Bool $.is-changed;
 
 # this QAManager::Category's sets
 has Hash $!sets;
+has Array $!set-data;
 
 #-------------------------------------------------------------------------------
 submethod BUILD ( Str:D :$!category ) {
@@ -44,7 +45,10 @@ submethod BUILD ( Str:D :$!category ) {
   self.purge if self.defined;
 
   # implicit load of categories, clear if it fails.
-  $!sets = Nil unless self.load;
+  unless self.load {
+    $!sets = Nil;
+    $!set-data = [];
+  }
 }
 
 #-------------------------------------------------------------------------------
@@ -58,6 +62,7 @@ method load ( --> Bool ) {
 
   # initialize sets
   $!sets = %();
+  $!set-data = [];
 
   # check if Category file exists then load, if not, Category is created
   my Str $catfile = "$!config-dir/$!category.cfg";
@@ -67,26 +72,24 @@ method load ( --> Bool ) {
     $!description = $cat<description>;
 
     # the rest are sets
-    for $cat<sets>.keys -> Str $set-key {
-#note "Set: $set-key";
-      my QAManager::Set $set .= new(:name($set-key));
+    for @($cat<sets>) -> Hash $h-set {
+#note "Set: $h-set.perl()";
+      my QAManager::Set $set .= new(:name($h-set<name>));
 
-      my Hash $h-set = $cat<sets>{$set-key};
       $set.title = $h-set<title>;
       $set.description = $h-set<description>;
 
       # the rest are keys of this set
-      for @($h-set<keys>) -> Hash $h-kv {
+      for @($h-set<entries>) -> Hash $h-kv {
 #note "  Key: $h-kv.perl()";
         my QAManager::KV $kv;
-        for $h-kv.keys -> Str $kv-key {
-          $kv .= new( :name($kv-key), :kv($h-kv{$kv-key}));
-        }
+        $kv .= new( :name($h-kv<name>), :kv($h-kv));
 
         $set.add-kv($kv);
       }
 
-      $!sets{$set.name} = $set;
+      $!sets{$h-set<name>} = $!set-data.elems;
+      $!set-data.push: $set;
     }
 
     $!is-changed = False;
@@ -94,7 +97,6 @@ method load ( --> Bool ) {
 
   else {
     $!title = $!category.tclc;
-    $!sets = %( :title($!title) );
     $!is-changed = True;
   }
 
@@ -142,11 +144,7 @@ method save-as ( Str $new-category --> Bool ) {
 #-------------------------------------------------------------------------------
 method category ( --> Hash ) {
 
-  %( :$!title, :$!description,
-    |( map -> $k, $v { $v ~~ QAManager::Set ?? ($k => $v.set) !! ($k => $v) },
-       $!sets.kv
-    )
-  )
+  %( :$!title, :$!description, sets => map( { .set }, @$!set-data))
 }
 
 #-------------------------------------------------------------------------------
@@ -160,6 +158,7 @@ method purge ( Bool :$ignore-changes = False --> Bool ) {
   return False unless $!sets.defined;
 
   $!sets = Nil;
+  $!set-data = [];
   $opened-categories{$!category}:delete;
 
   True
@@ -178,6 +177,7 @@ method remove ( Bool :$ignore-changes = False --> Bool ) {
   return False unless $!sets.defined;
 
   $!sets = Nil;
+  $!set-data = [];
   unlink "$!config-dir/$!category.cfg";
   $opened-categories{$!category}:delete;
 
@@ -190,8 +190,19 @@ method add-set ( QAManager::Set:D $set --> Bool ) {
   # check if set exists, don't overwrite
   return False if $!sets{$set.name}.defined;
 
-  $!sets{$set.name} = $set;
+  $!sets{$set.name} = $!set-data.elems;
+  $!set-data.push: $set;
   $!is-changed = True;
 
   True
+}
+
+#-------------------------------------------------------------------------------
+method get-setnames ( --> Seq ) {
+  $!sets.keys
+}
+
+#-------------------------------------------------------------------------------
+method get-set ( Str:D $setname --> QAManager::Set ) {
+  $!set-data[$!sets{$setname}]
 }
