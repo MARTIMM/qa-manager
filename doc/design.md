@@ -63,6 +63,7 @@ Summarized
   * File; FileChooserDialog, Drag and Drop
   * Array; ComboBox, CheckButton
   * Set; Button -> Dialog, 2nd page of a Stack or a NoteBook
+* Checks on input.
 
 # Examples
 
