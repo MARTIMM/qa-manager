@@ -14,6 +14,7 @@ my Hash $opened-categories = %();
 
 # catagories are filenames holding sets
 has Str $.category is required;
+has Str $.name is rw;
 has Str $.title is rw;
 has Str $.description is rw;
 
@@ -70,6 +71,7 @@ method load ( --> Bool ) {
     my Hash $cat = from-json($catfile.IO.slurp);
     $!title = $cat<title>;
     $!description = $cat<description>;
+    $!name = $cat<name>;
 
     # the rest are sets
     for @($cat<sets>) -> Hash $h-set {
@@ -97,6 +99,7 @@ method load ( --> Bool ) {
 
   else {
     $!title = $!category.tclc;
+    $!name = $!category.tclc;
     $!is-changed = True;
   }
 
@@ -144,7 +147,7 @@ method save-as ( Str $new-category --> Bool ) {
 #-------------------------------------------------------------------------------
 method category ( --> Hash ) {
 
-  %( :$!title, :$!description, sets => map( { .set }, @$!set-data))
+  %( :$!name, :$!title, :$!description, sets => map( { .set }, @$!set-data))
 }
 
 #-------------------------------------------------------------------------------
@@ -199,7 +202,9 @@ method add-set ( QAManager::Set:D $set --> Bool ) {
 
 #-------------------------------------------------------------------------------
 method get-setnames ( --> Seq ) {
-  $!sets.keys
+
+  # the easy way is `$!sets.keys` but it looses the order of things
+  map( { .set<name> }, @$!set-data)
 }
 
 #-------------------------------------------------------------------------------
