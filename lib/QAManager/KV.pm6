@@ -18,9 +18,10 @@ has QAFieldTypes $.field is rw; # optional = QAEntry, QADialog or QACheckButton
 has Any $.minimum is rw;        # optional range for number type
 has Any $.maximum is rw;        # optional range for number type
 has Any $.default is rw;        # optional default value
+has Any $.example is rw;        # optional example value for text or tooltip
 has Bool $.required is rw;      # when value is required
 has Bool $.encode is rw;        # when value must be encoded with sha256
-has Bool $.stars is rw;         # when value is displayed as stars
+has Bool $.invisible is rw;     # when value is displayed as invisible
 has Str $.category is rw;       # when referring to other set
 has Str $.set is rw;            # when referring to other set
 
@@ -69,9 +70,10 @@ submethod BUILD ( Str:D :$!name, Hash :$kv ) {
   $!minimum = $kv<minimum> if $kv<minimum>.defined;
   $!maximum = $kv<maximum> if $kv<maximum>.defined;
   $!default = $kv<default> if $kv<default>.defined;
+  $!example = $kv<example> if $kv<example>.defined;
   $!required = $kv<required> // False;
   $!encode = $kv<encode> // False;
-  $!stars = $kv<stars> // False;
+  $!invisible = $kv<invisible> // False;
   $!category = $kv<category> if $kv<category>.defined;
   $!set = $kv<set> if $kv<set>.defined;
 }
@@ -79,7 +81,7 @@ submethod BUILD ( Str:D :$!name, Hash :$kv ) {
 #-------------------------------------------------------------------------------
 method kv-data ( --> Hash ) {
   my Hash $kv = %(
-    :$!name, :$!type, :$!field, :$!required, :$!encode, :$!stars
+    :$!name, :$!type, :$!field, :$!required, :$!encode, :$!invisible
   );
 
   $kv<title> = $!title if $!title.defined;
@@ -87,6 +89,7 @@ method kv-data ( --> Hash ) {
   $kv<minimum> = $!minimum if $!minimum.defined;
   $kv<maximum> = $!maximum if $!maximum.defined;
   $kv<default> = $!default if $!default.defined;
+  $kv<example> = $!example if $!example.defined;
   $kv<category> = $!category if $!category.defined;
   $kv<set> = $!set if $!set.defined;
 
