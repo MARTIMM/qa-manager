@@ -12,16 +12,21 @@ use QAManager::Gui::TopLevel;
 # catagories are QAManager::Category classes holding sets
 has Array $!categories;
 has Hash $!cat-names;
+has Str $!user-data-file;
 
 has QAManager::Gui::TopLevel $!gui handles <
-    build-invoice-page add-set run-invoices results-valid set-user-data
+    build-invoice-page add-set
     >;
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( ) {
+submethod BUILD ( Str :$!user-data-file ) {
   $!categories = [];
   $!cat-names = %();
   $!gui .= new(:$!categories);
+
+  my Hash $user-data;
+  $user-data = from-json($!user-data-file.IO.slurp) if $!user-data-file.IO.r;
+  $!gui.set-user-data($user-data);
 }
 
 #-------------------------------------------------------------------------------
@@ -50,10 +55,13 @@ method get-category ( Str:D $category --> QAManager::Category ) {
 }
 
 #-------------------------------------------------------------------------------
-method do-invoice ( --> Hash ) {
+method run-invoices ( ) {
 
   my QAManager::Gui::TopLevel $gui .= new(:$!categories);
-  $gui.do-invoice
+  my Hash $user-data = $gui.run-invoices;
+  $!user-data-file.IO.spurt(to-json($user-data)) if $gui.results-valid;
+note "user data: ", $user-data.perl;
+
 }
 
 

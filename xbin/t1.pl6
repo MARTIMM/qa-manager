@@ -9,19 +9,19 @@ use QAManager;
 use QAManager::Category;
 
 #-------------------------------------------------------------------------------
-my QAManager $qa-manager .= new;
 
-my Hash $data = %();
-$data = from-json('xbin/data/data.cfg'.IO.slurp) if 'xbin/data/data.cfg'.IO.r;
+#my Hash $data = %();
+#$data = from-json('xbin/data/data.cfg'.IO.slurp) if 'xbin/data/data.cfg'.IO.r;
 
+my QAManager $qa-manager .= new(:user-data-file('xbin/data/data.cfg'));
 $qa-manager.load-category('__test-accounting');
 $qa-manager.load-category('accounting');
 
 #my Hash $data = $qa-manager.do-invoice;
 #note "user data: ", $data.perl;
 
+#$qa-manager.set-user-data($data);
 
-$qa-manager.set-user-data($data);
 
 my Hash $bip = $qa-manager.build-invoice-page( 'Name', 'Title', 'Description');
 $qa-manager.add-set(
@@ -39,7 +39,7 @@ $qa-manager.add-set(
 );
 
 
-$data = $qa-manager.run-invoices;
-'xbin/data/data.cfg'.IO.spurt(to-json($data)) if $qa-manager.results-valid;
+$qa-manager.run-invoices;
+#'xbin/data/data.cfg'.IO.spurt(to-json($data)) if $qa-manager.results-valid;
 
-note "user data: ", $data.perl;
+#note "user data: ", $data.perl;
