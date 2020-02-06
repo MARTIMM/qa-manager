@@ -53,7 +53,7 @@ Summarized
   * Boolean; Hash of required, default
   * Image; Hash of required
   * Array; Hash of required
-  * Set; Hash of required, category name, set name
+  * ?? Set; Hash of required, category name, set name
 * Widget representation. Entry when absent. Each of the representations must show a clue as to whether the field is required. Default values must be filled in (light gray) when value is absent. When another set is referred, a button is placed to show a new dialog with the QA from that set. A boolean value displayed in a ComboBox has two entries with 'Yes' or 'No' as well as for two RadioButtons with 'Yes' or 'No' text.
   * Number; Entry, Scale
   * String; Entry, TextView, ComboBox
@@ -64,33 +64,36 @@ Summarized
   * Array; ComboBox, CheckButton
   * Set; Button -> Dialog, 2nd page of a Stack or a NoteBook
 * Checks on input.
+* Repeatability of input fields; e.g. phone numbers
+* Repeatability of sets; e.g. username/password sets for more than one account.
 
 # Examples
 
 Representation of QA sheet
 
 ```
+name,
 title,
 description,
-sets: {
+sets: [
   set1:
     name,
     description,
-    keys: {
+    keys: [
       key1: { description, type, limits, representation },
       key2: { ... }
-    }
+    ]
 ```
 
 Example of a set `credential` stored in category `accounting`.
 ```
 title: 'Accounting',
 description: 'QA sheets centered around username, passwords, etc.',
-sets: {
+sets: [
   credential:
     title: 'Credentials',
     description: 'Name and password for account',
-    keys: {
+    keys: [
       username: {
         description: 'Username of account',
         type: string,
@@ -103,9 +106,9 @@ sets: {
         :encode,
         :stars,
         :widget(Entry),
-      ]
+      }
     ]
-  }
+  ]
 ```
 
 Example of a set `database` in some other category, using also the above set `credential`.
@@ -113,11 +116,11 @@ Example of a set `database` in some other category, using also the above set `cr
 ```
 title: 'Services',
 description: 'QA sheets for server services',
-sets: {
+sets: [
   database:
     name: 'Mongodb',
     description: 'Mongodb database server data',
-    keys: {
+    keys: [
       hostname: {
         description: 'Server where database resides',
         type: string,
@@ -134,9 +137,9 @@ sets: {
         :category('accounting'),
         :set('credential'),
         :widget(Dialog),
-      ]
+      }
     ]
-  }
+  ]
 ```
 
 The data returned from the questionnaire is a hash and could contain something like below if the set `database` was used.
