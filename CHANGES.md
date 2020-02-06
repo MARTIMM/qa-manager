@@ -1,8 +1,8 @@
 # Release notes
 
-<!--TODO CHANGES.md to change-log-data.yml converter or vise versa-->
-
-**Note that this file is not maintained at the moment. Need to make copies from site document**
+* 2020-02-06 0.3.0
+  * Invoice Gui buildup ok now
+  * data can be injected in invoice fields and data can be extracted from fields
 
 * 2020-02-02 0.2.0
   * Refactored QAManager -> QAManager::KV, QAManager::Set and QAManager::Category.
