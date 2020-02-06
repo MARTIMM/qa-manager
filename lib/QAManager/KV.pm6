@@ -18,7 +18,8 @@ has QAFieldTypes $.field is rw; # optional = QAEntry, QADialog or QACheckButton
 has Any $.minimum is rw;        # optional range for number type
 has Any $.maximum is rw;        # optional range for number type
 has Any $.default is rw;        # optional default value
-has Any $.example is rw;        # optional example value for text or tooltip
+has Any $.example is rw;        # optional example value for text
+has Any $.tooltip is rw;        # optional tooltip value for tooltip
 has Bool $.required is rw;      # when value is required
 has Bool $.encode is rw;        # when value must be encoded with sha256
 has Bool $.invisible is rw;     # when value is displayed as invisible
@@ -71,6 +72,7 @@ submethod BUILD ( Str:D :$!name, Hash :$kv ) {
   $!maximum = $kv<maximum> if $kv<maximum>.defined;
   $!default = $kv<default> if $kv<default>.defined;
   $!example = $kv<example> if $kv<example>.defined;
+  $!tooltip = $kv<tooltip> if $kv<tooltip>.defined;
   $!required = $kv<required> // False;
   $!encode = $kv<encode> // False;
   $!invisible = $kv<invisible> // False;
@@ -90,6 +92,7 @@ method kv-data ( --> Hash ) {
   $kv<maximum> = $!maximum if $!maximum.defined;
   $kv<default> = $!default if $!default.defined;
   $kv<example> = $!example if $!example.defined;
+  $kv<tooltip> = $!tooltip if $!tooltip.defined;
   $kv<category> = $!category if $!category.defined;
   $kv<set> = $!set if $!set.defined;
 
