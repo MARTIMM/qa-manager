@@ -10,8 +10,19 @@ use QAManager::Gui::TopLevel;
 
 #-------------------------------------------------------------------------------
 # catagories are QAManager::Category classes holding sets
-has Array $!categories = [];
-has Hash $!cat-names = %();
+has Array $!categories;
+has Hash $!cat-names;
+
+has QAManager::Gui::TopLevel $!gui handles <
+    build-invoice-page add-set run-invoices results-valid set-user-data
+    >;
+
+#-------------------------------------------------------------------------------
+submethod BUILD ( ) {
+  $!categories = [];
+  $!cat-names = %();
+  $!gui .= new(:$!categories);
+}
 
 #-------------------------------------------------------------------------------
 method load-category ( Str $category --> Bool ) {
@@ -23,16 +34,26 @@ method load-category ( Str $category --> Bool ) {
   if $c.is-loaded {
     $!cat-names{$category} = $!categories.elems;
     $!categories.push: $c;
+
+note "Load: $category, ", $!categories.elems, ', ', $!cat-names{$category}
   }
 
   $c.is-loaded;
 }
 
 #-------------------------------------------------------------------------------
+method get-category ( Str:D $category --> QAManager::Category ) {
+
+  $!cat-names{$category}.defined
+      ?? $!categories[$!cat-names{$category}]
+      !! QAManager::Category
+}
+
+#-------------------------------------------------------------------------------
 method do-invoice ( --> Hash ) {
 
   my QAManager::Gui::TopLevel $gui .= new(:$!categories);
-  $gui.do-invoice;
+  $gui.do-invoice
 }
 
 

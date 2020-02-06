@@ -209,5 +209,5 @@ method get-setnames ( --> Seq ) {
 
 #-------------------------------------------------------------------------------
 method get-set ( Str:D $setname --> QAManager::Set ) {
-  $!set-data[$!sets{$setname}]
+  $!sets{$setname}.defined ?? $!set-data[$!sets{$setname}] !! QAManager::Set
 }
