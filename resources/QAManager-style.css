@@ -1,0 +1,14 @@
+.dontCare {
+  border-color: #0088ff;
+  border-width: 1px;
+}
+
+.fieldFail {
+  border-color: Red;
+  border-width: 2px;
+}
+
+.fieldOk {
+  border-color: #00ff88;
+  border-width: 1px;
+}
