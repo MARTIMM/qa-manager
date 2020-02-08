@@ -19,10 +19,19 @@ has QAManager::Gui::TopLevel $!gui handles <
     >;
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( Str :$!user-data-file ) {
+submethod BUILD ( Str :$!user-data-file, Bool :$use-filename-as-is ) {
   $!categories = [];
   $!cat-names = %();
   $!gui .= new(:$!categories);
+
+  unless ? $use-filename-as-is {
+    my Str $pdir = $*PROGRAM-NAME.IO.basename;
+    $pdir ~~ s/ \. <-[.]>+ $ //;
+    $!user-data-file = "$pdir.cfg" unless ? $!user-data-file;
+    mkdir( "$*HOME/.config", 0o760) unless "$*HOME/.config".IO.e;
+    mkdir( "$*HOME/.config/$pdir", 0o760) unless "$*HOME/.config/$pdir".IO.e;
+    $!user-data-file = "$*HOME/.config/$pdir/$!user-data-file";
+  }
 
   my Hash $user-data;
   $user-data = from-json($!user-data-file.IO.slurp) if $!user-data-file.IO.r;
@@ -40,7 +49,6 @@ method load-category ( Str $category --> Bool ) {
     $!cat-names{$category} = $!categories.elems;
     $!categories.push: $c;
 
-note "Load: $category, ", $!categories.elems, ', ', $!cat-names{$category}
   }
 
   $c.is-loaded;
@@ -57,9 +65,8 @@ method get-category ( Str:D $category --> QAManager::Category ) {
 #-------------------------------------------------------------------------------
 method run-invoices ( ) {
 
-  my QAManager::Gui::TopLevel $gui .= new(:$!categories);
-  my Hash $user-data = $gui.run-invoices;
-  $!user-data-file.IO.spurt(to-json($user-data)) if $gui.results-valid;
+  my Hash $user-data = $!gui.run-invoices;
+  $!user-data-file.IO.spurt(to-json($user-data)) if $!gui.results-valid;
 note "user data: ", $user-data.perl;
 
 }
