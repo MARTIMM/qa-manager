@@ -1,7 +1,7 @@
 {
   "description": "Q & A Manager",
   "name": "QAManager",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "authors": [ "Marcel Timmerman"],
   "tags": [ "questionnaire", "configuration"],
 
@@ -23,5 +23,7 @@
 
   "test-depends": [ ],
   "build-depends": [ ],
-  "resources": [ ]
+  "resources": [
+    "QAManager-sheets.cfg", "QAManager-style.css", "Add.png", "Delete.png"
+  ]
 }
