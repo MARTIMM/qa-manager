@@ -6,6 +6,8 @@ Questionnaires and configurations have all some form of key - value sheets servi
 
 # Setup
 
+![qa-invoice](Images/qa-manager-2020-02-08_12-51.png)
+
 * Management of QA sheets. A QA sheet is build up from parts, called sets. A set can be extended with other sets. Every set is stored on disk under some key. A complete QA sheet is then also a set under which the sheet can be pulled using the key for that set.
 * Check QA input. All values can be checked for its type and definedness.
 * QA graphical user interface. A QA sheet can be presented and filled in. After pressing Ok, Apply or Cancel, the QA sheet is removed from display and the result returned.
@@ -66,6 +68,69 @@ Summarized
 * Checks on input.
 * Repeatability of input fields; e.g. phone numbers
 * Repeatability of sets; e.g. username/password sets for more than one account.
+
+# Todo
+## Category
+
+## Set
+
+## KV or field specification
+
+
+![image](Images/a-displayed-set.png)
+
+### Visual clues on validity of value
+
+* [x] Stylesheet installed in resources
+* [x] Border color of entries are specified for faulty (red) and ok entries (green).
+
+### Field specifications
+* [x] name; Required. Used as a key in returned data along with category and set. Also used as a name on the widget to find the widget.
+* [x] title; Optional. By default it is the first character uppercased of the name.
+* [x] description; Optional. By default it uses the title. It is shown in front of the input field.
+* [x] type; optional. By default it turns to QAString
+  * [ ] QANumber; For all number types Int, Rat, FatRat, Num
+  * [x] QAString
+  * [x] QABoolean
+  * [ ] QAFile; String used for path names
+  * [ ] QAArray; Array of values.
+  * [ ] QASet
+
+* [x] field; optional
+  * [x] QAEntry; Input for text and number. Text can be anything. Default for QAString and QANumber types.
+  * [ ] QAScale; Number input.
+  * [ ] QATextView; Text input.
+  * [ ] QAComboBox; List selects for one selection.
+  * [ ] QARadioButton; List selects for one selection.
+  * [ ] QAList; List selects. Default for QAArray for multiple selections.
+  * [x] QACheckButton; Boolean input. Default for QABoolean types.
+  * [ ] QASwitch; Boolean input.
+  * [ ] QAToggleButton; Boolean input.
+  * [ ] QAFileChooserDialog
+  * [ ] QADragAndDrop
+  * [ ] QAColorChooserDialog
+  * [ ] QADialog
+  * [ ] QAStack
+  * [ ] QANoteBook
+  * [ ] QAImage;
+
+* [ ] minimum; optional
+  * [ ] minimum for number type
+  * [ ] minimum number of characters for string type
+* [ ] maximum; optional range for number type
+  * [ ] maximum for number type
+  * [ ] maximum number of characters for string type
+* [x] default; optional default value for string and number type
+* [x] example; optional example value for string type
+* [x] tooltip; optional tooltip on input field
+* [ ] callback; optional method name to do checks on a value. An object must be provided to search for the method.
+* [ ] cmpwith; optional to check value against other field
+* [ ] repeatable; boolean value when input is repeatable. Data must be stored in an array. To repeat, field must show a **+** to the right.
+* [ ] required; boolean value when input is required. show as a star
+* [ ] encode; when value must be encoded with sha256
+* [x] invisible; when value is displayed as invisible characters
+* [ ] category; when referring to other set
+* [ ] set; when referring to other set
 
 # Examples
 
