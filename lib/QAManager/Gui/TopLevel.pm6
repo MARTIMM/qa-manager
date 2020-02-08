@@ -3,26 +3,36 @@ use v6.d;
 #-------------------------------------------------------------------------------
 unit class QAManager::Gui::TopLevel:auth<github:MARTIMM>;
 
+use QATypes;
+
 use QAManager::Gui::Main;
 
 use QAManager::Category;
 use QAManager::Set;
 use QAManager::KV;
 
+use Gnome::Glib::Error;
 #use Gnome::Gdk3::Types;
-
+use Gnome::Gdk3::Screen;
 use Gnome::Gtk3::Enums;
 use Gnome::Gtk3::Main;
+
 use Gnome::Gtk3::Window;
 use Gnome::Gtk3::Notebook;
 use Gnome::Gtk3::Label;
 use Gnome::Gtk3::Frame;
 use Gnome::Gtk3::Grid;
-use Gnome::Gtk3::Button;
 use Gnome::Gtk3::Entry;
 use Gnome::Gtk3::TextView;
 use Gnome::Gtk3::CheckButton;
 use Gnome::Gtk3::RadioButton;
+use Gnome::Gtk3::Button;
+use Gnome::Gtk3::ToolButton;
+use Gnome::Gtk3::Image;
+use Gnome::Gtk3::Widget;
+use Gnome::Gtk3::CssProvider;
+use Gnome::Gtk3::StyleContext;
+use Gnome::Gtk3::StyleProvider;
 
 use Gnome::N::X;
 #Gnome::N::debug(:on);
@@ -33,6 +43,10 @@ has Gnome::Gtk3::Window $!window;
 has Gnome::Gtk3::Grid $!grid;
 has Gnome::Gtk3::Notebook $!notebook;
 
+has Gnome::Gdk3::Screen $!gdk-screen;
+has Gnome::Gtk3::CssProvider $!css-provider;
+has Gnome::Gtk3::StyleContext $!style-context;
+
 has Array $!categories;
 has Hash $!user-data;
 
@@ -41,11 +55,25 @@ has QAManager::Gui::Main $!main-handler;
 #-------------------------------------------------------------------------------
 submethod BUILD ( ) {
 
-  $!main .= new;
-  $!main-handler .= new;
+  $!main .= new;          # main loop control
+  $!main-handler .= new;  # signal handlers
   $!user-data = %();
   $!categories = [];
 
+  $!gdk-screen .= new;
+  $!css-provider .= new;
+  $!style-context .= new;
+
+  # setup style
+  my $css-file = %?RESOURCES<QAManager-style.css>.Str;
+  my Gnome::Glib::Error $e = $!css-provider.load-from-path($css-file);
+  die $e.message if $e.is-valid;
+  $!style-context.add_provider_for_screen(
+    $!gdk-screen, $!css-provider, GTK_STYLE_PROVIDER_PRIORITY_USER
+  );
+
+
+  # setup basic window
   $!window .= new;
   $!window.register-signal( $!main-handler, 'exit-program', 'destroy');
 
@@ -116,7 +144,6 @@ method add-set (
   --> Bool
 ) {
 
-note "Cat name: ", $cat.name;
   my Gnome::Gtk3::Grid $sheet = $bip<sheet>;
   my Int $sheet-row = $bip<sheet-row>;
 
@@ -177,6 +204,12 @@ note "Cat name: ", $cat.name;
       $w.set-placeholder-text($kv<example>) if ?$kv<example>;
       $w.set-visibility(!$kv<invisible>);
       $w.set-text($!user-data{$cat.name}{$set.name}{$kv<name>} // '');
+
+      $!main-handler.check-field( $w, $kv);
+      $w.register-signal(
+        $!main-handler, 'check-on-focus-change', 'focus-out-event',
+        :field-spec($kv)
+      );
     }
 
     elsif $kv<field> ~~ QACheckButton {
@@ -190,7 +223,29 @@ note "Cat name: ", $cat.name;
       $w.set-tooltip-text($kv<tooltip>) if ?$kv<tooltip>;
 
       $set-grid.grid-attach( $w, 2, $set-row, 1, 1);
-      $!main-handler.add-widget( $w, $cat.name, $set.name, $kv<name>);
+      $!main-handler.add-widget( $w, $cat.name, $set.name, $kv);
+    }
+
+    # set a +/- button when a field has repeatable flag turned on
+    if ? $kv<repeatable> {
+      my Gnome::Gtk3::Image $image .= new(:filename(%?RESOURCES<Add.png>.Str));
+      my Gnome::Gtk3::ToolButton $tb .= new(:icon($image));
+      $tb.register-signal( $!main-handler, 'add-grid-row', 'clicked');
+      $set-grid.grid-attach( $tb, 3, $set-row, 1, 1);
+
+      $image .= new(:filename(%?RESOURCES<Delete.png>.Str));
+      $tb .= new(:icon($image));
+      $tb.register-signal( $!main-handler, 'delete-grid-row', 'clicked');
+      $set-grid.grid-attach( $tb, 4, $set-row, 1, 1);
+    }
+
+    else {
+      $set-grid.grid-attach(
+        Gnome::Gtk3::Label.new(:text(' ')), 3, $set-row, 1, 1
+      );
+      $set-grid.grid-attach(
+        Gnome::Gtk3::Label.new(:text(' ')), 4, $set-row, 1, 1
+      );
     }
 
     $set-row++;
@@ -203,7 +258,7 @@ note "Cat name: ", $cat.name;
 #-------------------------------------------------------------------------------
 method run-invoices ( ) {
 
-  $!window.window-resize( 390, 1);
+  $!window.window-resize( 400, 1);
   $!window.show-all;
 
   $!main.gtk-main;
@@ -216,6 +271,11 @@ method results-valid ( --> Bool ) {
   $!main-handler.results-valid
 }
 
+
+
+
+
+=finish
 #-------------------------------------------------------------------------------
 method do-invoice ( --> Hash ) {
 
