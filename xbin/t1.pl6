@@ -13,7 +13,11 @@ use QAManager::Category;
 #my Hash $data = %();
 #$data = from-json('xbin/data/data.cfg'.IO.slurp) if 'xbin/data/data.cfg'.IO.r;
 
-my QAManager $qa-manager .= new(:user-data-file('xbin/data/data.cfg'));
+my QAManager $qa-manager .= new(:user-data-file('data.cfg'));
+#my QAManager $qa-manager .= new(
+#  :user-data-file('xbin/data/data.cfg'), :use-filename-as-is
+#);
+#my QAManager $qa-manager .= new;
 $qa-manager.load-category('__test-accounting');
 $qa-manager.load-category('accounting');
 
@@ -27,6 +31,7 @@ my Hash $bip = $qa-manager.build-invoice-page( 'Name', 'Title', 'Description');
 $qa-manager.add-set(
   $bip, $qa-manager.get-category('__test-accounting'), 'credentials'
 );
+
 $qa-manager.add-set(
   $bip, $qa-manager.get-category('accounting'), 'profile'
 );
