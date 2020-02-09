@@ -18,8 +18,8 @@ my QAManager $qa-manager .= new(:user-data-file('data.cfg'));
 #  :user-data-file('xbin/data/data.cfg'), :use-filename-as-is
 #);
 #my QAManager $qa-manager .= new;
-$qa-manager.load-category('__test-accounting');
 $qa-manager.load-category('accounting');
+$qa-manager.load-category('__test-accounting');
 
 #my Hash $data = $qa-manager.do-invoice;
 #note "user data: ", $data.perl;
@@ -27,13 +27,13 @@ $qa-manager.load-category('accounting');
 #$qa-manager.set-user-data($data);
 
 
-my Hash $bip = $qa-manager.build-invoice-page( 'Name', 'Title', 'Description');
+my Hash $bip1 = $qa-manager.build-invoice-page( 'Name', 'Title', 'Description');
 $qa-manager.add-set(
-  $bip, $qa-manager.get-category('__test-accounting'), 'credentials'
+  $bip1, $qa-manager.get-category('__test-accounting'), 'credentials'
 );
 
 $qa-manager.add-set(
-  $bip, $qa-manager.get-category('accounting'), 'profile'
+  $bip1, $qa-manager.get-category('accounting'), 'profile'
 );
 
 my Hash $bip2 = $qa-manager.build-invoice-page(
