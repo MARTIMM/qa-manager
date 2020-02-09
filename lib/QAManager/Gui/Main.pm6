@@ -4,15 +4,18 @@ use v6.d;
 unit class QAManager::Gui::Main:auth<github:MARTIMM>;
 
 use QATypes;
+use QAManager::Set;
 
 use Gnome::Gdk3::Events;
 use Gnome::Gtk3::Main;
 use Gnome::Gtk3::Widget;
+use Gnome::Gtk3::Window;
 use Gnome::Gtk3::Entry;
 use Gnome::Gtk3::TextView;
 use Gnome::Gtk3::CheckButton;
 use Gnome::Gtk3::RadioButton;
 use Gnome::Gtk3::StyleContext;
+use Gnome::Gtk3::MessageDialog;
 
 use Gnome::N::X;
 #Gnome::N::debug(:on);
@@ -22,6 +25,7 @@ has Gnome::Gtk3::Main $!main;
 has Hash $!widgets;
 has Hash $.results;
 has Bool $.results-valid;
+has Gnome::Gtk3::Window $!toplevel-window;
 
 #-------------------------------------------------------------------------------
 submethod BUILD ( ) {
@@ -32,9 +36,16 @@ submethod BUILD ( ) {
 }
 
 #-------------------------------------------------------------------------------
-method add-widget ( $widget, Str $cat-name, Str $set-name, Hash $field-specs ) {
+method set-toplevel-window ( Gnome::Gtk3::Window $!toplevel-window ) { }
+
+#-------------------------------------------------------------------------------
+method add-widget (
+  $widget, Str $invoice-title, Str $cat-name, QAManager::Set $set,
+  Hash $field-specs
+) {
 
   my Str $field-name = $field-specs<name>;
+  my Str $set-name = $set.name;
 
   $!widgets{$cat-name} = %() unless $!widgets{$cat-name}:exists;
   $!widgets{$cat-name}{$set-name} = %()
@@ -42,7 +53,9 @@ method add-widget ( $widget, Str $cat-name, Str $set-name, Hash $field-specs ) {
   $!widgets{$cat-name}{$set-name}{$field-name} = %()
     unless $!widgets{$cat-name}{$set-name}{$field-name}:exists;
 
-  $!widgets{$cat-name}{$set-name}{$field-name} = [ $widget, $field-specs];
+  $!widgets{$cat-name}{$set-name}{$field-name} = [
+    $widget, $field-specs, $invoice-title, $set.title
+  ];
 }
 
 #-------------------------------------------------------------------------------
@@ -77,6 +90,7 @@ method set-status-hint (
 
 #-------------------------------------------------------------------------------
 method check-field ( $w, Hash $field-spec ) {
+
   note "check $field-spec<name> field";
 
   if $w.get-class-name eq 'GtkEntry' {
@@ -108,45 +122,50 @@ method finish-program ( --> Int ) {
 #note $!widgets.perl;
 #Gnome::N::debug(:on);
   my Bool $data-ok = True;
+  my Str $markup-message = '';
 
   for $!widgets.keys -> $cat-name {
 note "cat: $cat-name";
     for $!widgets{$cat-name}.keys -> $set-name {
 note "set: $set-name";
       for $!widgets{$cat-name}{$set-name}.keys -> $field-name {
+        my Array $widget-spec = $!widgets{$cat-name}{$set-name}{$field-name};
 note "field: $field-name";
-        my $w = $!widgets{$cat-name}{$set-name}{$field-name}[0];
-        my Hash $field-spec = $!widgets{$cat-name}{$set-name}{$field-name}[1];
+        my $w = $widget-spec[0];
+        my Hash $field-spec = $widget-spec[1];
 
         if $w.get-class-name eq 'GtkEntry' {
-          my Gnome::Gtk3::Entry $e .= new(:native-object($w));
-          my Str $txt = $e.get-text;
+          # get text from input field
+          my Str $txt = $w.get-text;
+
+          # use default if there is no text input
           $txt = $field-spec<default> // Str unless ?$txt;
 
+          # check if input is required
           if ?$field-spec<required> and !$txt {
-#            self.set-status-hint( $e, QAStatusFail);
+            my Str $invoice-title = $widget-spec[2];
+            my Str $set-title = $widget-spec[3];
+
             $data-ok = False;
+            $markup-message ~= "Field <b>$field-spec<title>\</b> on sheet <b>$invoice-title\</b> and set <b>$set-title\</b> is required.\n";
           }
 
-          else {
-#            self.set-status-hint( $e, QAStatusOk);
-            $!results{$cat-name}{$set-name}{$field-name} = $txt;
-          }
-#`{{
-          elsif ?$field-spec<required> {
-            $data-ok = False;
-            self.set-status-hint( $e, QAStatusFail);
-          }
+          # only save when text is defined
+          elsif ?$txt {
+            if ?$field-spec<repeatable> {
+              $!results{$cat-name}{$set-name}{$field-name} = []
+                unless ?$!results{$cat-name}{$set-name}{$field-name};
+              $!results{$cat-name}{$set-name}{$field-name}.push($txt);
+            }
 
-          else {
-            self.set-status-hint( $e, QADontCare);
+            else {
+              $!results{$cat-name}{$set-name}{$field-name} = $txt;
+            }
           }
-}}
         }
 
         elsif $w.get-class-name eq 'GtkCheckButton' {
-          my Gnome::Gtk3::CheckButton $cb .= new(:native-object($w));
-          $!results{$cat-name}{$set-name}{$field-name} = ?$cb.get_active;
+          $!results{$cat-name}{$set-name}{$field-name} = ?$w.get_active;
         }
       }
     }
@@ -160,6 +179,12 @@ note "field: $field-name";
   else {
     # display warning, show in color or other hints that input is not
     # correct or absent
+    my Gnome::Gtk3::MessageDialog $md;
+    if ?$markup-message {
+      $md .= new( :$markup-message, :parent($!toplevel-window));
+      $md.dialog-run;
+      $md.gtk_widget_destroy;
+    }
   }
 
   1
@@ -170,7 +195,7 @@ method check-on-focus-change (
   GdkEventFocus $event, :widget($w), Hash :$field-spec
   --> Int
 ) {
-#  note "focus in/out of $field-spec<name>: ", $w.get-class-name;
+#Gnome::N::debug(:on);
 
   self.check-field( $w, $field-spec);
 
