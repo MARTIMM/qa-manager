@@ -5,6 +5,8 @@
   * Check for required fields added
   * Show example test in text input
   * Show tooltip text
+  * Finish will not exit when there are errors.
+  * Show message dialog on Finish when there are some errors.
 
 * 2020-02-06 0.3.0
   * Invoice Gui buildup ok now
