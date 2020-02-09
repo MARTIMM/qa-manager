@@ -83,6 +83,7 @@ Summarized
 
 * [x] Stylesheet installed in resources
 * [x] Border color of entries are specified for faulty (red) and ok entries (green).
+* [x] A messagebox is shown on Finish if there are errors found. Finish will then not exit.
 
 ### Field specifications
 * [x] name; Required. Used as a key in returned data along with category and set. Also used as a name on the widget to find the widget.
@@ -126,7 +127,7 @@ Summarized
 * [ ] callback; optional method name to do checks on a value. An object must be provided to search for the method.
 * [ ] cmpwith; optional to check value against other field
 * [ ] repeatable; boolean value when input is repeatable. Data must be stored in an array. To repeat, field must show a **+** to the right.
-* [ ] required; boolean value when input is required. show as a star
+* [x] required; boolean value when input is required. show as a star
 * [ ] encode; when value must be encoded with sha256
 * [x] invisible; when value is displayed as invisible characters
 * [ ] category; when referring to other set
