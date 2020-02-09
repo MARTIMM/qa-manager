@@ -212,16 +212,11 @@ method add-set (
     }
 
     elsif $kv<field> ~~ QACheckButton {
-      $w = Gnome::Gtk3::CheckButton.new;
-      $w.set-active($!user-data{$cat.name}{$set.name}{$kv<name>} // False);
-      $w.widget-set-margin-top(3);
-      $w.widget-set-name($kv<name>);
-      $w.set-tooltip-text($kv<tooltip>) if ?$kv<tooltip>;
-
-      $set-grid.grid-attach( $w, 2, $set-row, 1, 1);
-      $!main-handler.add-widget( $w, $!invoice-title, $cat.name, $set, $kv);
+      $set-row = self.checkbutton-entry(
+        $set-grid, $set-row, $cat.name, $set, $kv
+      );
     }
-
+#`{{
     # only when an input widget is created
     if $w.defined {
       # set a +/- button when a field has repeatable flag turned on
@@ -246,6 +241,7 @@ method add-set (
         );
       }
     }
+}}
 
     $set-row++;
   }
@@ -267,38 +263,96 @@ method run-invoices ( ) {
 
 #-------------------------------------------------------------------------------
 method text-entry (
-  Gnome::Gtk3::Grid $set-grid, Int $set-row,
+  Gnome::Gtk3::Grid $set-grid, Int $set-row is copy,
   Str $cat-name, QAManager::Set $set, Hash $kv
   --> Int
 ) {
 
-  my Gnome::Gtk3::Entry $w .= new;
   my Str $text;
+  my Gnome::Gtk3::Entry $w;
 
   if ?$kv<repeatable> {
-    $text = $!user-data{$cat-name}{$set.name}{$kv<name>}[0] // Str;
+    my Array $texts = $!user-data{$cat-name}{$set.name}{$kv<name>} // [];
+    my Int $n-texts = +@$texts;
+    loop ( my Int $i = 0; $i < $n-texts; $i++ ) {
+      $text = $texts[$i];
+      $w .= new;
+      self.shape-entry(
+        $w, $text, $kv, $set-grid, $set-row,
+        $!invoice-title, $cat-name, $set
+      );
+
+      my Gnome::Gtk3::Image $image .= new(:filename(%?RESOURCES<Add.png>.Str));
+      my Gnome::Gtk3::ToolButton $tb .= new(:icon($image));
+      $tb.register-signal( $!main-handler, 'add-grid-row', 'clicked');
+      $set-grid.grid-attach( $tb, 3, $set-row, 1, 1);
+
+      $image .= new(:filename(%?RESOURCES<Delete.png>.Str));
+      $tb .= new(:icon($image));
+      $tb.register-signal( $!main-handler, 'delete-grid-row', 'clicked');
+      $set-grid.grid-attach( $tb, 4, $set-row, 1, 1);
+
+      $set-row++;
+      $text = Str;
+    }
   }
 
   else {
     $text = $!user-data{$cat-name}{$set.name}{$kv<name>} // Str;
   }
 
-  $w.widget-set-name($kv<name>);
-  $w.set-placeholder-text($kv<example>) if ?$kv<example>;
-  $w.set-visibility(!$kv<invisible>);
+  $w .= new;
+  self.shape-entry(
+    $w, $text, $kv, $set-grid, $set-row,
+    $!invoice-title, $cat-name, $set
+  );
+
+  $set-row
+}
+
+#-------------------------------------------------------------------------------
+method shape-entry (
+  Gnome::Gtk3::Entry $w, Str $text, Hash $kv, Gnome::Gtk3::Grid $set-grid,
+  Int $set-row, Str $!invoice-title, Str $cat-name, QAManager::Set $set
+) {
+
   $w.set-text($text) if ? $text;
 
   $w.widget-set-margin-top(3);
+  $w.widget-set-name($kv<name>);
   $w.set-tooltip-text($kv<tooltip>) if ?$kv<tooltip>;
+
+  $w.set-placeholder-text($kv<example>) if ?$kv<example>;
+  $w.set-visibility(!$kv<invisible>);
 
   $set-grid.grid-attach( $w, 2, $set-row, 1, 1);
   $!main-handler.add-widget( $w, $!invoice-title, $cat-name, $set, $kv);
-
   $!main-handler.check-field( $w, $kv);
+
   $w.register-signal(
     $!main-handler, 'check-on-focus-change', 'focus-out-event',
     :field-spec($kv),
   );
+}
+
+#-------------------------------------------------------------------------------
+method checkbutton-entry (
+  Gnome::Gtk3::Grid $set-grid, Int $set-row,
+  Str $cat-name, QAManager::Set $set, Hash $kv
+  --> Int
+) {
+
+  my Bool $v = $!user-data{$cat-name}{$set.name}{$kv<name>} // Bool;
+
+  my Gnome::Gtk3::CheckButton $w .= new;
+  $w.set-active($v) if ?$v;
+
+  $w.widget-set-margin-top(3);
+  $w.widget-set-name($kv<name>);
+  $w.set-tooltip-text($kv<tooltip>) if ?$kv<tooltip>;
+
+  $set-grid.grid-attach( $w, 2, $set-row, 1, 1);
+  $!main-handler.add-widget( $w, $!invoice-title, $cat-name, $set, $kv);
 
   $set-row
 }

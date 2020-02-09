@@ -48,12 +48,16 @@ method add-widget (
   my Str $set-name = $set.name;
 
   $!widgets{$cat-name} = %() unless $!widgets{$cat-name}:exists;
+
   $!widgets{$cat-name}{$set-name} = %()
     unless $!widgets{$cat-name}{$set-name}:exists;
-  $!widgets{$cat-name}{$set-name}{$field-name} = %()
+
+  # an array of entry info tupples are stored. an array is used to cope
+  # with those fields which can be repeatable.
+  $!widgets{$cat-name}{$set-name}{$field-name} = []
     unless $!widgets{$cat-name}{$set-name}{$field-name}:exists;
 
-  $!widgets{$cat-name}{$set-name}{$field-name} = [
+  $!widgets{$cat-name}{$set-name}{$field-name}.push: [
     $widget, $field-specs, $invoice-title, $set.title
   ];
 }
@@ -120,7 +124,7 @@ method exit-program ( --> Int ) {
 method finish-program ( --> Int ) {
 
 #note $!widgets.perl;
-#Gnome::N::debug(:on);
+Gnome::N::debug(:on);
   my Bool $data-ok = True;
   my Str $markup-message = '';
 
@@ -131,41 +135,47 @@ note "set: $set-name";
       for $!widgets{$cat-name}{$set-name}.keys -> $field-name {
         my Array $widget-spec = $!widgets{$cat-name}{$set-name}{$field-name};
 note "field: $field-name";
-        my $w = $widget-spec[0];
-        my Hash $field-spec = $widget-spec[1];
 
-        if $w.get-class-name eq 'GtkEntry' {
-          # get text from input field
-          my Str $txt = $w.get-text;
+        my Array $entries = $widget-spec;
+        for @$entries -> $entry {
+          my $w = $entry[0];
+          my Hash $field-spec = $entry[1];
 
-          # use default if there is no text input
-          $txt = $field-spec<default> // Str unless ?$txt;
+          if $w.get-class-name eq 'GtkEntry' {
 
-          # check if input is required
-          if ?$field-spec<required> and !$txt {
-            my Str $invoice-title = $widget-spec[2];
-            my Str $set-title = $widget-spec[3];
+            # get text from input field
+            my Str $txt = $w.get-text;
 
-            $data-ok = False;
-            $markup-message ~= "Field <b>$field-spec<title>\</b> on sheet <b>$invoice-title\</b> and set <b>$set-title\</b> is required.\n";
-          }
+            # use default if there is no text input
+            $txt = $field-spec<default> // Str unless ?$txt;
 
-          # only save when text is defined
-          elsif ?$txt {
             if ?$field-spec<repeatable> {
-              $!results{$cat-name}{$set-name}{$field-name} = []
-                unless ?$!results{$cat-name}{$set-name}{$field-name};
-              $!results{$cat-name}{$set-name}{$field-name}.push($txt);
+              if ? $txt {
+                $!results{$cat-name}{$set-name}{$field-name} = []
+                  unless ?$!results{$cat-name}{$set-name}{$field-name};
+                $!results{$cat-name}{$set-name}{$field-name}.push($txt);
+              }
             }
 
             else {
-              $!results{$cat-name}{$set-name}{$field-name} = $txt;
+              # check if input is required
+              if ?$field-spec<required> and !$txt {
+                my Str $invoice-title = $entry[2];
+                my Str $set-title = $entry[3];
+
+                $data-ok = False;
+                $markup-message ~= "Field <b>$field-spec<title>\</b> on sheet <b>$invoice-title\</b> and set <b>$set-title\</b> is required.\n";
+              }
+
+              elsif ?$txt {
+                $!results{$cat-name}{$set-name}{$field-name} = $txt;
+              }
             }
           }
-        }
 
-        elsif $w.get-class-name eq 'GtkCheckButton' {
-          $!results{$cat-name}{$set-name}{$field-name} = ?$w.get_active;
+          elsif $w.get-class-name eq 'GtkCheckButton' {
+            $!results{$cat-name}{$set-name}{$field-name} = ? $w.get_active;
+          }
         }
       }
     }
