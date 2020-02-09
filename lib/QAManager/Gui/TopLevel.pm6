@@ -49,8 +49,9 @@ has Gnome::Gtk3::StyleContext $!style-context;
 
 has Array $!categories;
 has Hash $!user-data;
+has Str $!invoice-title;
 
-has QAManager::Gui::Main $!main-handler;
+has QAManager::Gui::Main $!main-handler handles <results-valid>;
 
 #-------------------------------------------------------------------------------
 submethod BUILD ( ) {
@@ -76,6 +77,7 @@ submethod BUILD ( ) {
   # setup basic window
   $!window .= new;
   $!window.register-signal( $!main-handler, 'exit-program', 'destroy');
+  $!main-handler.set-toplevel-window($!window);
 
   $!grid .= new;
   $!grid.widget-set-hexpand(True);
@@ -106,7 +108,8 @@ submethod BUILD ( ) {
 }
 
 #-------------------------------------------------------------------------------
-method build-invoice-page( Str $name, Str $title, Str $description --> Hash ) {
+method build-invoice-page(
+  Str $name, Str $!invoice-title, Str $description --> Hash ) {
 
   my Gnome::Gtk3::Grid $sheet .= new;
   $sheet.set-border-width(5);
@@ -128,9 +131,12 @@ method build-invoice-page( Str $name, Str $title, Str $description --> Hash ) {
   $cat-descr.widget-set-margin-start(5);
   $cat-frame.container-add($cat-descr);
 
-  $!notebook.append-page( $sheet, Gnome::Gtk3::Label.new(:text($title)));
+  $!notebook.append-page(
+    $sheet, Gnome::Gtk3::Label.new(:text($!invoice-title))
+  );
 
-  return %( :$sheet, :$sheet-row)
+  # return bip which is used in add-set()
+  %( :$sheet, :$sheet-row)
 }
 
 #-------------------------------------------------------------------------------
@@ -200,52 +206,45 @@ method add-set (
     # check widget field type
     my $w;
     if $kv<field> ~~ QAEntry {
-      $w = Gnome::Gtk3::Entry.new;
-      $w.set-placeholder-text($kv<example>) if ?$kv<example>;
-      $w.set-visibility(!$kv<invisible>);
-      $w.set-text($!user-data{$cat.name}{$set.name}{$kv<name>} // '');
-
-      $!main-handler.check-field( $w, $kv);
-      $w.register-signal(
-        $!main-handler, 'check-on-focus-change', 'focus-out-event',
-        :field-spec($kv)
+      $set-row = self.text-entry(
+        $set-grid, $set-row, $cat.name, $set, $kv
       );
     }
 
     elsif $kv<field> ~~ QACheckButton {
       $w = Gnome::Gtk3::CheckButton.new;
-      $w.set-active($!user-data{$cat.name}{$set.name}{$kv<name>} // 0);
-    }
-
-    if $w.defined {
+      $w.set-active($!user-data{$cat.name}{$set.name}{$kv<name>} // False);
       $w.widget-set-margin-top(3);
       $w.widget-set-name($kv<name>);
       $w.set-tooltip-text($kv<tooltip>) if ?$kv<tooltip>;
 
       $set-grid.grid-attach( $w, 2, $set-row, 1, 1);
-      $!main-handler.add-widget( $w, $cat.name, $set.name, $kv);
+      $!main-handler.add-widget( $w, $!invoice-title, $cat.name, $set, $kv);
     }
 
-    # set a +/- button when a field has repeatable flag turned on
-    if ? $kv<repeatable> {
-      my Gnome::Gtk3::Image $image .= new(:filename(%?RESOURCES<Add.png>.Str));
-      my Gnome::Gtk3::ToolButton $tb .= new(:icon($image));
-      $tb.register-signal( $!main-handler, 'add-grid-row', 'clicked');
-      $set-grid.grid-attach( $tb, 3, $set-row, 1, 1);
+    # only when an input widget is created
+    if $w.defined {
+      # set a +/- button when a field has repeatable flag turned on
+      if ? $kv<repeatable> {
+        my Gnome::Gtk3::Image $image .= new(:filename(%?RESOURCES<Add.png>.Str));
+        my Gnome::Gtk3::ToolButton $tb .= new(:icon($image));
+        $tb.register-signal( $!main-handler, 'add-grid-row', 'clicked');
+        $set-grid.grid-attach( $tb, 3, $set-row, 1, 1);
 
-      $image .= new(:filename(%?RESOURCES<Delete.png>.Str));
-      $tb .= new(:icon($image));
-      $tb.register-signal( $!main-handler, 'delete-grid-row', 'clicked');
-      $set-grid.grid-attach( $tb, 4, $set-row, 1, 1);
-    }
+        $image .= new(:filename(%?RESOURCES<Delete.png>.Str));
+        $tb .= new(:icon($image));
+        $tb.register-signal( $!main-handler, 'delete-grid-row', 'clicked');
+        $set-grid.grid-attach( $tb, 4, $set-row, 1, 1);
+      }
 
-    else {
-      $set-grid.grid-attach(
-        Gnome::Gtk3::Label.new(:text(' ')), 3, $set-row, 1, 1
-      );
-      $set-grid.grid-attach(
-        Gnome::Gtk3::Label.new(:text(' ')), 4, $set-row, 1, 1
-      );
+      else {
+        $set-grid.grid-attach(
+          Gnome::Gtk3::Label.new(:text(' ')), 3, $set-row, 1, 1
+        );
+        $set-grid.grid-attach(
+          Gnome::Gtk3::Label.new(:text(' ')), 4, $set-row, 1, 1
+        );
+      }
     }
 
     $set-row++;
@@ -267,9 +266,47 @@ method run-invoices ( ) {
 }
 
 #-------------------------------------------------------------------------------
-method results-valid ( --> Bool ) {
-  $!main-handler.results-valid
+method text-entry (
+  Gnome::Gtk3::Grid $set-grid, Int $set-row,
+  Str $cat-name, QAManager::Set $set, Hash $kv
+  --> Int
+) {
+
+  my Gnome::Gtk3::Entry $w .= new;
+  my Str $text;
+
+  if ?$kv<repeatable> {
+    $text = $!user-data{$cat-name}{$set.name}{$kv<name>}[0] // Str;
+  }
+
+  else {
+    $text = $!user-data{$cat-name}{$set.name}{$kv<name>} // Str;
+  }
+
+  $w.widget-set-name($kv<name>);
+  $w.set-placeholder-text($kv<example>) if ?$kv<example>;
+  $w.set-visibility(!$kv<invisible>);
+  $w.set-text($text) if ? $text;
+
+  $w.widget-set-margin-top(3);
+  $w.set-tooltip-text($kv<tooltip>) if ?$kv<tooltip>;
+
+  $set-grid.grid-attach( $w, 2, $set-row, 1, 1);
+  $!main-handler.add-widget( $w, $!invoice-title, $cat-name, $set, $kv);
+
+  $!main-handler.check-field( $w, $kv);
+  $w.register-signal(
+    $!main-handler, 'check-on-focus-change', 'focus-out-event',
+    :field-spec($kv),
+  );
+
+  $set-row
 }
+
+#-------------------------------------------------------------------------------
+#method results-valid ( --> Bool ) {
+#  $!main-handler.results-valid
+#}
 
 
 
