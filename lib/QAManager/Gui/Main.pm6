@@ -7,10 +7,14 @@ use QATypes;
 use QAManager::Set;
 
 use Gnome::Gdk3::Events;
+use Gnome::Gtk3::Enums;
 use Gnome::Gtk3::Main;
 use Gnome::Gtk3::Widget;
 use Gnome::Gtk3::Window;
 use Gnome::Gtk3::Entry;
+use Gnome::Gtk3::Grid;
+use Gnome::Gtk3::ToolButton;
+use Gnome::Gtk3::Image;
 use Gnome::Gtk3::TextView;
 use Gnome::Gtk3::CheckButton;
 use Gnome::Gtk3::RadioButton;
@@ -124,7 +128,7 @@ method exit-program ( --> Int ) {
 method finish-program ( --> Int ) {
 
 #note $!widgets.perl;
-Gnome::N::debug(:on);
+#Gnome::N::debug(:on);
   my Bool $data-ok = True;
   my Str $markup-message = '';
 
@@ -215,13 +219,85 @@ method check-on-focus-change (
 }
 
 #-------------------------------------------------------------------------------
-method add-grid-row ( :$widget ) {
-  note "Row add in grid";
+method add-or-delete-grid-row (
+  :widget($toolbar-button), Gnome::Gtk3::Grid :$grid,
+  Str :$invoice-title, Str :$cat-name, QAManager::Set :$set, Hash :$kv
+  --> Int
+) {
+Gnome::N::debug(:on);
+
+  my Bool $add = $toolbar-button.widget-get-name eq 'add-tb-button';
+  my Gnome::Gtk3::Image $image .= new(
+    :native-object($toolbar-button.get-icon-widget)
+  );
+  $image.image-clear;
+
+  if $add {
+    note "Row add in grid";
+    $image.set-from-file(%?RESOURCES<Delete.png>.Str);
+    $toolbar-button.widget-set-name('delete-tb-button');
+
+    # add a row in the grid below the one where this button resides
+    $image .= new(:filename(%?RESOURCES<Add.png>.Str));
+    my Gnome::Gtk3::ToolButton $tb .= new(:icon($image));
+    $tb.widget-set-name('add-tb-button');
+    $tb.register-signal(
+      self, 'add-or-delete-grid-row', 'clicked', :$grid,
+      :$invoice-title, :$cat-name, :$set, :$kv
+    );
+
+    $grid.grid-insert-next-to( $toolbar-button, GTK_POS_BOTTOM);
+    $grid.grid-attach-next-to( $tb, $toolbar-button, GTK_POS_BOTTOM, 1, 1);
+
+    self.shape-entry(
+      $grid, $invoice-title, $cat-name, $set, $kv, :sibling($tb),
+      :pos(GTK_POS_LEFT)
+    );
+    $grid.show-all;
+  }
+
+  else {
+    note "Row delete in grid";
+    $image.set-from-file(%?RESOURCES<Add.png>.Str);
+    $toolbar-button.widget-set-name('add-tb-button');
+  }
+
+  1
 }
 
 #-------------------------------------------------------------------------------
-method delete-grid-row ( :$widget ) {
-  note "Row delete in grid";
+method shape-entry (
+  Gnome::Gtk3::Grid:D $grid,
+  Str $invoice-title, Str $cat-name, QAManager::Set:D $set, Hash:D $kv,
+  Str :$text = '', Int :$set-row, Gnome::GObject::Object :$sibling,
+  GtkPositionType :$pos = GTK_POS_RIGHT
+) {
+
+  my Gnome::Gtk3::Entry $w .= new;
+  $w.set-text($text) if ? $text;
+
+  $w.widget-set-margin-top(3);
+  $w.widget-set-name($kv<name>);
+  $w.set-tooltip-text($kv<tooltip>) if ?$kv<tooltip>;
+
+  $w.set-placeholder-text($kv<example>) if ?$kv<example>;
+  $w.set-visibility(!$kv<invisible>);
+
+  if $set-row.defined {
+    $grid.grid-attach( $w, 2, $set-row, 1, 1);
+  }
+
+  elsif $sibling.defined {
+    $grid.grid-attach-next-to( $w, $sibling, $pos, 1, 1);
+  }
+
+  self.add-widget( $w, $invoice-title, $cat-name, $set, $kv);
+  self.check-field( $w, $kv);
+
+  $w.register-signal(
+    self, 'check-on-focus-change', 'focus-out-event',
+    :field-spec($kv),
+  );
 }
 
 #-------------------------------------------------------------------------------

@@ -269,28 +269,27 @@ method text-entry (
 ) {
 
   my Str $text;
-  my Gnome::Gtk3::Entry $w;
 
   if ?$kv<repeatable> {
     my Array $texts = $!user-data{$cat-name}{$set.name}{$kv<name>} // [];
     my Int $n-texts = +@$texts;
     loop ( my Int $i = 0; $i < $n-texts; $i++ ) {
       $text = $texts[$i];
-      $w .= new;
       self.shape-entry(
-        $w, $text, $kv, $set-grid, $set-row,
+        $text, $kv, $set-grid, $set-row,
         $!invoice-title, $cat-name, $set
       );
 
-      my Gnome::Gtk3::Image $image .= new(:filename(%?RESOURCES<Add.png>.Str));
+      my Gnome::Gtk3::Image $image .= new(
+        :filename(%?RESOURCES<Delete.png>.Str)
+      );
       my Gnome::Gtk3::ToolButton $tb .= new(:icon($image));
-      $tb.register-signal( $!main-handler, 'add-grid-row', 'clicked');
+      $tb.widget-set-name('delete-tb-button');
+      $tb.register-signal(
+        $!main-handler, 'add-or-delete-grid-row', 'clicked',
+        :grid($set-grid), :$!invoice-title, :$cat-name, :$set, :$kv
+      );
       $set-grid.grid-attach( $tb, 3, $set-row, 1, 1);
-
-      $image .= new(:filename(%?RESOURCES<Delete.png>.Str));
-      $tb .= new(:icon($image));
-      $tb.register-signal( $!main-handler, 'delete-grid-row', 'clicked');
-      $set-grid.grid-attach( $tb, 4, $set-row, 1, 1);
 
       $set-row++;
       $text = Str;
@@ -301,21 +300,32 @@ method text-entry (
     $text = $!user-data{$cat-name}{$set.name}{$kv<name>} // Str;
   }
 
-  $w .= new;
   self.shape-entry(
-    $w, $text, $kv, $set-grid, $set-row,
+    $text, $kv, $set-grid, $set-row,
     $!invoice-title, $cat-name, $set
   );
+
+  if ?$kv<repeatable> {
+    my Gnome::Gtk3::Image $image .= new(:filename(%?RESOURCES<Add.png>.Str));
+    my Gnome::Gtk3::ToolButton $tb .= new(:icon($image));
+    $tb.widget-set-name('add-tb-button');
+    $tb.register-signal(
+      $!main-handler, 'add-or-delete-grid-row', 'clicked',
+      :grid($set-grid), :$!invoice-title, :$cat-name, :$set, :$kv
+    );
+    $set-grid.grid-attach( $tb, 3, $set-row, 1, 1);
+  }
 
   $set-row
 }
 
 #-------------------------------------------------------------------------------
 method shape-entry (
-  Gnome::Gtk3::Entry $w, Str $text, Hash $kv, Gnome::Gtk3::Grid $set-grid,
+  Str $text, Hash $kv, Gnome::Gtk3::Grid $set-grid,
   Int $set-row, Str $!invoice-title, Str $cat-name, QAManager::Set $set
 ) {
 
+  my Gnome::Gtk3::Entry $w .= new;
   $w.set-text($text) if ? $text;
 
   $w.widget-set-margin-top(3);
