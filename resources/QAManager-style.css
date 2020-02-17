@@ -1,3 +1,13 @@
+/*
+window {
+  background-color: Yellow;
+}
+*/
+
+grid {
+  background-color: #fffefe;
+}
+
 .dontCare {
   border-color: #0088ff;
   border-width: 1px;
@@ -10,5 +20,10 @@
 
 .fieldOk {
   border-color: #00ff88;
+  border-width: 1px;
+}
+
+container {
+  border-color: #aaaaaa;
   border-width: 1px;
 }
