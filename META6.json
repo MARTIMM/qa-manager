@@ -13,14 +13,14 @@
     "QAManager::Gui::Main": "lib/QAManager/Gui/Main.pm6",
     "QAManager::Gui::TopLevel": "lib/QAManager/Gui/TopLevel.pm6",
     "QAManager::KV": "lib/QAManager/KV.pm6",
-    "QAManager::QATypes": "lib/QAManager/QATypes.pm6",
     "QAManager::Set": "lib/QAManager/Set.pm6",
-    "QAManager": "lib/QAManager.pm6"
+    "QAManager": "lib/QAManager.pm6",
+    "QATypes": "lib/QATypes.pm6"
   },
 
   "source-url": "git://github.com/MARTIMM/qa-manager.git",
 
-  "depends": [ "JSON::Fast", "Gnome::Gtk3"],
+  "depends": [ "JSON::Fast", "Config::TOML", "Config::INI", "Gnome::Gtk3"],
 
   "test-depends": [ ],
   "build-depends": [ ],
