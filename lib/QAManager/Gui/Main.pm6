@@ -16,6 +16,7 @@ use Gnome::Gtk3::Grid;
 use Gnome::Gtk3::ToolButton;
 use Gnome::Gtk3::Image;
 use Gnome::Gtk3::TextView;
+use Gnome::Gtk3::TextBuffer;
 use Gnome::Gtk3::CheckButton;
 use Gnome::Gtk3::RadioButton;
 use Gnome::Gtk3::StyleContext;
@@ -30,6 +31,7 @@ has Hash $!widgets;
 has Hash $.results;
 has Bool $.results-valid;
 has Gnome::Gtk3::Window $!toplevel-window;
+has Any $!callback-object;
 
 #-------------------------------------------------------------------------------
 submethod BUILD ( ) {
@@ -40,28 +42,27 @@ submethod BUILD ( ) {
 }
 
 #-------------------------------------------------------------------------------
-method set-toplevel-window ( Gnome::Gtk3::Window $!toplevel-window ) { }
+method set-toplevel-window ( Gnome::Gtk3::Window:D $!toplevel-window ) { }
+
+#-------------------------------------------------------------------------------
+method set-callback-object ( Any:D $!callback-object ) { }
 
 #-------------------------------------------------------------------------------
 method add-widget (
-  $widget, Str $invoice-title, Str $cat-name, QAManager::Set $set,
-  Hash $field-specs
+  $widget, Str $invoice-title, QAManager::Set $set, Hash $field-specs
 ) {
 
   my Str $field-name = $field-specs<name>;
   my Str $set-name = $set.name;
 
-  $!widgets{$cat-name} = %() unless $!widgets{$cat-name}:exists;
-
-  $!widgets{$cat-name}{$set-name} = %()
-    unless $!widgets{$cat-name}{$set-name}:exists;
+  $!widgets{$set-name} = %() unless $!widgets{$set-name}:exists;
 
   # an array of entry info tupples are stored. an array is used to cope
   # with those fields which can be repeatable.
-  $!widgets{$cat-name}{$set-name}{$field-name} = []
-    unless $!widgets{$cat-name}{$set-name}{$field-name}:exists;
+  $!widgets{$set-name}{$field-name} = []
+    unless $!widgets{$set-name}{$field-name}:exists;
 
-  $!widgets{$cat-name}{$set-name}{$field-name}.push: [
+  $!widgets{$set-name}{$field-name}.push: [
     $widget, $field-specs, $invoice-title, $set.title
   ];
 }
@@ -132,19 +133,17 @@ method finish-program ( --> Int ) {
   my Bool $data-ok = True;
   my Str $markup-message = '';
 
-  for $!widgets.keys -> $cat-name {
-note "cat: $cat-name";
-    for $!widgets{$cat-name}.keys -> $set-name {
+    for $!widgets.keys -> $set-name {
 note "set: $set-name";
-      for $!widgets{$cat-name}{$set-name}.keys -> $field-name {
-        my Array $widget-spec = $!widgets{$cat-name}{$set-name}{$field-name};
+      for $!widgets{$set-name}.keys -> $field-name {
+        my Array $widget-spec = $!widgets{$set-name}{$field-name};
 note "field: $field-name";
 
         my Array $entries = $widget-spec;
         for @$entries -> $entry {
           my $w = $entry[0];
           my Hash $field-spec = $entry[1];
-
+note "Type: $w.get-class-name()";
           if $w.get-class-name eq 'GtkEntry' {
 
             # get text from input field
@@ -155,9 +154,9 @@ note "field: $field-name";
 
             if ?$field-spec<repeatable> {
               if ? $txt {
-                $!results{$cat-name}{$set-name}{$field-name} = []
-                  unless ?$!results{$cat-name}{$set-name}{$field-name};
-                $!results{$cat-name}{$set-name}{$field-name}.push($txt);
+                $!results{$set-name}{$field-name} = []
+                  unless ?$!results{$set-name}{$field-name};
+                $!results{$set-name}{$field-name}.push($txt);
               }
             }
 
@@ -172,18 +171,40 @@ note "field: $field-name";
               }
 
               elsif ?$txt {
-                $!results{$cat-name}{$set-name}{$field-name} = $txt;
+                $!results{$set-name}{$field-name} = $txt;
               }
             }
           }
 
-          elsif $w.get-class-name eq 'GtkCheckButton' {
-            $!results{$cat-name}{$set-name}{$field-name} = ? $w.get_active;
+          elsif $w.get-class-name eq 'GtkSwitch' {
+            $!results{$set-name}{$field-name} = ? $w.get-active;
+          }
+
+          # input fields wrapped in a grid
+          elsif $w.get-class-name eq 'GtkGrid' {
+            my Str $w-name = $w.widget-get-name;
+            if $w-name eq 'checkbutton-grid' {
+              self.get-checkbutton-data(
+                $w, $field-spec, $set-name, $field-name
+              );
+            }
+          }
+
+          elsif $w.get-class-name eq 'GtkTextView' {
+            my Gnome::Gtk3::TextBuffer $tb .= new(
+              :native-object($w.get-buffer)
+            );
+            my Gnome::Gtk3::TextIter $start = $tb.get-start-iter;
+            my Gnome::Gtk3::TextIter $end = $tb.get-end-iter;
+            $!results{$set-name}{$field-name} = $tb.get-text( $start, $end, 0);
+          }
+
+          elsif $w.get-class-name eq 'GtkComboBoxText' {
+            $!results{$set-name}{$field-name} = $w.get-active-text;
           }
         }
       }
     }
-  }
 
   if $data-ok {
     $!results-valid = True;
@@ -220,20 +241,27 @@ method check-on-focus-change (
 
 #-------------------------------------------------------------------------------
 method add-or-delete-grid-row (
-  :widget($toolbar-button), Gnome::Gtk3::Grid :$grid,
-  Str :$invoice-title, Str :$cat-name, QAManager::Set :$set, Hash :$kv
+  :widget($toolbar-button),Str :$invoice-title,
+  QAManager::Set :$set, Hash :$kv
   --> Int
 ) {
-Gnome::N::debug(:on);
+#Gnome::N::debug(:on);
+
+  # get the grid of wherein the button resides
+  my Gnome::Gtk3::Grid $grid .= new(
+    :native-object($toolbar-button.get-parent)
+  );
 
   my Bool $add = $toolbar-button.widget-get-name eq 'add-tb-button';
-  my Gnome::Gtk3::Image $image .= new(
-    :native-object($toolbar-button.get-icon-widget)
-  );
-  $image.image-clear;
-
   if $add {
+    my Gnome::Gtk3::Image $image .= new(
+      :native-object($toolbar-button.get-icon-widget)
+    );
+    $image.image-clear;
+
     note "Row add in grid";
+
+    # change function of the button
     $image.set-from-file(%?RESOURCES<Delete.png>.Str);
     $toolbar-button.widget-set-name('delete-tb-button');
 
@@ -242,33 +270,65 @@ Gnome::N::debug(:on);
     my Gnome::Gtk3::ToolButton $tb .= new(:icon($image));
     $tb.widget-set-name('add-tb-button');
     $tb.register-signal(
-      self, 'add-or-delete-grid-row', 'clicked', :$grid,
-      :$invoice-title, :$cat-name, :$set, :$kv
+      self, 'add-or-delete-grid-row', 'clicked', :$invoice-title, :$set, :$kv
     );
 
     $grid.grid-insert-next-to( $toolbar-button, GTK_POS_BOTTOM);
     $grid.grid-attach-next-to( $tb, $toolbar-button, GTK_POS_BOTTOM, 1, 1);
 
-    self.shape-entry(
-      $grid, $invoice-title, $cat-name, $set, $kv, :sibling($tb),
-      :pos(GTK_POS_LEFT)
+    self.shape-text-field(
+      $grid, $invoice-title, $set, $kv, :sibling($tb), :pos(GTK_POS_LEFT)
     );
     $grid.show-all;
   }
 
   else {
     note "Row delete in grid";
-    $image.set-from-file(%?RESOURCES<Add.png>.Str);
-    $toolbar-button.widget-set-name('add-tb-button');
+class X {
+  method cb ( $nw, :$test = '???' ) {
+    my Gnome::Gtk3::Widget $w .= new(:native-object($nw));
+    note "WN: $w.widget-get-name(), $test";
+  }
+}
+
+#Gnome::N::debug(:on);
+$grid.container-foreach( X.new, 'cb', :test<abcdef>);
+#Gnome::N::debug(:off);
+
+    # change function of the button
+#    $image.set-from-file(%?RESOURCES<Add.png>.Str);
+#    $toolbar-button.widget-set-name('add-tb-button');
   }
 
   1
 }
 
 #-------------------------------------------------------------------------------
-method shape-entry (
+class CBHandlers {
+  has Array $.cb-values = [];
+
+  method cb ( $nw, Hash :$kv ) {
+    my Gnome::Gtk3::CheckButton $w .= new(:native-object($nw));
+    my Str $kvalue = $w.widget-get-name;
+    my Str $klabel = $w.get-label;
+    $!cb-values.push: $klabel if $w.get-active;
+  }
+}
+
+method get-checkbutton-data (
+  Gnome::Gtk3::Grid:D $grid, Hash:D $kv, Str $set-name, Str $field-name
+) {
+
+#Gnome::N::debug(:on);
+  my CBHandlers $cbh .= new;
+  $grid.container-foreach( $cbh, 'cb', :$kv);
+  $!results{$set-name}{$field-name} = $cbh.cb-values;
+}
+
+#-------------------------------------------------------------------------------
+method shape-text-field (
   Gnome::Gtk3::Grid:D $grid,
-  Str $invoice-title, Str $cat-name, QAManager::Set:D $set, Hash:D $kv,
+  Str $invoice-title, QAManager::Set:D $set, Hash:D $kv,
   Str :$text = '', Int :$set-row, Gnome::GObject::Object :$sibling,
   GtkPositionType :$pos = GTK_POS_RIGHT
 ) {
@@ -291,7 +351,7 @@ method shape-entry (
     $grid.grid-attach-next-to( $w, $sibling, $pos, 1, 1);
   }
 
-  self.add-widget( $w, $invoice-title, $cat-name, $set, $kv);
+  self.add-widget( $w, $invoice-title, $set, $kv);
   self.check-field( $w, $kv);
 
   $w.register-signal(

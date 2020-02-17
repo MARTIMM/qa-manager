@@ -24,10 +24,13 @@ use Gnome::Gtk3::Frame;
 use Gnome::Gtk3::Grid;
 use Gnome::Gtk3::Entry;
 use Gnome::Gtk3::TextView;
+use Gnome::Gtk3::TextBuffer;
 use Gnome::Gtk3::CheckButton;
+use Gnome::Gtk3::ComboBoxText;
 use Gnome::Gtk3::RadioButton;
 use Gnome::Gtk3::Button;
 use Gnome::Gtk3::ToolButton;
+use Gnome::Gtk3::Switch;
 use Gnome::Gtk3::Image;
 use Gnome::Gtk3::Widget;
 use Gnome::Gtk3::CssProvider;
@@ -51,7 +54,9 @@ has Array $!categories;
 has Hash $!user-data;
 has Str $!invoice-title;
 
-has QAManager::Gui::Main $!main-handler handles <results-valid>;
+has QAManager::Gui::Main $!main-handler handles <
+    results-valid set-callback-object
+    >;
 
 #-------------------------------------------------------------------------------
 submethod BUILD ( ) {
@@ -73,24 +78,26 @@ submethod BUILD ( ) {
     $!gdk-screen, $!css-provider, GTK_STYLE_PROVIDER_PRIORITY_USER
   );
 
-
   # setup basic window
   $!window .= new;
   $!window.register-signal( $!main-handler, 'exit-program', 'destroy');
   $!main-handler.set-toplevel-window($!window);
 
+  # a grid is placed in this window
   $!grid .= new;
   $!grid.widget-set-hexpand(True);
   $!window.container-add($!grid);
 
+  # in this grid a notebook at ( 0, 0)
   $!notebook .= new;
   $!notebook.widget-set-hexpand(True);
   $!notebook.widget-set-vexpand(True);
-  $!grid.grid-attach( $!notebook, 0, 1, 1, 1);
+  $!grid.grid-attach( $!notebook, 0, 0, 1, 1);
 
+  # and another grid for buttons at ( 0, 1)
   my Gnome::Gtk3::Grid $button-grid .= new;
   $button-grid.widget-set-hexpand(True);
-  $!grid.grid-attach( $button-grid, 0, 2, 1, 1);
+  $!grid.grid-attach( $button-grid, 0, 1, 1, 1);
 
   # insert a space eating all available space. this will push
   # the buttons to the right
@@ -125,7 +132,8 @@ method build-invoice-page(
   # place description as text in this frame
   my Gnome::Gtk3::Label $cat-descr .= new(:text($description));
   $cat-descr.set-line-wrap(True);
-  $cat-descr.set-justify(GTK_JUSTIFY_LEFT);
+  #$cat-descr.set-max-width-chars(60);
+  #$cat-descr.set-justify(GTK_JUSTIFY_LEFT);
   $cat-descr.widget-set-halign(GTK_ALIGN_START);
   $cat-descr.widget-set-margin-bottom(3);
   $cat-descr.widget-set-margin-start(5);
@@ -170,78 +178,44 @@ method add-set (
   my Int $set-row = 0;
   my Gnome::Gtk3::Grid $set-grid .= new;
   $set-grid.set-border-width(5);
+  #$set-grid.set-row-spacing(5);
   $set-grid.widget-set-hexpand(True);
   $set-frame.container-add($set-grid);
 
   # place set description on top
   my Gnome::Gtk3::Label $descr .= new(:text($set.description));
   $descr.set-line-wrap(True);
-  $descr.set-justify(GTK_JUSTIFY_LEFT);
+  #$descr.set-max-width-chars(60);
+  #$descr.set-justify(GTK_JUSTIFY_LEFT);
   $descr.widget-set-halign(GTK_ALIGN_START);
   $descr.widget-set-margin-bottom(3);
   $set-grid.grid-attach( $descr, 0, $set-row++, 3, 1);
 
   for @($set.get-kv)>>.kv-data -> Hash $kv {
 
-    # on the left side a text label for the input field on the right
-    # this text must take  the available space pressing fields to the right
-    my Gnome::Gtk3::Label $l .= new(
-      :text([~] '<b>', $kv<description> // $kv<title>, '</b>', ':')
-    );
-    $l.set-use-markup(True);
-    $l.set-line-wrap(True);
-    $l.widget-set-hexpand(True);
-    $l.set-justify(GTK_JUSTIFY_LEFT);
-    $l.widget-set-halign(GTK_ALIGN_START);
-    $l.widget-set-valign(GTK_ALIGN_START);
-    $set-grid.grid-attach( $l, 0, $set-row, 1, 1);
+    # show a label on the left
+    self.shape-label( $set-grid, $set-row, $set, $kv);
 
-    # mark required fields with a bold star
-    $l .= new(:text([~] ' <b>', $kv<required> ?? '*' !! '', '</b>', ' '));
-    $l.set-use-markup(True);
-    $l.widget-set-valign(GTK_ALIGN_START);
-    $set-grid.grid-attach( $l, 1, $set-row, 1, 1);
-
-    # fields come at the right side only using space for themselves
-    # check widget field type
-    my $w;
+    # show a field on the right
     if $kv<field> ~~ QAEntry {
-      $set-row = self.text-entry(
-        $set-grid, $set-row, $cat.name, $set, $kv
-      );
+      $set-row = self.text-field( $set-grid, $set-row, $set, $kv);
+    }
+
+    elsif $kv<field> ~~ QASwitch {
+      self.switch-field( $set-grid, $set-row, $set, $kv);
+    }
+
+    elsif $kv<field> ~~ QAComboBoxText {
+      self.comboboxtext-field( $set-grid, $set-row, $set, $kv);
     }
 
     elsif $kv<field> ~~ QACheckButton {
-      $set-row = self.checkbutton-entry(
-        $set-grid, $set-row, $cat.name, $set, $kv
-      );
+      self.checkbutton-field( $set-grid, $set-row, $set, $kv);
     }
-#`{{
-    # only when an input widget is created
-    if $w.defined {
-      # set a +/- button when a field has repeatable flag turned on
-      if ? $kv<repeatable> {
-        my Gnome::Gtk3::Image $image .= new(:filename(%?RESOURCES<Add.png>.Str));
-        my Gnome::Gtk3::ToolButton $tb .= new(:icon($image));
-        $tb.register-signal( $!main-handler, 'add-grid-row', 'clicked');
-        $set-grid.grid-attach( $tb, 3, $set-row, 1, 1);
 
-        $image .= new(:filename(%?RESOURCES<Delete.png>.Str));
-        $tb .= new(:icon($image));
-        $tb.register-signal( $!main-handler, 'delete-grid-row', 'clicked');
-        $set-grid.grid-attach( $tb, 4, $set-row, 1, 1);
-      }
-
-      else {
-        $set-grid.grid-attach(
-          Gnome::Gtk3::Label.new(:text(' ')), 3, $set-row, 1, 1
-        );
-        $set-grid.grid-attach(
-          Gnome::Gtk3::Label.new(:text(' ')), 4, $set-row, 1, 1
-        );
-      }
+    elsif $kv<field> ~~ QATextView {
+      self.textview-field( $set-grid, $set-row, $set, $kv);
     }
-}}
 
     $set-row++;
   }
@@ -253,31 +227,64 @@ method add-set (
 #-------------------------------------------------------------------------------
 method run-invoices ( ) {
 
-  $!window.window-resize( 400, 1);
+  # set maximum width and show all widgets. the size-request gets rid of too
+  # much vertical space caused by multiline label widgets. the resize will set
+  # the window at its proper size.
+  $!window.set-size-request( 550, 1);
+  $!window.window-resize( 550, 1);
   $!window.show-all;
 
+  # start main loop
   $!main.gtk-main;
 
+  # after returning from main loop, return the results from the callback
+  # handler to the QA manager.
   $!main-handler.results
 }
 
 #-------------------------------------------------------------------------------
-method text-entry (
+# on the left side a text label for the input field on the right
+# this text must take  the available space pressing fields to the right
+method shape-label (
+  Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::Set $set, Hash $kv
+) {
+
+  my Gnome::Gtk3::Label $l .= new(
+    :text([~] '<b>', $kv<description> // $kv<title>, '</b>', ':')
+  );
+  $l.set-use-markup(True);
+  $l.widget-set-hexpand(True);
+  $l.set-line-wrap(True);
+  #$l.set-max-width-chars(40);
+  $l.set-justify(GTK_JUSTIFY_LEFT);
+  $l.widget-set-halign(GTK_ALIGN_START);
+  $l.widget-set-valign(GTK_ALIGN_START);
+  $set-grid.grid-attach( $l, 0, $set-row, 1, 1);
+
+  # mark required fields with a bold star
+  $l .= new(:text([~] ' <b>', $kv<required> ?? '*' !! '', '</b>', ' '));
+  $l.set-use-markup(True);
+  $l.widget-set-valign(GTK_ALIGN_START);
+  $set-grid.grid-attach( $l, 1, $set-row, 1, 1);
+}
+
+#-------------------------------------------------------------------------------
+method text-field (
   Gnome::Gtk3::Grid $set-grid, Int $set-row is copy,
-  Str $cat-name, QAManager::Set $set, Hash $kv
+  QAManager::Set $set, Hash $kv
   --> Int
 ) {
 
   my Str $text;
 
+  # existing entries get a 'x' toolbar button
   if ?$kv<repeatable> {
-    my Array $texts = $!user-data{$cat-name}{$set.name}{$kv<name>} // [];
+    my Array $texts = $!user-data{$set.name}{$kv<name>} // [];
     my Int $n-texts = +@$texts;
     loop ( my Int $i = 0; $i < $n-texts; $i++ ) {
       $text = $texts[$i];
-      self.shape-entry(
-        $text, $kv, $set-grid, $set-row,
-        $!invoice-title, $cat-name, $set
+      self.shape-text-field(
+        $text, $kv, $set-grid, $set-row, $!invoice-title, $set
       );
 
       my Gnome::Gtk3::Image $image .= new(
@@ -287,7 +294,7 @@ method text-entry (
       $tb.widget-set-name('delete-tb-button');
       $tb.register-signal(
         $!main-handler, 'add-or-delete-grid-row', 'clicked',
-        :grid($set-grid), :$!invoice-title, :$cat-name, :$set, :$kv
+        :$!invoice-title, :$set, :$kv
       );
       $set-grid.grid-attach( $tb, 3, $set-row, 1, 1);
 
@@ -297,21 +304,21 @@ method text-entry (
   }
 
   else {
-    $text = $!user-data{$cat-name}{$set.name}{$kv<name>} // Str;
+    $text = $!user-data{$set.name}{$kv<name>} // Str;
   }
 
-  self.shape-entry(
-    $text, $kv, $set-grid, $set-row,
-    $!invoice-title, $cat-name, $set
+  self.shape-text-field(
+    $text, $kv, $set-grid, $set-row, $!invoice-title, $set
   );
 
+  # last entry gets a '+' toolbar button
   if ?$kv<repeatable> {
     my Gnome::Gtk3::Image $image .= new(:filename(%?RESOURCES<Add.png>.Str));
     my Gnome::Gtk3::ToolButton $tb .= new(:icon($image));
     $tb.widget-set-name('add-tb-button');
     $tb.register-signal(
       $!main-handler, 'add-or-delete-grid-row', 'clicked',
-      :grid($set-grid), :$!invoice-title, :$cat-name, :$set, :$kv
+      :$!invoice-title, :$set, :$kv
     );
     $set-grid.grid-attach( $tb, 3, $set-row, 1, 1);
   }
@@ -320,15 +327,16 @@ method text-entry (
 }
 
 #-------------------------------------------------------------------------------
-method shape-entry (
+method shape-text-field (
   Str $text, Hash $kv, Gnome::Gtk3::Grid $set-grid,
-  Int $set-row, Str $!invoice-title, Str $cat-name, QAManager::Set $set
+  Int $set-row, Str $!invoice-title, QAManager::Set $set
 ) {
 
   my Gnome::Gtk3::Entry $w .= new;
   $w.set-text($text) if ? $text;
 
   $w.widget-set-margin-top(3);
+  $w.set-size-request( 200, 1);
   $w.widget-set-name($kv<name>);
   $w.set-tooltip-text($kv<tooltip>) if ?$kv<tooltip>;
 
@@ -336,7 +344,7 @@ method shape-entry (
   $w.set-visibility(!$kv<invisible>);
 
   $set-grid.grid-attach( $w, 2, $set-row, 1, 1);
-  $!main-handler.add-widget( $w, $!invoice-title, $cat-name, $set, $kv);
+  $!main-handler.add-widget( $w, $!invoice-title, $set, $kv);
   $!main-handler.check-field( $w, $kv);
 
   $w.register-signal(
@@ -346,140 +354,107 @@ method shape-entry (
 }
 
 #-------------------------------------------------------------------------------
-method checkbutton-entry (
-  Gnome::Gtk3::Grid $set-grid, Int $set-row,
-  Str $cat-name, QAManager::Set $set, Hash $kv
-  --> Int
+method textview-field (
+  Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::Set $set, Hash $kv
 ) {
 
-  my Bool $v = $!user-data{$cat-name}{$set.name}{$kv<name>} // Bool;
+  my Gnome::Gtk3::Frame $frame .= new;
+  $frame.set-shadow-type(GTK_SHADOW_ETCHED_IN);
 
-  my Gnome::Gtk3::CheckButton $w .= new;
+  my Gnome::Gtk3::TextView $w .= new;
+  $frame.container-add($w);
+
+  $w.widget-set-margin-top(3);
+  $w.widget-set-name($kv<name>);
+  $w.set-tooltip-text($kv<tooltip>) if ?$kv<tooltip>;
+  $w.set-wrap-mode(GTK_WRAP_WORD);
+
+#  $w.set-placeholder-text($kv<example>) if ?$kv<example>;
+#  $w.set-visibility(!$kv<invisible>);
+
+  my Gnome::Gtk3::TextBuffer $tb .= new(:native-object($w.get-buffer));
+  my Str $text = $!user-data{$set.name}{$kv<name>} // '';
+  $tb.set-text( $text, $text.chars);
+
+  $set-grid.grid-attach( $frame, 2, $set-row, 1, 1);
+  $!main-handler.add-widget( $w, $!invoice-title, $set, $kv);
+}
+
+#-------------------------------------------------------------------------------
+method switch-field (
+  Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::Set $set, Hash $kv
+) {
+
+  # the switch is streched to the full width of the grid cell. this is ugly!
+  # to prevent this, create another grid to place the switch in. This is
+  # usually enough. here however, the switch must be justified to the right,
+  # so place a label in the first cell eating all available space. this will
+  # push the switch to the right.
+  my Gnome::Gtk3::Grid $g .= new;
+  my Gnome::Gtk3::Label $l .= new(:text(''));
+  $l.widget-set-hexpand(True);
+  $g.grid-attach( $l, 0, 0, 1, 1);
+
+  my Gnome::Gtk3::Switch $w .= new;
+  my Bool $v = $!user-data{$set.name}{$kv<name>} // Bool;
   $w.set-active($v) if ?$v;
 
   $w.widget-set-margin-top(3);
   $w.widget-set-name($kv<name>);
   $w.set-tooltip-text($kv<tooltip>) if ?$kv<tooltip>;
 
-  $set-grid.grid-attach( $w, 2, $set-row, 1, 1);
-  $!main-handler.add-widget( $w, $!invoice-title, $cat-name, $set, $kv);
-
-  $set-row
+  $g.grid-attach( $w, 1, 0, 1, 1);
+  $set-grid.grid-attach( $g, 2, $set-row, 1, 1);
+  $!main-handler.add-widget( $w, $!invoice-title, $set, $kv);
 }
 
 #-------------------------------------------------------------------------------
-#method results-valid ( --> Bool ) {
-#  $!main-handler.results-valid
-#}
+method checkbutton-field (
+  Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::Set $set, Hash $kv
+) {
 
+  # A series of checkbuttons are stored in a grid
+  my Gnome::Gtk3::Grid $g .= new;
+  $g.widget-set-name('checkbutton-grid');
 
+  # user data is stored as a hash to make the check more easily
+  my Array $v = $!user-data{$set.name}{$kv<name>} // [];
+  my Hash $reversed-v = $v.kv.reverse.hash;
 
-
-
-=finish
-#-------------------------------------------------------------------------------
-method do-invoice ( --> Hash ) {
-
-  # build sheet for each category
-  for @$!categories -> $c {
-    my Gnome::Gtk3::Grid $sheet .= new;
-    $sheet.set-border-width(5);
-    my Int $sheet-row = 0;
-
-    # place category title and description as first text at top of sheet
-    my Gnome::Gtk3::Frame $cat-frame .= new(:label($c.name));
-    $cat-frame.set-label-align( 4e-2, 5e-1);
-    $sheet.grid-attach( $cat-frame, 0, $sheet-row++, 2, 1);
-
-    my Gnome::Gtk3::Label $cat-descr .= new(:text($c.description));
-    $cat-descr.set-line-wrap(True);
-    $cat-descr.set-justify(GTK_JUSTIFY_LEFT);
-    $cat-descr.widget-set-margin-bottom(3);
-    $cat-frame.container-add($cat-descr);
-
-    for $c.get-setnames -> $setname {
-note "Set: $setname";
-      my QAManager::Set $set = $c.get-set($setname);
-
-      # each set is displayed in a frame with a grid. the frame is
-      # only to expand horizontally so frames keep together
-      my Gnome::Gtk3::Frame $set-frame .= new(:label($set.title));
-      $set-frame.set-label-align( 4e-2, 5e-1);
-      #$set-frame.set-border-width(5);
-      $set-frame.widget-set-hexpand(True);
-      $sheet.grid-attach( $set-frame, 0, $sheet-row++, 2, 1);
-
-      # the grid is for displaying the input fields also only
-      # strechable horizontally
-      my Int $set-row = 0;
-      my Gnome::Gtk3::Grid $set-grid .= new;
-      $set-grid.set-border-width(5);
-      $set-grid.widget-set-hexpand(True);
-      $set-frame.container-add($set-grid);
-
-      # place set description on top
-      my Gnome::Gtk3::Label $descr .= new(:text($set.description));
-      #$descr.set-use-markup(True);
-      $descr.set-line-wrap(True);
-      $descr.set-justify(GTK_JUSTIFY_LEFT);
-      $descr.widget-set-halign(GTK_ALIGN_START);
-      $descr.widget-set-margin-bottom(3);
-      $set-grid.grid-attach( $descr, 0, $set-row++, 3, 1);
-
-      for @($set.get-kv)>>.kv-data -> Hash $kv {
-
-        # on the left side a text label for the input field on the right
-        # this text must take  the available space pressing fields to the right
-        my Gnome::Gtk3::Label $l .= new(
-          :text([~] '<b>', $kv<description> // $kv<title>, '</b>', ':')
-        );
-        $l.set-use-markup(True);
-        $l.set-line-wrap(True);
-        $l.widget-set-hexpand(True);
-        $l.set-justify(GTK_JUSTIFY_LEFT);
-        $l.widget-set-halign(GTK_ALIGN_START);
-        $l.widget-set-valign(GTK_ALIGN_START);
-        $set-grid.grid-attach( $l, 0, $set-row, 1, 1);
-
-        # mark required fields with a bold star
-        $l .= new(:text([~] ' <b>', $kv<required> ?? '*' !! '', '</b>', ' '));
-        $l.set-use-markup(True);
-        $l.widget-set-valign(GTK_ALIGN_START);
-        $set-grid.grid-attach( $l, 1, $set-row, 1, 1);
-
-        # fields come at the right side only using space for themselves
-        # check widget field type
-        if $kv<field> ~~ QAEntry {
-          my Gnome::Gtk3::Entry $e .= new;
-          $e.widget-set-margin-top(3);
-          $e.widget-set-name($kv<name>);
-          $e.set-placeholder-text($kv<example>) if ?$kv<example>;
-          $e.set-tooltip-text($kv<tooltip>) if ?$kv<tooltip>;
-          $e.set-visibility(!$kv<invisible>);
-          $set-grid.grid-attach( $e, 2, $set-row, 1, 1);
-        }
-
-        elsif $kv<field> ~~ QACheckButton {
-          my Gnome::Gtk3::CheckButton $cb .= new;
-          $cb.widget-set-name($kv<name>);
-          $cb.widget-set-margin-top(3);
-          $cb.set-tooltip-text($kv<tooltip>) if ?$kv<tooltip>;
-          $set-grid.grid-attach( $cb, 2, $set-row, 1, 1);
-        }
-
-        $set-row++;
-      }
-    }
-
-    $!notebook.append-page( $sheet, Gnome::Gtk3::Label.new(:text($c.title)));
+  my Int $rc = 0;
+  for @($kv<values>) -> $vname {
+    my Gnome::Gtk3::CheckButton $w .= new(:label($vname));
+    $w.set-active($reversed-v{$vname}:exists);
+    $w.widget-set-name($kv<name>);
+    $w.widget-set-margin-top(3);
+    $w.set-tooltip-text($kv<tooltip>) if ?$kv<tooltip>;
+    $g.grid-attach( $w, 0, $rc++, 1, 1);
   }
 
-#  my N-GdkRectangle $r = $!window.get-allocation;
-#  note "w 0: ", $r.perl;
-  $!window.window-resize( 390, 1);
-  $!window.show-all;
+  $set-grid.grid-attach( $g, 2, $set-row, 1, 1);
+  $!main-handler.add-widget( $g, $!invoice-title, $set, $kv);
+}
 
-  $!main.gtk-main;
+#-------------------------------------------------------------------------------
+method comboboxtext-field (
+  Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::Set $set, Hash $kv
+) {
 
-  $!main-handler.results
+  my Gnome::Gtk3::ComboBoxText $w .= new;
+  for @($kv<values>) -> $cbv {
+    $w.append-text($cbv);
+  }
+
+  my Str $v = $!user-data{$set.name}{$kv<name>} // Str;
+  if ?$v {
+    my Int $value-index = $kv<values>.first( $v, :k) // 0;
+    $w.set-active($value-index);
+  }
+
+  $w.widget-set-margin-top(3);
+  $w.widget-set-name($kv<name>);
+  $w.set-tooltip-text($kv<tooltip>) if ?$kv<tooltip>;
+
+  $set-grid.grid-attach( $w, 2, $set-row, 1, 1);
+  $!main-handler.add-widget( $w, $!invoice-title, $set, $kv);
 }
