@@ -154,6 +154,10 @@ note "Type: $w.get-class-name()";
 
             if ?$field-spec<repeatable> {
               if ? $txt {
+                if ?$kv<callback> {
+                  my Str $cb-message = $!callback-object."$kv<callback>"($txt);
+                }
+
                 $!results{$set-name}{$field-name} = []
                   unless ?$!results{$set-name}{$field-name};
                 $!results{$set-name}{$field-name}.push($txt);

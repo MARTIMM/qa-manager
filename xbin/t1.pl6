@@ -11,7 +11,9 @@ use QAManager::Category;
 class CheckHandlers {
 
   method check-username ( Str $username --> Str ) {
+note 'check on username';
 
+    ''
   }
 }
 
