@@ -14,9 +14,8 @@ my Hash $opened-categories = %();
 
 # catagories are filenames holding sets
 has Str $.category is required;
-has Str $.name is rw;
-has Str $.title is rw;
 has Str $.description is rw;
+has Bool $!QAManager;
 
 # directory to store categories
 has Str $!config-dir;
@@ -28,7 +27,7 @@ has Hash $!sets;
 has Array $!set-data;
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( Str:D :$!category ) {
+submethod BUILD ( Str:D :$!category, Bool :$!QAManager = False ) {
 
   if $*DISTRO.is-win {
   }
@@ -66,19 +65,19 @@ method load ( --> Bool ) {
   $!set-data = [];
 
   # check if Category file exists then load, if not, Category is created
-  my Str $catfile = "$!config-dir/$!category.cfg";
+  my Str $catfile = $!QAManager ?? $!category !! "$!config-dir/$!category.cfg";
+note "$!QAManager, $catfile";
+
   if $catfile.IO.r {
+    note "Read sheet definition from file $catfile";
     my Hash $cat = from-json($catfile.IO.slurp);
-    $!title = $cat<title>;
-    $!description = $cat<description>;
-    $!name = $cat<name>;
 
     # the rest are sets
     for @($cat<sets>) -> Hash $h-set {
 #note "Set: $h-set.perl()";
       my QAManager::Set $set .= new(:name($h-set<name>));
 
-      $set.title = $h-set<title>;
+      $set.title = $h-set<title> // $h-set<name>.tclc;
       $set.description = $h-set<description>;
 
       # the rest are keys of this set
@@ -98,8 +97,6 @@ method load ( --> Bool ) {
   }
 
   else {
-    $!title = $!category.tclc;
-    $!name = $!category.tclc;
     $!is-changed = True;
   }
 
@@ -147,7 +144,8 @@ method save-as ( Str $new-category --> Bool ) {
 #-------------------------------------------------------------------------------
 method category ( --> Hash ) {
 
-  %( :$!name, :$!title, :$!description, sets => map( { .set }, @$!set-data))
+#  %( :$!name, :$!title, :$!description, sets => map( { .set }, @$!set-data))
+  %(sets => map( { .set }, @$!set-data))
 }
 
 #-------------------------------------------------------------------------------

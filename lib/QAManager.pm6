@@ -1,6 +1,9 @@
 use v6.d;
 
 use JSON::Fast;
+use Config::TOML;
+use Config::INI;
+use Config::INI::Writer;
 
 #-------------------------------------------------------------------------------
 unit class QAManager:auth<github:MARTIMM>;
@@ -13,13 +16,35 @@ use QAManager::Gui::TopLevel;
 has Array $!categories;
 has Hash $!cat-names;
 has Str $!user-data-file;
+has Bool $!ini;
+has Bool $!toml;
+has Bool $!json;
 
+has Bool $!qa-manager-sheet;
 has QAManager::Gui::TopLevel $!gui handles <
-    build-invoice-page add-set
+    build-invoice-page add-set set-callback-object
     >;
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( Str :$!user-data-file, Bool :$use-filename-as-is ) {
+submethod BUILD (
+  Str :$!user-data-file, Bool :$use-filename-as-is = False,
+  Bool :$!ini = False, Bool :$!toml = False, Bool :$!json = True,
+  Bool :$!qa-manager-sheet = False
+) {
+
+  # keep only one type of input
+  $!toml = $!json = False if $!ini;
+  $!json = False if $!toml;
+
+  # extend filename with etension
+  unless $use-filename-as-is {
+    $!user-data-file ~= '.ini' if $!ini;
+    $!user-data-file ~= '.toml' if $!toml;
+    $!user-data-file ~= '.json' if $!json;
+
+    $!user-data-file ~= '.json' unless any( $!ini, $!toml, $!json);
+  }
+
   $!categories = [];
   $!cat-names = %();
   $!gui .= new(:$!categories);
@@ -34,147 +59,67 @@ submethod BUILD ( Str :$!user-data-file, Bool :$use-filename-as-is ) {
   }
 
   my Hash $user-data;
-  $user-data = from-json($!user-data-file.IO.slurp) if $!user-data-file.IO.r;
+  if $!user-data-file.IO.r {
+    note "Read user data from file $!user-data-file";
+    $user-data = Config::INI::parse($!user-data-file.IO.slurp) if $!ini;
+    $user-data = from-toml($!user-data-file.IO.slurp) if $!toml;
+    $user-data = from-json($!user-data-file.IO.slurp) if $!json;
+  }
+
   $!gui.set-user-data($user-data);
 }
 
 #-------------------------------------------------------------------------------
-method load-category ( Str $category --> Bool ) {
+method load-category (
+  Str $category? is copy, Bool :$QAManager = False
+  --> Bool
+) {
+
+  # get sheet from the qa managers resources if $QAManager is set True
+  $category = %?RESOURCES<QAManager-sheets.cfg>.Str if $QAManager;
+note $category;
 
   # check if Category is loaded, ok if it is
   return True if $!cat-names{$category}:exists;
 
-  my QAManager::Category $c .= new(:$category);
+  my QAManager::Category $c .= new( :$category, :$QAManager);
   if $c.is-loaded {
     $!cat-names{$category} = $!categories.elems;
     $!categories.push: $c;
 
   }
 
-  $c.is-loaded;
+  $c.is-loaded
 }
 
 #-------------------------------------------------------------------------------
-method get-category ( Str:D $category --> QAManager::Category ) {
+method get-category (
+  Str $category?, UInt :$cat-index = 0
+  --> QAManager::Category
+) {
 
-  $!cat-names{$category}.defined
-      ?? $!categories[$!cat-names{$category}]
-      !! QAManager::Category
+  if ?$category and  $!cat-names{$category}.defined {
+    $!categories[$!cat-names{$category}]
+  }
+
+  elsif $cat-index < $!categories.elems {
+    $!categories[$cat-index]
+  }
+
+  else {
+    QAManager::Category
+  }
 }
 
 #-------------------------------------------------------------------------------
 method run-invoices ( ) {
 
   my Hash $user-data = $!gui.run-invoices;
-  $!user-data-file.IO.spurt(to-json($user-data)) if $!gui.results-valid;
-note "user data: ", $user-data.perl;
 
+  if $!gui.results-valid {
+#TODO problems with too deep hash levels and arrays
+    $!user-data-file.IO.spurt(Config::INI::Writer::dump($user-data)) if $!ini;
+    $!user-data-file.IO.spurt(to-toml($user-data)) if $!toml;
+    $!user-data-file.IO.spurt(to-json($user-data)) if $!json;
+  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-=finish
-#-------------------------------------------------------------------------------
-#`{{
-method add-set ( Str $category, Str $name, Hash $qa --> Bool ) {
-  # check if Category is loaded, fails if not
-  return False unless $!catagories{$category}.defined;
-
-  # check if set name exists, fails if it is
-  return False if $!catagories{$category}{$name}.defined;
-
-  # save new set
-  $!catagories{$category}{$name} = $qa;
-
-  True
-}
-}}
-
-#-------------------------------------------------------------------------------
-#`{{
-method replace-set ( Str $category, Str $name, Hash $qa --> Bool ) {
-
-  # check if Category is loaded
-  return False unless $!catagories{$category}:exists;
-
-  # check if set name exists
-  return False if $!catagories{$category}{$name}:exists;
-
-  # save new set
-  $!catagories{$category}{$name} = $qa;
-
-  True
-}
-}}
-
-#`{{
-#-------------------------------------------------------------------------------
-method purge-category ( Str $category --> Bool ) {
-
-  # check if category is loaded, ok if it is
-  return True if $!catagories{$category}:exists;
-
-  $!catagories{$category} = QAManager::Category.new(:$category);
-
-  True
-}
-}}
-#-------------------------------------------------------------------------------
-#`{{
-method remove-set ( Str $category, Str $name --> Bool ) {
-
-  # check if Category is loaded
-  return False unless $!catagories{$category}:exists;
-
-  # check if set name exists, if it is then remove
-  return False unless $!catagories{$category}{$name}:exists;
-
-  $!catagories{$category}{$name}:delete;
-
-  True
-}
-}}
-
-#`{{
-#-------------------------------------------------------------------------------
-method remove-category ( Str $category --> Bool ) {
-
-  # check if Category is loaded
-  return False unless $!catagories{$category}:exists;
-
-  $!catagories{$category}:delete;
-  unlink "$!config-dir/$category.cfg";
-
-  True
-}
-}}
-
-#-------------------------------------------------------------------------------
-#`{{
-method save-category ( Str $category --> Bool ) {
-  # check if Category is loaded, ok if it is
-  return False unless $!catagories{$category}:exists;
-
-  # check if set name exists if not Category is created
-  "$!config-dir/$category.cfg".IO.spurt(to-json($!catagories{$category}));
-
-  True
-}
-}}
