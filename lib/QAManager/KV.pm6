@@ -8,15 +8,15 @@ use QATypes;
 has Str $.name is required;
 has Str $.title is rw;          # optional = $!name.tclc
 has Str $.description is rw;    # optional
-has QATypes $.type is rw;       # optional = QAString
 has QAFieldTypes $.field is rw; # optional = QAEntry, QADialog or QACheckButton
 has Any $.minimum is rw;        # optional range for string or number type
 has Any $.maximum is rw;        # optional range for string or number type
 has Any $.default is rw;        # optional default value
 has Str $.example is rw;        # optional example value for text
 has Str $.tooltip is rw;        # optional tooltip value for tooltip
-has Str $.callback is rw;        # optional to check value
+has Str $.callback is rw;       # optional to check value
 has Str $.cmpwith is rw;        # optional to check value against other field
+has Array $.values is rw;       # when a list is displayed in e.g. combobox
 has Bool $.repeatable is rw;    # when value is repeatable
 has Bool $.required is rw;      # when value is required
 has Bool $.encode is rw;        # when value must be encoded with sha256
@@ -27,23 +27,7 @@ has Str $.set is rw;            # when referring to other set
 #-------------------------------------------------------------------------------
 submethod BUILD ( Str:D :$!name, Hash :$kv ) {
 
-#note $kv.perl;
-
-  # check if defined in proper type
-  if $kv<type> ~~ QATypes {
-    $!type = $kv<type>;
-  }
-
-  # it is a string when deserialized from json
-  elsif $kv<type> ~~ Str {
-    $!type = QATypes(QATypes.enums{$kv<type>});
-  }
-
-  # else pick default
-  else {
-    $!type = QAString;
-  }
-
+#note "\n", $kv.perl;
 
   # if field is defined in approprate type
   if $kv<field> ~~ QAFieldTypes {
@@ -52,19 +36,16 @@ submethod BUILD ( Str:D :$!name, Hash :$kv ) {
 
   # it is a string when deserialized from json
   elsif $kv<field> ~~ Str {
-    $!field = QAFieldTypes(QAFieldTypes.enums{$kv<field>});
-  }
+    if QAFieldTypes.enums{$kv<field>}.defined {
+      $!field = QAFieldTypes(QAFieldTypes.enums{$kv<field>});
+    }
 
+    else {
+      die "$kv<field> field type does not exist";
+    }
+  }
 
   # if field is not defined (or wrong), try to find a default depending on type
-  elsif $!type ~~ QASet {
-    $!field = QAEntry;
-  }
-
-  elsif $!type ~~ QAArray {
-    $!field = QAComboBox;
-  }
-
   else {
     $!field = QAEntry;
   }
@@ -79,6 +60,7 @@ submethod BUILD ( Str:D :$!name, Hash :$kv ) {
   $!tooltip = $kv<tooltip> if $kv<tooltip>.defined;
   $!callback = $kv<callback> if $kv<callback>.defined;
   $!cmpwith = $kv<cmpwith> if $kv<cmpwith>.defined;
+  $!values = $kv<values> if $kv<values>.defined;
   $!required = $kv<required> if $kv<required>.defined;# // False;
   $!repeatable = $kv<repeatable> if $kv<repeatable>.defined;    # // False;
   $!encode = $kv<encode> if $kv<encode>.defined;# // False;
@@ -89,9 +71,7 @@ submethod BUILD ( Str:D :$!name, Hash :$kv ) {
 
 #-------------------------------------------------------------------------------
 method kv-data ( --> Hash ) {
-  my Hash $kv = %(
-    :$!name, :$!type, :$!field
-  );
+  my Hash $kv = %( :$!name, :$!field);
 
   $kv<title> = $!title if $!title.defined;
   $kv<description> = $!description if $!description.defined;
@@ -101,7 +81,7 @@ method kv-data ( --> Hash ) {
   $kv<example> = $!example if $!example.defined;
   $kv<tooltip> = $!tooltip if $!tooltip.defined;
   $kv<callback> = $!callback if $!callback.defined;
-  $kv<cmpwith> = $!cmpwith if $!cmpwith.defined;
+  $kv<values> = $!values if $!values.defined;
 
   $kv<required> = $!required if $!required.defined;
   $kv<repeatable> = $!repeatable if $!repeatable.defined;
