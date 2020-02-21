@@ -334,6 +334,8 @@ $sheet.save;
 ## Run QA Dialog
 * Select a sheet and run invoice dialog
 ```
-my QAManager $qam .= new( :sheet<Login>, :result-file<login-data>);
-my Hash $data = $qam.run-invoice;
+my $callback-handlers = class { method x ( ... ) { ... } }.new;
+my QAManager $qam .= new;
+my Hash $data = $qam.run-invoice( :sheet<Login>, :$callback-handlers, :!save);
+if ?$data { ... }
 ```
