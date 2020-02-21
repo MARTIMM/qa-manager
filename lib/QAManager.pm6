@@ -9,6 +9,7 @@ use Config::INI::Writer;
 unit class QAManager:auth<github:MARTIMM>;
 
 use QAManager::Category;
+use QAManager::Sheet;
 use QAManager::Gui::TopLevel;
 
 #-------------------------------------------------------------------------------
@@ -24,6 +25,8 @@ has Bool $!qa-manager-sheet;
 has QAManager::Gui::TopLevel $!gui handles <
     build-invoice-page add-set set-callback-object
     >;
+
+has QAManager::Sheet $!sheet handles <>;
 
 #-------------------------------------------------------------------------------
 submethod BUILD (

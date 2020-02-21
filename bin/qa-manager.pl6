@@ -1,6 +1,10 @@
 #!/usr/bin/env raku
 
 use v6.d;
+
+=finish
+
+
 #use lib '../gnome-gtk3/lib';
 #use lib '../gnome-gobject/lib';
 #use lib '../gnome-native/lib';
