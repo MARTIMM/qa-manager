@@ -13,10 +13,92 @@ use QAManager::Sheet;
 use QAManager::Gui::TopLevel;
 
 #-------------------------------------------------------------------------------
+has QAManager::Gui::TopLevel $!gui handles <
+    build-invoice-page add-set set-callback-object
+    >;
+
+has QAManager::Sheet $!sheet; # handles <>;
+
+#-------------------------------------------------------------------------------
+submethod BUILD ( ) { }
+#-------------------------------------------------------------------------------
+method run-invoice (
+  Str :$sheet, :$callback-handlers,
+  Str :$result-file is copy, Bool :$use-filename-as-is = False,
+  Bool :$save = True, Bool :$ini = False, Bool :$toml = False,
+  Bool :$json is copy = True
+  --> Hash
+) {
+
+  if $save {
+    # keep only one type of input
+    $toml = $json = False if $ini;
+    $json = False if $toml;
+
+    # extend filename with extension
+    unless $use-filename-as-is {
+      $result-file ~= '.ini' if $ini;
+      $result-file ~= '.toml' if $toml;
+      $result-file ~= '.json' if $json;
+
+      unless any( $ini, $toml, $json) {
+        $result-file ~= '.json';
+        $json = True;
+      }
+    }
+  }
+
+  my Str $category-lib-dir = "$*HOME/.config/QAManager/QAlib.d";
+  my Hash $cat-hashes = %();
+  my Hash $user-data;
+
+  # load sheet
+  $!sheet .= new(:$sheet);
+note "Sheet: $sheet";
+  if $!sheet.is-loaded {
+
+#TODO type of representation QADisplayType
+    $!gui .= new;
+    for $!sheet.get-pages -> Hash $page {
+note "Bip: $page<name>, $page<title>, $page<description>";
+      my Hash $bip = $!gui.build-invoice-page(
+        $page<name>, $page<title>, $page<description>
+      );
+
+      for @($page<sets>) -> Hash $set {
+        my Str $cat-name = $set<category>;
+        my Str $set-name = $set<set>;
+
+        $cat-hashes{$cat-name} = QAManager::Category.new(:category($cat-name))
+          if $cat-hashes{$cat-name}:!exists;
+
+        $!gui.add-set( $bip, $cat-hashes{$cat-name}, $set-name);
+      }
+    }
+
+    $!gui.set-callback-object($callback-handlers) if ?$callback-handlers;
+
+    $user-data = $!gui.run-invoice;
+
+    if $!gui.results-valid and $save {
+      $result-file.IO.spurt(Config::INI::Writer::dump($user-data)) if $ini;
+      $result-file.IO.spurt(to-toml($user-data)) if $toml;
+      $result-file.IO.spurt(to-json($user-data)) if $json;
+    }
+  }
+
+  $!gui.results-valid ?? $user-data !! Hash
+}
+
+
+
+
+=finish
+#-------------------------------------------------------------------------------
 # catagories are QAManager::Category classes holding sets
 has Array $!categories;
 has Hash $!cat-names;
-has Str $!user-data-file;
+has Str $!result-file;
 has Bool $!ini;
 has Bool $!toml;
 has Bool $!json;
@@ -30,7 +112,7 @@ has QAManager::Sheet $!sheet handles <>;
 
 #-------------------------------------------------------------------------------
 submethod BUILD (
-  Str :$!user-data-file, Bool :$use-filename-as-is = False,
+  Str :$!result-file, Bool :$use-filename-as-is = False,
   Bool :$!ini = False, Bool :$!toml = False, Bool :$!json = True,
   Bool :$!qa-manager-sheet = False
 ) {
@@ -39,13 +121,13 @@ submethod BUILD (
   $!toml = $!json = False if $!ini;
   $!json = False if $!toml;
 
-  # extend filename with etension
+  # extend filename with extension
   unless $use-filename-as-is {
-    $!user-data-file ~= '.ini' if $!ini;
-    $!user-data-file ~= '.toml' if $!toml;
-    $!user-data-file ~= '.json' if $!json;
+    $!result-file ~= '.ini' if $!ini;
+    $!result-file ~= '.toml' if $!toml;
+    $!result-file ~= '.json' if $!json;
 
-    $!user-data-file ~= '.json' unless any( $!ini, $!toml, $!json);
+    $!result-file ~= '.json' unless any( $!ini, $!toml, $!json);
   }
 
   $!categories = [];
@@ -55,18 +137,18 @@ submethod BUILD (
   unless ? $use-filename-as-is {
     my Str $pdir = $*PROGRAM-NAME.IO.basename;
     $pdir ~~ s/ \. <-[.]>+ $ //;
-    $!user-data-file = "$pdir.cfg" unless ? $!user-data-file;
+    $!result-file = "$pdir.cfg" unless ? $!result-file;
     mkdir( "$*HOME/.config", 0o760) unless "$*HOME/.config".IO.e;
     mkdir( "$*HOME/.config/$pdir", 0o760) unless "$*HOME/.config/$pdir".IO.e;
-    $!user-data-file = "$*HOME/.config/$pdir/$!user-data-file";
+    $!result-file = "$*HOME/.config/$pdir/$!result-file";
   }
 
   my Hash $user-data;
-  if $!user-data-file.IO.r {
-    note "Read user data from file $!user-data-file";
-    $user-data = Config::INI::parse($!user-data-file.IO.slurp) if $!ini;
-    $user-data = from-toml($!user-data-file.IO.slurp) if $!toml;
-    $user-data = from-json($!user-data-file.IO.slurp) if $!json;
+  if $!result-file.IO.r {
+    note "Read user data from file $!result-file";
+    $user-data = Config::INI::parse($!result-file.IO.slurp) if $!ini;
+    $user-data = from-toml($!result-file.IO.slurp) if $!toml;
+    $user-data = from-json($!result-file.IO.slurp) if $!json;
   }
 
   $!gui.set-user-data($user-data);
@@ -121,8 +203,8 @@ method run-invoices ( ) {
 
   if $!gui.results-valid {
 #TODO problems with too deep hash levels and arrays
-    $!user-data-file.IO.spurt(Config::INI::Writer::dump($user-data)) if $!ini;
-    $!user-data-file.IO.spurt(to-toml($user-data)) if $!toml;
-    $!user-data-file.IO.spurt(to-json($user-data)) if $!json;
+    $!result-file.IO.spurt(Config::INI::Writer::dump($user-data)) if $!ini;
+    $!result-file.IO.spurt(to-toml($user-data)) if $!toml;
+    $!result-file.IO.spurt(to-json($user-data)) if $!json;
   }
 }

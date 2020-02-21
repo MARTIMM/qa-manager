@@ -57,6 +57,7 @@ has QAManager::Gui::Main $!main-handler handles <
     >;
 
 #-------------------------------------------------------------------------------
+#TODO type of representation QADisplayType
 submethod BUILD ( ) {
 
   $!main .= new;          # main loop control
@@ -86,6 +87,7 @@ submethod BUILD ( ) {
   $!grid.widget-set-hexpand(True);
   $!window.container-add($!grid);
 
+#TODO type of representation QADisplayType
   # in this grid a notebook at ( 0, 0)
   $!notebook .= new;
   $!notebook.widget-set-hexpand(True);
@@ -223,7 +225,7 @@ method add-set (
 }
 
 #-------------------------------------------------------------------------------
-method run-invoices ( ) {
+method run-invoice ( ) {
 
   # set maximum width and show all widgets. the size-request gets rid of too
   # much vertical space caused by multiline label widgets. the resize will set

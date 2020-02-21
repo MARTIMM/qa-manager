@@ -11,7 +11,10 @@ use QAManager;
 class CheckHandlers {
 
   #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  method check-username-msg ( Str :$input, Hash :$kv, Array :$entry --> Str ) {
+#  method check-username-msg ( Str :$input, Hash :$kv, Array :$entry --> Str ) {
+  method check-username (
+    Str :$input, Hash :$kv, Array :$entry, Bool :$check-only --> Str
+  ) {
 #note "check msg on username: $input, $kv<required>";
     my Str $markup-message = '';
 
@@ -71,6 +74,24 @@ class CheckHandlers {
   }
 }
 
+#-------------------------------------------------------------------------------
+my QAManager $qa-manager .= new;
+my Hash $data = $qa-manager.run-invoice(
+  :sheet<__QASheet1>, :callback-handlers(CheckHandlers.new),
+  :result-file<data-2>, :save, :json
+);
+
+
+
+
+
+
+
+
+
+
+
+=finish
 #-------------------------------------------------------------------------------
 my QAManager $qa-manager .= new(:user-data-file('data'));
 $qa-manager.set-callback-object(CheckHandlers.new);
