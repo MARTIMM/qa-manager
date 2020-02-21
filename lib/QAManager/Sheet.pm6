@@ -1,10 +1,11 @@
 use v6.d;
 
-unit class QAManager::Sheet:auth<github:MARTIMM>;
-
+use JSON::Fast;
 use QAManager::QATypes;
 
-use JSON::Fast;
+#-------------------------------------------------------------------------------
+unit class QAManager::Sheet:auth<github:MARTIMM>;
+also does Iterable;
 
 #-------------------------------------------------------------------------------
 # need to know if same sheet is opened elsewhere
@@ -24,6 +25,7 @@ has Array $!page-data;
 
 has Hash $!sets;
 has Array $!set-data;
+has Iterator $!iterator;
 
 has Hash $!page;
 
@@ -268,17 +270,35 @@ method remove ( Str :$sheet, Bool :$ignore-changes = False --> Bool ) {
   True
 }
 
-=finish
 
 #-------------------------------------------------------------------------------
-method select-page ( --> Bool ) {
-$!pages.defined
-}
-#-------------------------------------------------------------------------------
-method display-sheet (
-  Str :$user-data-file, Bool :$use-filename-as-is = False,
-  Bool :$!ini = False, Bool :$!toml = False, Bool :$!json = True,
-  Bool :$!qa-manager-sheet = False, :$check-handlers
-) {
+# Iterator to be used in for {} statements returning pages from this sheet
+method iterator ( --> Iterator ) {
 
+note "iter";
+  # Create anonymous class which does the Iterator role
+  my $c = class :: does Iterator {
+    has $!count = 0;
+    has Array $.pdata is rw;
+
+    method pull-one {
+note "\ncount: $!count, $!pdata[$!count].perl()";
+
+      return $!count < $!pdata.elems
+        ?? $!pdata[$!count++]
+        !! IterationEnd;
+    }
+
+  # Create the object for this class and return it
+}.new(:pdata($!page-data));
+
+note "CI: ", $c.perl;
+$c
 }
+
+method get-pages ( --> Array ) {
+
+  @$!page-data;
+}
+
+#`{{ TODO}}

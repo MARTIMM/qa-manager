@@ -13,11 +13,13 @@ use QAManager::Sheet;
 use QAManager::Gui::TopLevel;
 
 #-------------------------------------------------------------------------------
-has QAManager::Gui::TopLevel $!gui handles <
-    build-invoice-page add-set set-callback-object
-    >;
+has QAManager::Gui::TopLevel $!gui;
+# handles <
+#    build-invoice-page add-set set-callback-object
+#    >;
 
-has QAManager::Sheet $!sheet; # handles <>;
+has QAManager::Sheet $!sheet;
+# handles <>;
 
 #-------------------------------------------------------------------------------
 submethod BUILD ( ) { }
@@ -29,6 +31,10 @@ method run-invoice (
   Bool :$json is copy = True
   --> Hash
 ) {
+
+  my Str $category-lib-dir = "$*HOME/.config/QAManager/QAlib.d";
+  my Hash $cat-hashes = %();
+  my Hash $user-data;
 
   if $save {
     # keep only one type of input
@@ -45,22 +51,30 @@ method run-invoice (
         $result-file ~= '.json';
         $json = True;
       }
+
+      my Str $pdir = $*PROGRAM-NAME.IO.basename;
+      $pdir ~~ s/ \. <-[.]>+ $ //;
+      $result-file = "$pdir.cfg" unless ? $result-file;
+      mkdir( "$*HOME/.config", 0o760) unless "$*HOME/.config".IO.e;
+      mkdir( "$*HOME/.config/$pdir", 0o760) unless "$*HOME/.config/$pdir".IO.e;
+      $result-file = "$*HOME/.config/$pdir/$result-file";
+
+      if $result-file.IO.r {
+note "Read user data from file $result-file";
+        $user-data = Config::INI::parse($result-file.IO.slurp) if $ini;
+        $user-data = from-toml($result-file.IO.slurp) if $toml;
+        $user-data = from-json($result-file.IO.slurp) if $json;
+      }
     }
   }
 
-  my Str $category-lib-dir = "$*HOME/.config/QAManager/QAlib.d";
-  my Hash $cat-hashes = %();
-  my Hash $user-data;
-
   # load sheet
   $!sheet .= new(:$sheet);
-note "Sheet: $sheet";
   if $!sheet.is-loaded {
 
 #TODO type of representation QADisplayType
     $!gui .= new;
     for $!sheet.get-pages -> Hash $page {
-note "Bip: $page<name>, $page<title>, $page<description>";
       my Hash $bip = $!gui.build-invoice-page(
         $page<name>, $page<title>, $page<description>
       );
@@ -76,10 +90,12 @@ note "Bip: $page<name>, $page<title>, $page<description>";
       }
     }
 
+    $!gui.set-user-data($user-data) if ?$user-data;
     $!gui.set-callback-object($callback-handlers) if ?$callback-handlers;
 
     $user-data = $!gui.run-invoice;
 
+note "RS: $!gui.results-valid(), $save";
     if $!gui.results-valid and $save {
       $result-file.IO.spurt(Config::INI::Writer::dump($user-data)) if $ini;
       $result-file.IO.spurt(to-toml($user-data)) if $toml;

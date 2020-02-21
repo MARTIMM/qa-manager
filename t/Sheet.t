@@ -45,6 +45,13 @@ subtest 'Manipulations', {
   ok $sheet.add-set( :category<__test-accounting>, :set<profile>),
      '.add-set()';
 
+#`{{
+note $sheet.WHAT;
+  for $sheet -> $page {
+    note "P: ", $page.perl;
+  }
+}}
+
   $sheet.delete-page(:name<tstsheet2>);
 
   $sheet.save;

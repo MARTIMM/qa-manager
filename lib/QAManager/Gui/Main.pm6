@@ -244,6 +244,8 @@ note "CB: ", ($kv<callback> // '_') ~ '-msg';
     $!main.gtk-main-quit;
   }
 
+note "NR: $!results-valid";
+
   1
 }
 
