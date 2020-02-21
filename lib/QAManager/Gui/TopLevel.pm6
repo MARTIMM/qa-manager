@@ -3,10 +3,8 @@ use v6.d;
 #-------------------------------------------------------------------------------
 unit class QAManager::Gui::TopLevel:auth<github:MARTIMM>;
 
-use QATypes;
-
+use QAManager::QATypes;
 use QAManager::Gui::Main;
-
 use QAManager::Category;
 use QAManager::Set;
 use QAManager::KV;
@@ -205,7 +203,7 @@ method add-set (
       self.switch-field( $set-grid, $set-row, $set, $kv);
     }
 
-    elsif $kv<field> ~~ QAComboBoxText {
+    elsif $kv<field> ~~ QAComboBox {
       self.comboboxtext-field( $set-grid, $set-row, $set, $kv);
     }
 
@@ -348,8 +346,7 @@ method shape-text-field (
   $!main-handler.check-field( $w, $kv);
 
   $w.register-signal(
-    $!main-handler, 'check-on-focus-change', 'focus-out-event',
-    :field-spec($kv),
+    $!main-handler, 'check-on-focus-change', 'focus-out-event', :$kv,
   );
 }
 
@@ -360,11 +357,14 @@ method textview-field (
 
   my Gnome::Gtk3::Frame $frame .= new;
   $frame.set-shadow-type(GTK_SHADOW_ETCHED_IN);
+  $frame.widget-set-margin-top(3);
 
   my Gnome::Gtk3::TextView $w .= new;
   $frame.container-add($w);
 
-  $w.widget-set-margin-top(3);
+  #$w.widget-set-margin-top(6);
+note "set widget height: $kv.perl(), ", $kv<height> // 50;
+  $w.set-size-request( 1, $kv<height> // 50);
   $w.widget-set-name($kv<name>);
   $w.set-tooltip-text($kv<tooltip>) if ?$kv<tooltip>;
   $w.set-wrap-mode(GTK_WRAP_WORD);

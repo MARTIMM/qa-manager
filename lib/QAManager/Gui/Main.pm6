@@ -3,7 +3,7 @@ use v6.d;
 #-------------------------------------------------------------------------------
 unit class QAManager::Gui::Main:auth<github:MARTIMM>;
 
-use QATypes;
+use QAManager::QATypes;
 use QAManager::Set;
 
 use Gnome::Gdk3::Events;
@@ -49,10 +49,10 @@ method set-callback-object ( Any:D $!callback-object ) { }
 
 #-------------------------------------------------------------------------------
 method add-widget (
-  $widget, Str $invoice-title, QAManager::Set $set, Hash $field-specs
+  $widget, Str $invoice-title, QAManager::Set $set, Hash $kv
 ) {
 
-  my Str $field-name = $field-specs<name>;
+  my Str $field-name = $kv<name>;
   my Str $set-name = $set.name;
 
   $!widgets{$set-name} = %() unless $!widgets{$set-name}:exists;
@@ -63,7 +63,7 @@ method add-widget (
     unless $!widgets{$set-name}{$field-name}:exists;
 
   $!widgets{$set-name}{$field-name}.push: [
-    $widget, $field-specs, $invoice-title, $set.title
+    $widget, $kv, $invoice-title, $set.title
   ];
 }
 
@@ -98,16 +98,27 @@ method set-status-hint (
 }
 
 #-------------------------------------------------------------------------------
-method check-field ( $w, Hash $field-spec ) {
+method check-field ( $w, Hash $kv ) {
 
-  note "check $field-spec<name> field";
+note "check $kv<name> field $w.^name(), cb: ", ($kv<callback>//'_') ~ '-sts';
 
   if $w.get-class-name eq 'GtkEntry' {
     my Gnome::Gtk3::Entry $e .= new(:native-object($w));
-    my Str $txt = $e.get-text;
-    $txt = $field-spec<default> // Str unless ?$txt;
+    my Str $input = $e.get-text;
+#    $input = $kv<default> // Str unless ?$input;
 
-    if ?$field-spec<required> and ! $txt {
+    my Bool $state;
+    my Str $cb-name = ($kv<callback> // '_') ~ '-sts';
+    if ?$!callback-object and $!callback-object.^can($cb-name) {
+      $state = $!callback-object."$cb-name"( :$input, :$kv);
+note "state: $state";
+    }
+
+    else {
+      $state = (?$kv<required> and !$input);
+    }
+
+    if $state {
       self.set-status-hint( $e, QAStatusFail);
     }
 
@@ -130,100 +141,107 @@ method finish-program ( --> Int ) {
 
 #note $!widgets.perl;
 #Gnome::N::debug(:on);
-  my Bool $data-ok = True;
   my Str $markup-message = '';
 
-    for $!widgets.keys -> $set-name {
+  for $!widgets.keys -> $set-name {
 note "set: $set-name";
-      for $!widgets{$set-name}.keys -> $field-name {
-        my Array $widget-spec = $!widgets{$set-name}{$field-name};
+    for $!widgets{$set-name}.keys -> $field-name {
+      my Array $widget-spec = $!widgets{$set-name}{$field-name};
 note "field: $field-name";
 
-        my Array $entries = $widget-spec;
-        for @$entries -> $entry {
-          my $w = $entry[0];
-          my Hash $field-spec = $entry[1];
-note "Type: $w.get-class-name()";
-          if $w.get-class-name eq 'GtkEntry' {
+      my Array $entries = $widget-spec;
+      for @$entries -> $entry {
+        my $w = $entry[0];
+        my Hash $kv = $entry[1];
+#note "Type: $w.get-class-name()";
+        if $w.get-class-name eq 'GtkEntry' {
 
-            # get text from input field
-            my Str $txt = $w.get-text;
+          # get text from input field
+          my Str $input = $w.get-text;
 
-            # use default if there is no text input
-            $txt = $field-spec<default> // Str unless ?$txt;
+          # use default if there is no text input
+          $input = $kv<default> // Str unless ?$input;
 
-            if ?$field-spec<repeatable> {
-              if ? $txt {
-                if ?$kv<callback> {
-                  my Str $cb-message = $!callback-object."$kv<callback>"($txt);
-                }
+          if ?$kv<repeatable> {
+            if ? $input {
+#note "R CB: ", $kv<callback> // 'no callback';
+#              if ?$kv<callback> {
+#                my Str $cb-message = $!callback-object."$kv<callback>"($input);
+#              }
 
-                $!results{$set-name}{$field-name} = []
-                  unless ?$!results{$set-name}{$field-name};
-                $!results{$set-name}{$field-name}.push($txt);
-              }
-            }
-
-            else {
-              # check if input is required
-              if ?$field-spec<required> and !$txt {
-                my Str $invoice-title = $entry[2];
-                my Str $set-title = $entry[3];
-
-                $data-ok = False;
-                $markup-message ~= "Field <b>$field-spec<title>\</b> on sheet <b>$invoice-title\</b> and set <b>$set-title\</b> is required.\n";
-              }
-
-              elsif ?$txt {
-                $!results{$set-name}{$field-name} = $txt;
-              }
+              $!results{$set-name}{$field-name} = []
+                unless ?$!results{$set-name}{$field-name};
+              $!results{$set-name}{$field-name}.push($input);
             }
           }
 
-          elsif $w.get-class-name eq 'GtkSwitch' {
-            $!results{$set-name}{$field-name} = ? $w.get-active;
-          }
+          else {
+            # check if input is required
+note "CB: ", ($kv<callback> // '_') ~ '-msg';
+            my Str $cb-name = ($kv<callback> // '_') ~ '-msg';
+            my $msg = $!callback-object."$cb-name"(
+              :$input, :$kv, :$entry
+            ) if ?$!callback-object and $!callback-object.^can($cb-name);
 
-          # input fields wrapped in a grid
-          elsif $w.get-class-name eq 'GtkGrid' {
-            my Str $w-name = $w.widget-get-name;
-            if $w-name eq 'checkbutton-grid' {
-              self.get-checkbutton-data(
-                $w, $field-spec, $set-name, $field-name
-              );
+            $markup-message ~= $msg // '';
+#note "CB err: ", $msg//'';
+#            self.set-status-hint( $w, ?$msg ?? QAStatusFail !! QAStatusOk);
+
+#`{{
+            if ?$kv<required> and !$input {
+              my Str $invoice-title = $entry[2];
+              my Str $set-title = $entry[3];
+
+              $markup-message ~= "Field <b>$kv<title>\</b> on sheet <b>$invoice-title\</b> and set <b>$set-title\</b> is required.\n";
             }
-          }
+}}
 
-          elsif $w.get-class-name eq 'GtkTextView' {
-            my Gnome::Gtk3::TextBuffer $tb .= new(
-              :native-object($w.get-buffer)
+            $!results{$set-name}{$field-name} = $input if !$markup-message and ?$input;
+          }
+        }
+
+        elsif $w.get-class-name eq 'GtkSwitch' {
+          $!results{$set-name}{$field-name} = ? $w.get-active;
+        }
+
+        # input fields wrapped in a grid
+        elsif $w.get-class-name eq 'GtkGrid' {
+          my Str $w-name = $w.widget-get-name;
+          if $w-name eq 'checkbutton-grid' {
+            self.get-checkbutton-data(
+              $w, $kv, $set-name, $field-name
             );
-            my Gnome::Gtk3::TextIter $start = $tb.get-start-iter;
-            my Gnome::Gtk3::TextIter $end = $tb.get-end-iter;
-            $!results{$set-name}{$field-name} = $tb.get-text( $start, $end, 0);
           }
+        }
 
-          elsif $w.get-class-name eq 'GtkComboBoxText' {
-            $!results{$set-name}{$field-name} = $w.get-active-text;
-          }
+        elsif $w.get-class-name eq 'GtkTextView' {
+          my Gnome::Gtk3::TextBuffer $tb .= new(
+            :native-object($w.get-buffer)
+          );
+          my Gnome::Gtk3::TextIter $start = $tb.get-start-iter;
+          my Gnome::Gtk3::TextIter $end = $tb.get-end-iter;
+          $!results{$set-name}{$field-name} = $tb.get-text( $start, $end, 0);
+        }
+
+        elsif $w.get-class-name eq 'GtkComboBoxText' {
+          $!results{$set-name}{$field-name} = $w.get-active-text;
         }
       }
     }
-
-  if $data-ok {
-    $!results-valid = True;
-    $!main.gtk-main-quit;
   }
 
-  else {
+  if ?$markup-message {
     # display warning, show in color or other hints that input is not
     # correct or absent
     my Gnome::Gtk3::MessageDialog $md;
-    if ?$markup-message {
-      $md .= new( :$markup-message, :parent($!toplevel-window));
-      $md.dialog-run;
-      $md.gtk_widget_destroy;
-    }
+    $md .= new( :$markup-message, :parent($!toplevel-window));
+    $md.dialog-run;
+    $md.gtk_widget_destroy;
+  }
+
+  else {
+    $!results-valid = True;
+    $!main.gtk-main-quit;
   }
 
   1
@@ -231,12 +249,12 @@ note "Type: $w.get-class-name()";
 
 #-------------------------------------------------------------------------------
 method check-on-focus-change (
-  GdkEventFocus $event, :widget($w), Hash :$field-spec
+  GdkEventFocus $event, :widget($w), Hash :$kv
   --> Int
 ) {
 #Gnome::N::debug(:on);
 
-  self.check-field( $w, $field-spec);
+  self.check-field( $w, $kv);
 
   # must propogate further to prevent messages when notebook page is switched
   # otherwise it would do ok to return 1.
@@ -359,8 +377,7 @@ method shape-text-field (
   self.check-field( $w, $kv);
 
   $w.register-signal(
-    self, 'check-on-focus-change', 'focus-out-event',
-    :field-spec($kv),
+    self, 'check-on-focus-change', 'focus-out-event', :$kv,
   );
 }
 
