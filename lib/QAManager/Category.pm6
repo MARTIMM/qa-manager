@@ -15,10 +15,10 @@ my Hash $opened-categories = %();
 # catagories are filenames holding sets
 has Str $.category is required;
 has Str $.description is rw;
-has Bool $!QAManager;
+#has Bool $!QAManager;
 
 # directory to store categories
-has Str $!config-dir;
+has Str $!category-lib-dir;
 
 has Bool $.is-changed;
 
@@ -27,18 +27,20 @@ has Hash $!sets;
 has Array $!set-data;
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( Str:D :$!category, Bool :$!QAManager = False ) {
+# TODO , Bool :$!ro
+# TODO , Bool :$!QAManager = False ??
+submethod BUILD ( Str:D :$!category ) {
 
   if $*DISTRO.is-win {
   }
 
   else {
-    $!config-dir = "$*HOME/.config";
-    mkdir( $!config-dir, 0o760) unless $!config-dir.IO.d;
-    $!config-dir ~= '/QAManager';
-    mkdir( $!config-dir, 0o760) unless $!config-dir.IO.d;
-    $!config-dir ~= '/QA.d';
-    mkdir( $!config-dir, 0o760) unless $!config-dir.IO.d;
+    $!category-lib-dir = "$*HOME/.config";
+    mkdir( $!category-lib-dir, 0o760) unless $!category-lib-dir.IO.d;
+    $!category-lib-dir ~= '/QAManager';
+    mkdir( $!category-lib-dir, 0o760) unless $!category-lib-dir.IO.d;
+    $!category-lib-dir ~= '/QAlib.d';
+    mkdir( $!category-lib-dir, 0o760) unless $!category-lib-dir.IO.d;
   }
 
   # test self to see if .= new() is used
@@ -65,11 +67,11 @@ method load ( --> Bool ) {
   $!set-data = [];
 
   # check if Category file exists then load, if not, Category is created
-  my Str $catfile = $!QAManager ?? $!category !! "$!config-dir/$!category.cfg";
-note "$!QAManager, $catfile";
-
+#  my Str $catfile = $!QAManager ?? $!category !! "$!category-lib-dir/$!category.cfg";
+#note "$!QAManager, $catfile";
+  my Str $catfile = "$!category-lib-dir/$!category.cfg";
   if $catfile.IO.r {
-    note "Read sheet definition from file $catfile";
+#note "Read category definition from file $catfile";
     my Hash $cat = from-json($catfile.IO.slurp);
 
     # the rest are sets
@@ -117,7 +119,7 @@ method save ( --> Bool ) {
   return False unless $!sets.defined;
 
   # if set name does not exist, the Category is created
-  "$!config-dir/$!category.cfg".IO.spurt(to-json(self.category));
+  "$!category-lib-dir/$!category.cfg".IO.spurt(to-json(self.category));
 
   $!is-changed = False;
 
@@ -128,13 +130,16 @@ method save ( --> Bool ) {
 method save-as ( Str $new-category --> Bool ) {
 
   # check if this new category is loaded elsewhere
+#TODO is this correct? we opened it at least ourselves
   return False if $opened-categories{$new-category}.defined;
 
   # if set name does not exist, the new category is created
-  "$!config-dir/$new-category.cfg".IO.spurt(to-json(self.category));
+  "$!category-lib-dir/$new-category.cfg".IO.spurt(to-json(self.category));
 
-  # rename category
+  # remove from categories and rename category
+  $opened-categories{$!category}:delete;
   $!category = $new-category;
+  $opened-categories{$!category} = 1;
 
   $!is-changed = False;
 
@@ -152,8 +157,8 @@ method category ( --> Hash ) {
 # remove from memory
 method purge ( Bool :$ignore-changes = False --> Bool ) {
 
-  # check if Category is changed
-  return False if !$ignore-changes and $!is-changed;
+  # check if Category is changed and we can ignore them
+  return False unless !$!is-changed or $ignore-changes;
 
   # check if Category is loaded
   return False unless $!sets.defined;
@@ -179,7 +184,7 @@ method remove ( Bool :$ignore-changes = False --> Bool ) {
 
   $!sets = Nil;
   $!set-data = [];
-  unlink "$!config-dir/$!category.cfg";
+  unlink "$!category-lib-dir/$!category.cfg";
   $opened-categories{$!category}:delete;
 
   True

@@ -10,7 +10,7 @@ my QAManager::Set $creds .= new(:name<credentials>);
 #-------------------------------------------------------------------------------
 subtest 'ISO-Test', {
 
-  isa-ok $creds, QAManager::Set, 'QA Manager';
+  isa-ok $creds, QAManager::Set, '.new(:name)';
 }
 
 #-------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ subtest 'Manipulations', {
   $pw.description = 'Password for username';
   $pw.required = True;
   $pw.encode = True;
-  $pw.stars = True;
+  $pw.invisible = True;
 
   ok $creds.add-kv($un), '.add-kv()';
   nok $creds.add-kv($un), 'allready added';

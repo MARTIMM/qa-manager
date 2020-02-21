@@ -3,26 +3,28 @@ use v6.d;
 #-------------------------------------------------------------------------------
 unit class QAManager::KV:auth<github:MARTIMM>;
 
-use QATypes;
+use QAManager::QATypes;
 
-has Str $.name is required;
-has Str $.title is rw;          # optional = $!name.tclc
+has Str $.callback is rw;       # optional to check value
+#has Str $.category is rw;       # when referring to other set
+has Str $.cmpwith is rw;        # optional to check value against other field
+has Any $.default is rw;        # optional default value
 has Str $.description is rw;    # optional
-has QAFieldTypes $.field is rw; # optional = QAEntry, QADialog or QACheckButton
+has Bool $.encode is rw;        # when value must be encoded with sha256
+has Str $.example is rw;        # optional example value for text
+has QAFieldType $.field is rw; # optional = QAEntry, QADialog or QACheckButton
+has Int $.height is rw;         # optional height in pixels
+has Bool $.invisible is rw;     # when value is displayed as invisible
 has Any $.minimum is rw;        # optional range for string or number type
 has Any $.maximum is rw;        # optional range for string or number type
-has Any $.default is rw;        # optional default value
-has Str $.example is rw;        # optional example value for text
+has Str $.name is required;
 has Str $.tooltip is rw;        # optional tooltip value for tooltip
-has Str $.callback is rw;       # optional to check value
-has Str $.cmpwith is rw;        # optional to check value against other field
-has Array $.values is rw;       # when a list is displayed in e.g. combobox
 has Bool $.repeatable is rw;    # when value is repeatable
 has Bool $.required is rw;      # when value is required
-has Bool $.encode is rw;        # when value must be encoded with sha256
-has Bool $.invisible is rw;     # when value is displayed as invisible
-has Str $.category is rw;       # when referring to other set
-has Str $.set is rw;            # when referring to other set
+#has Str $.set is rw;            # when referring to other set
+has Str $.title is rw;          # optional = $!name.tclc
+has Array $.values is rw;       # when a list is displayed in e.g. combobox
+has Int $.width is rw;          # optional width in pixels
 
 #-------------------------------------------------------------------------------
 submethod BUILD ( Str:D :$!name, Hash :$kv ) {
@@ -30,14 +32,14 @@ submethod BUILD ( Str:D :$!name, Hash :$kv ) {
 #note "\n", $kv.perl;
 
   # if field is defined in approprate type
-  if $kv<field> ~~ QAFieldTypes {
+  if $kv<field> ~~ QAFieldType {
     $!field = $kv<field>;
   }
 
   # it is a string when deserialized from json
   elsif $kv<field> ~~ Str {
-    if QAFieldTypes.enums{$kv<field>}.defined {
-      $!field = QAFieldTypes(QAFieldTypes.enums{$kv<field>});
+    if QAFieldType.enums{$kv<field>}.defined {
+      $!field = QAFieldType(QAFieldType.enums{$kv<field>});
     }
 
     else {
@@ -65,8 +67,10 @@ submethod BUILD ( Str:D :$!name, Hash :$kv ) {
   $!repeatable = $kv<repeatable> if $kv<repeatable>.defined;    # // False;
   $!encode = $kv<encode> if $kv<encode>.defined;# // False;
   $!invisible = $kv<invisible> if $kv<invisible>.defined;# // False;
-  $!category = $kv<category> if $kv<category>.defined;
-  $!set = $kv<set> if $kv<set>.defined;
+#  $!category = $kv<category> if $kv<category>.defined;
+#  $!set = $kv<set> if $kv<set>.defined;
+  $!height = $kv<height> if $kv<height>.defined;
+  $!width = $kv<width> if $kv<width>.defined;
 }
 
 #-------------------------------------------------------------------------------
@@ -87,8 +91,10 @@ method kv-data ( --> Hash ) {
   $kv<repeatable> = $!repeatable if $!repeatable.defined;
   $kv<encode> = $!encode if $!encode.defined;
   $kv<invisible> = $!invisible if $!invisible.defined;
-  $kv<category> = $!category if $!category.defined;
-  $kv<set> = $!set if $!set.defined;
+#  $kv<category> = $!category if $!category.defined;
+#  $kv<set> = $!set if $!set.defined;
+  $kv<height> = $!height if $!height.defined;
+  $kv<width> = $!width if $!width.defined;
 
   $kv
 }

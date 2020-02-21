@@ -14,9 +14,6 @@ subtest 'Manipulations', {
   isa-ok $category, QAManager::Category, 'QA Manager category';
   ok $category.is-loaded, '.is-loaded()';
 
-  $category.title = 'Accounting';
-  $category.description = 'QA forms about credentials';
-
   # 1 set
   my QAManager::Set $set .= new(:name<credentials>);
   is $set.title, 'Credentials', '.title()';
@@ -33,7 +30,7 @@ subtest 'Manipulations', {
   $kv.description = 'Password for username';
   $kv.required = True;
   $kv.encode = True;
-  $kv.stars = True;
+  $kv.invisible = True;
   ok $set.add-kv($kv), '.add-kv() password';
 
   # add set to category
