@@ -1,5 +1,9 @@
 # Release notes
 
+* 2020-02-19 0.5.0
+  * Add Sheet module. Categories are now in the QAlib.d directory and sheets will go into QA.d directory.
+  * Moved QATypes to QAManager directory.
+
 * 2020-02-07 0.4.0
   * Add style sheets to show faulty input. Fields now have a red or green border color to show its status.
   * Check for required fields added
@@ -7,6 +11,7 @@
   * Show tooltip text
   * Finish will not exit when there are errors.
   * Show message dialog on Finish when there are some errors.
+  * Callback implemented to check on text input
 
 * 2020-02-06 0.3.0
   * Invoice Gui buildup ok now
