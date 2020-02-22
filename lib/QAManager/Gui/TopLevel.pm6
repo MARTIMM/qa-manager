@@ -115,15 +115,14 @@ submethod BUILD ( ) {
 }
 
 #-------------------------------------------------------------------------------
-method build-invoice-page(
-  Str $name, Str $!invoice-title, Str $description --> Hash ) {
+method build-invoice-page( Str $!invoice-title, Str $description --> Hash ) {
 
   my Gnome::Gtk3::Grid $sheet .= new;
   $sheet.set-border-width(5);
   my Int $sheet-row = 0;
 
   # place category title in frame
-  my Gnome::Gtk3::Frame $cat-frame .= new(:label($name));
+  my Gnome::Gtk3::Frame $cat-frame .= new;
   $cat-frame.set-label-align( 4e-2, 5e-1);
   $cat-frame.widget-set-hexpand(True);
   $cat-frame.widget-set-margin-bottom(3);
@@ -150,7 +149,6 @@ method build-invoice-page(
 #-------------------------------------------------------------------------------
 method set-user-data ( Hash $data ) {
   $!user-data = $data // %();
-note $!user-data.perl;
 }
 
 #-------------------------------------------------------------------------------
@@ -207,7 +205,7 @@ method add-set (
     }
 
     elsif $kv<field> ~~ QAComboBox {
-      self.comboboxtext-field( $set-grid, $set-row, $set, $kv);
+      self.combobox-field( $set-grid, $set-row, $set, $kv);
     }
 
     elsif $kv<field> ~~ QACheckButton {
@@ -366,7 +364,7 @@ method textview-field (
   $frame.container-add($w);
 
   #$w.widget-set-margin-top(6);
-note "set widget height: $kv.perl(), ", $kv<height> // 50;
+#note "set widget height: $kv.perl(), ", $kv<height> // 50;
   $w.set-size-request( 1, $kv<height> // 50);
   $w.widget-set-name($kv<name>);
   $w.set-tooltip-text($kv<tooltip>) if ?$kv<tooltip>;
@@ -439,7 +437,7 @@ method checkbutton-field (
 }
 
 #-------------------------------------------------------------------------------
-method comboboxtext-field (
+method combobox-field (
   Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::Set $set, Hash $kv
 ) {
 

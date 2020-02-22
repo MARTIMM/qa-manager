@@ -79,7 +79,7 @@ method load ( --> Bool ) {
     my Hash $sheet = from-json($sheetfile.IO.slurp);
 
     $!display =
-      QADisplayType(QADisplayType.enums{$sheet<display>}) // QANoteBook;
+      QADisplayType(QADisplayType.enums{$sheet<display>//''}) // QANoteBook;
 
     # the rest are pages
     for @($sheet<pages>) -> $h-page is copy {

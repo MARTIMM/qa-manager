@@ -12,7 +12,7 @@ class CheckHandlers {
 
   #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #  method check-username-msg ( Str :$input, Hash :$kv, Array :$entry --> Str ) {
-  method check-username (
+  method check-username-msg (
     Str :$input, Hash :$kv, Array :$entry, Bool :$check-only --> Str
   ) {
 #note "check msg on username: $input, $kv<required>";

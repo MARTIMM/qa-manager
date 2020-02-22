@@ -73,10 +73,15 @@ note "Read user data from file $result-file";
   if $!sheet.is-loaded {
 
 #TODO type of representation QADisplayType
+
+    # create basic gui window, provide user data and callback handlers
     $!gui .= new;
+    $!gui.set-user-data($user-data);
+    $!gui.set-callback-object($callback-handlers) if ?$callback-handlers;
+
     for $!sheet.get-pages -> Hash $page {
       my Hash $bip = $!gui.build-invoice-page(
-        $page<name>, $page<title>, $page<description>
+        $page<title>, $page<description>
       );
 
       for @($page<sets>) -> Hash $set {
@@ -89,9 +94,6 @@ note "Read user data from file $result-file";
         $!gui.add-set( $bip, $cat-hashes{$cat-name}, $set-name);
       }
     }
-
-    $!gui.set-user-data($user-data) if ?$user-data;
-    $!gui.set-callback-object($callback-handlers) if ?$callback-handlers;
 
     $user-data = $!gui.run-invoice;
 
