@@ -8,7 +8,7 @@ Questionnaires and configurations are all some form of key - value sheets servin
 
 The program using a previously created sheet provides this sheet by showing it in a dialog on screen like this example below
 
-![qa-invoice](Images/qa-manager-2020-02-08_12-51.png)
+![qa-invoice](Images/config-sheets.png)
 
 ## Management of QA sheets.
 
@@ -83,12 +83,37 @@ Summarized
 * Repeatability of sets; e.g. username/password sets for more than one account.
 
 # Todo
+
+## Sheet
+* [x] create/load a sheet
+* [x] save a sheet
+* [x] delete a sheet
+* [x] add a page
+* [x] remove a page
+* [x] add a set
+* [x] remove a set
+* [x] specify representation
+
+* Representation of the sheet
+  * [ ] Assistant
+  * [x] NoteBook
+  * [ ] Stack
+  * [ ] Dialog
+
 ## Category
+* [x] create/load a category
+* [x] save a category
+* [x] delete a category
+* [x] add a set
+* [x] replace a set
+* [ ] remove a set
 
 ## Set
+* [x] create a set
+* [x] add input field spec
+* [ ] remove a field spec
 
 ## KV or field specification
-
 
 ![image](Images/a-displayed-set.png)
 
@@ -143,6 +168,22 @@ Summarized
 * [ ] values; array of strings for (multi)select lists
 * [ ] width; optional width in pixels
 
+## Run invoice
+* [x] load user data
+* [x] select sheet
+* [x] display invoice and fill fields with user data
+* [x] return data
+* [x] save data
+
+## Additions
+* [ ] change pages depending on what is input
+* [ ] use a button to open a new dialog
+* [ ] button should be inserted next to the other buttons
+* buttons
+  * [x] cancel; close dialog and return nothing
+  * [x] finish; close dialog and return data
+  * [ ] next; to get to the next page when not a NoteBook
+  * [ ] previous; to get to the previous page when not a NoteBook
 
 ##### A table where field specs are shown for each field type
 
@@ -187,7 +228,7 @@ Below diagrams show the interactions between user, user programs, the QA Manager
 * The user interacts with the QAManager program to edit sheets. Sets are selected from categories.
 * The sheets are stored in the QAManagers sheets directory.
 
-##### The use of the sheets (part 3)
+##### Steps to run the sheets (part 3)
 * The user program asks for the sheets from the QAManagers program library.
 * The library presents the QA to the user.
 * After finishing, the data from the QA is stored in the programs environment.
@@ -201,7 +242,7 @@ Below diagrams show the interactions between user, user programs, the QA Manager
 !include <tupadr3/font-awesome/edit>
 !include <tupadr3/font-awesome/female>
 
-title Setting up categories (part 1)
+title Define Categories (part 1)
 
 FA_ARCHIVE( qaa, Category\nLibrary) #ffefaf
 FA_CLONE( ucs1, sets) #e0e0ff
@@ -230,7 +271,7 @@ ucs1 <-> qaa
 !include <tupadr3/font-awesome/female>
 !include <tupadr3/font-awesome/file_code_o>
 
-title Setting up QA sheets (part 2)
+title Define QA sheets (part 2)
 
 FA_ARCHIVE( qaa1, Category\nLibrary) #ffefaf
 FA_ARCHIVE( qaa2, QA Sheets) #ffefaf
@@ -251,7 +292,7 @@ qamp <-> qaml
 qaml <-> ucs3
 ucs3 <-> qaa2
 
-qaa1 --> ucs2
+qaa1 -> ucs2
 ucs2 --> qaml
 ```
 
@@ -279,7 +320,7 @@ FA_COGS( up, user\nprogram)
 qaa -> ucs2
 ucs2 -> qaml
 
-qaml <-- up
+qaml <--> up
 qaml <--> ec1
 up <- u2
 u2 <-> ec1

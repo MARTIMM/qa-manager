@@ -25,6 +25,7 @@
   "test-depends": [ ],
   "build-depends": [ ],
   "resources": [
-    "QAManager-sheets.cfg", "QAManager-style.css", "Add.png", "Delete.png"
+    "QAManager-sheets.cfg", "g-resources/QAManager.gresource",
+    "Add.png", "Delete.png"
   ]
 }
