@@ -4,8 +4,9 @@ window {
 }
 */
 
-ApplicationWindow {
-  background-color: #fffefe;
+.background {
+	background: #480044;
+	color: white
 }
 
 .dontCare {
