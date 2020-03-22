@@ -1,27 +1,28 @@
 use v6.d;
 
 use Gnome::N::X;
-use Gnome::N::N-GVariant;
 #Gnome::N::debug(:on);
 
 use Gnome::Gio::Enums;
-use Gnome::Gio::MenuModel;
 use Gnome::Gio::Resource;
-use Gnome::Gio::SimpleAction;
 
-use Gnome::Glib::Variant;
-
-#use Gnome::Gtk3::Grid;
+use Gnome::Gtk3::Grid;
 #use Gnome::Gtk3::Button;
+use Gnome::Gtk3::MenuBar;
+use Gnome::Gtk3::MenuItem;
 use Gnome::Gtk3::Application;
 use Gnome::Gtk3::ApplicationWindow;
 use Gnome::Gtk3::Builder;
 
+use QAManager::Gui::MenuCategory;
+use QAManager::Gui::MenuSet;
+use QAManager::Gui::MenuHelp;
+
 #-------------------------------------------------------------------------------
-unit class QAManager::Gui::Application;
+unit class QAManager::Gui::Application:auth<github:MARTIMM>;
 also is Gnome::Gtk3::Application;
 
-#has Gnome::Gio::MenuModel $!menubar;
+has Gnome::Gtk3::Grid $!grid;
 has Gnome::Gtk3::ApplicationWindow $!app-window;
 
 #-------------------------------------------------------------------------------
@@ -49,9 +50,6 @@ note 'R: ', %options.perl;
   # fired after g_application_run
   self.register-signal( self, 'app-activate', 'activate');
 
-  #
-  #self.register-signal( self, 'app-open', 'open');
-
   # now we can register the application.
   my Gnome::Glib::Error $e = self.register;
   die $e.message if $e.is-valid;
@@ -59,77 +57,58 @@ note 'R: ', %options.perl;
 
 #-------------------------------------------------------------------------------
 method app-startup ( Gnome::Gtk3::Application :widget($app) ) {
-#note 'app registered';
   self.run;
 }
 
 #-------------------------------------------------------------------------------
 method app-shutdown ( Gnome::Gtk3::Application :widget($app) ) {
-#note 'app shutdown';
+
 }
 
 #-------------------------------------------------------------------------------
 method app-activate ( Gnome::Gtk3::Application :widget($app) ) {
-#note 'app activated';
-
-#    my $rbpath = self.get-resource-base-path;
 
   my Gnome::Gtk3::Builder $builder .= new;
   my Gnome::Glib::Error $e = $builder.add-from-resource(
-    self.get-resource-base-path ~ '/resources/g-resources/QAManager-menu.ui'
+    self.get-resource-base-path ~ '/resources/g-resources/QAManager-menu.xml'
   );
   die $e.message if $e.is-valid;
 
-  self.setup-menu;
-
   $!app-window .= new(:application(self));
   $!app-window.set-title('Application Window Test');
-  $!app-window.set-border-width(20);
+#  $!app-window.set-border-width(20);
   $!app-window.register-signal( self, 'exit-program', 'destroy');
 
   # prepare widgets which are directly below window
-#    $!grid .= new;
-#    my Gnome::Gtk3::Button $b1 .= new(:label<Stop>);
-#    $!grid.grid-attach( $b1, 0, 0, 1, 1);
-#    $b1.register-signal( self, 'exit-program', 'clicked');
+  $!grid .= new;
+  $!app-window.container-add($!grid);
+  self.setup-menu;
 
-#    $!app-window.container-add($!grid);
   $!app-window.show-all;
-
-#    note "\nInfo:\n  Registered: ", self.get-is-registered;
-#    note '  resource base path: ', $rbpath;
-#    note '  app id: ', self.get-application-id;
 }
 
 #-------------------------------------------------------------------------------
 method setup-menu ( ) {
-  self.set-menubar(Gnome::Gio::MenuModel.new(:build-id<menubar>));
+#Gnome::N::debug(:on);
 
-  # in xml: <attribute name='action'>app.category-new</attribute>
-  my Gnome::Gio::SimpleAction $menu-entry .= new(:name<category-new>);
-  $menu-entry.register-signal( self, 'category-new', 'activate');
-  self.add-action($menu-entry);
+  my Gnome::Gtk3::MenuBar $mb .= new(:build-id<menubar>);
+  $!grid.grid-attach( $mb, 0, 0, 1, 1);
 
-  # in xml: <attribute name='action'>app.category-quit</attribute>
-  $menu-entry .= new(:name<category-quit>);
-  $menu-entry.register-signal( self, 'category-quit', 'activate');
-  self.add-action($menu-entry);
+  my Gnome::Gtk3::MenuItem $mi;
+  my QAManager::Gui::MenuCategory $mc .= new(:app(self));
+  $mi .= new(:build-id<category-new>);
+  $mi.register-signal( $mc, 'category-new', 'activate');
 
+  $mi .= new(:build-id<category-quit>);
+  $mi.register-signal( $mc, 'category-quit', 'activate');
 
+  my QAManager::Gui::MenuSet $ms .= new(:app(self));
+  $mi .= new(:build-id<set-new>);
+  $mi.register-signal( $ms, 'set-new', 'activate');
 
-  # in xml: <attribute name='action'>app.help-about</attribute>
-  $menu-entry .= new(:name<help-about>);
-  $menu-entry.register-signal( self, 'help-about', 'activate');
-  self.add-action($menu-entry);
-}
-
-#-------------------------------------------------------------------------------
-method app-open (
-#    Pointer $f, Int $nf, Str $hint,
-  $f, Int $nf, Str $hint,
-  Gnome::Gtk3::Application :widget($app)
-) {
-note 'app open: ', $nf;
+  my QAManager::Gui::MenuHelp $mh .= new(:app(self));
+  $mi .= new(:build-id<help-about>);
+  $mi.register-signal( $mh, 'help-about', 'activate');
 }
 
 #-------------------------------------------------------------------------------
@@ -137,39 +116,4 @@ method exit-program ( --> Int ) {
   self.quit;
 
   1
-}
-
-#-- [menu] ---------------------------------------------------------------------
-# category > New
-method category-new (
-  N-GVariant $parameter, Gnome::GObject::Object :widget($category-new-action)
-) {
-  note "Select 'New' from 'Category' menu";
-  note "p: ", $parameter.perl;
-  my Gnome::Glib::Variant $v .= new(:native-object($parameter));
-  note "tsv: ", $v.is-valid;
-  note "ts: ", $v.get-type-string if $v.is-valid;
-}
-
-# category > Quit
-method category-quit (
-  N-GVariant $parameter, Gnome::GObject::Object :widget($category-quit-action)
-  --> Int
-) {
-  note "Select 'Quit' from 'Category' menu";
-
-  self.quit;
-
-  1
-}
-
-# Help > About
-method help-about (
-  N-GVariant $parameter, Gnome::GObject::Object :widget($help-about-action)
-) {
-  note "Select 'About' from 'Help' menu";
-  note "p: ", $parameter.perl;
-  my Gnome::Glib::Variant $v .= new(:native-object($parameter));
-  note "tsv: ", $v.is-valid;
-  note "ts: ", $v.get-type-string if $v.is-valid;
 }

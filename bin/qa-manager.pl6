@@ -3,6 +3,9 @@ use v6.d;
 use lib '../gnome-gtk3/lib';
 use QAManager::Gui::Application;
 
+#use Gnome::N::X;
+#Gnome::N::debug(:on);
+
 #-------------------------------------------------------------------------------
 my QAManager::Gui::Application $app .= new(
   :app-id('io.github.martimm.qa'),
