@@ -1,7 +1,7 @@
 {
   "description": "Q & A Manager",
   "name": "QAManager",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "authors": [ "Marcel Timmerman"],
   "tags": [ "questionnaire", "configuration"],
 
@@ -10,7 +10,11 @@
 
   "provides": {
     "QAManager::Category": "lib/QAManager/Category.pm6",
+    "QAManager::Gui::Application": "lib/QAManager/Gui/Application.pm6",
     "QAManager::Gui::Main": "lib/QAManager/Gui/Main.pm6",
+    "QAManager::Gui::MenuCategory": "lib/QAManager/Gui/MenuCategory.pm6",
+    "QAManager::Gui::MenuHelp": "lib/QAManager/Gui/MenuHelp.pm6",
+    "QAManager::Gui::MenuSet": "lib/QAManager/Gui/MenuSet.pm6",
     "QAManager::Gui::TopLevel": "lib/QAManager/Gui/TopLevel.pm6",
     "QAManager::KV": "lib/QAManager/KV.pm6",
     "QAManager::QATypes": "lib/QAManager/QATypes.pm6",
