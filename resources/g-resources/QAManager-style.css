@@ -5,8 +5,8 @@ window {
 */
 
 .background {
-	background: #480044;
-	color: white
+	/*background-color: #480044;*/
+	color: blue
 }
 
 .dontCare {
@@ -22,6 +22,11 @@ window {
 .fieldOk {
   border-color: #00ff88;
   border-width: 1px;
+}
+
+grid {
+  background-color: #efefff;
+  color: #ff8000;
 }
 
 /*
