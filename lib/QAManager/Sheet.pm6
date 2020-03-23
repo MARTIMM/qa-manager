@@ -61,7 +61,7 @@ submethod BUILD ( Str:D :$!sheet ) {
 #-------------------------------------------------------------------------------
 method load ( --> Bool ) {
 
-  # do not lead if loaded in another Sheet object
+  # do not load if loaded in another Sheet object
   return False if $opened-sheets{$!sheet}.defined;
 
   # check if Sheet is loaded, ok if it is
@@ -302,3 +302,15 @@ method get-pages ( --> Array ) {
 }
 
 #`{{ TODO}}
+
+#-------------------------------------------------------------------------------
+method get-sheet-list ( --> List ) {
+
+  my @sl = ();
+  for (dir $!sheet-lib-dir)>>.Str -> $sheet-path is copy {
+    $sheet-path ~~ s/ ^ .*? (<-[/]>+ ) \. 'cfg' $ /$0/;
+    @sl.push($sheet-path);
+  }
+
+  @sl
+}
