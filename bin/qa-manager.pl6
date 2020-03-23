@@ -1,5 +1,6 @@
 #!/usr/bin/env raku
 use v6.d;
+#use lib '../gnome-gobject/lib';
 use lib '../gnome-gtk3/lib';
 use QAManager::Gui::Application;
 
