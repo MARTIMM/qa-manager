@@ -23,10 +23,12 @@ use Gnome::Gtk3::CssProvider;
 use Gnome::Gtk3::StyleContext;
 use Gnome::Gtk3::StyleProvider;
 
-use QAManager::Gui::MenuSheet;
-use QAManager::Gui::MenuCategory;
-use QAManager::Gui::MenuSet;
-use QAManager::Gui::MenuHelp;
+use QAManager::Gui::Menu::Sheet;
+use QAManager::Gui::Menu::Category;
+use QAManager::Gui::Menu::Set;
+use QAManager::Gui::Menu::Help;
+
+use QAManager::Gui::Page::Sheet;
 
 use QAManager::Sheet;
 #Gnome::N::debug(:on);
@@ -125,12 +127,12 @@ method setup-menu ( ) {
 
   my Gnome::Gtk3::MenuItem $mi;
 
-  my QAManager::Gui::MenuSheet $msheet .= new(:app(self));
+  my QAManager::Gui::Menu::Sheet $msheet .= new(:app(self));
   $mi .= new(:build-id<sheet-new>);
   $mi.register-signal( $msheet, 'sheet-new', 'activate');
 
 
-  my QAManager::Gui::MenuCategory $mcat .= new(:app(self));
+  my QAManager::Gui::Menu::Category $mcat .= new(:app(self));
   $mi .= new(:build-id<category-new>);
   $mi.register-signal( $mcat, 'category-new', 'activate');
 
@@ -138,12 +140,12 @@ method setup-menu ( ) {
   $mi.register-signal( $mcat, 'category-quit', 'activate');
 
 
-  my QAManager::Gui::MenuSet $mset .= new(:app(self));
+  my QAManager::Gui::Menu::Set $mset .= new(:app(self));
   $mi .= new(:build-id<set-new>);
   $mi.register-signal( $mset, 'set-new', 'activate');
 
 
-  my QAManager::Gui::MenuHelp $mhelp .= new(:app(self));
+  my QAManager::Gui::Menu::Help $mhelp .= new(:app(self));
   $mi .= new(:build-id<help-about>);
   $mi.register-signal( $mhelp, 'help-about', 'activate');
 }
@@ -157,7 +159,7 @@ method setup-workarea ( --> Gnome::Gtk3::Grid ) {
 
 
   $!notebook.append-page(
-    my Gnome::Gtk3::Grid $f = self.setup-sheet-page,
+    my Gnome::Gtk3::Grid $f = QAManager::Gui::Page::Sheet.new,
     Gnome::Gtk3::Label.new(:text<Sheets>)
   );
 

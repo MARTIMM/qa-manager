@@ -1,7 +1,7 @@
 use v6.d;
 
 #-------------------------------------------------------------------------------
-unit class QAManager::Gui::MenuSheet:auth<github:MARTIMM>;
+unit class QAManager::Gui::Menu::Sheet:auth<github:MARTIMM>;
 
 use Gnome::GObject::Object;
 
