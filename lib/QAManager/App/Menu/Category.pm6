@@ -1,7 +1,7 @@
 use v6.d;
 
 #-------------------------------------------------------------------------------
-unit class QAManager::Gui::Menu::Help:auth<github:MARTIMM>;
+unit class QAManager::App::Menu::Category:auth<github:MARTIMM>;
 
 use Gnome::GObject::Object;
 
@@ -12,9 +12,9 @@ has $!app;
 submethod BUILD ( :$!app ) { }
 
 #-------------------------------------------------------------------------------
-# Help > About
-method help-about (
+# category > New
+method category-new (
   Gnome::GObject::Object :widget($menu-item)
 ) {
-  note "Select 'About' from 'Help' menu";
+  note "Select 'New' from 'Category' menu";
 }

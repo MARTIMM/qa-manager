@@ -1,7 +1,7 @@
 use v6.d;
 
 #-------------------------------------------------------------------------------
-unit class QAManager::Gui::Menu::Sheet:auth<github:MARTIMM>;
+unit class QAManager::App::Menu::Help:auth<github:MARTIMM>;
 
 use Gnome::GObject::Object;
 
@@ -12,9 +12,9 @@ has $!app;
 submethod BUILD ( :$!app ) { }
 
 #-------------------------------------------------------------------------------
-# Sheet > New
-method sheet-new (
+# Help > About
+method help-about (
   Gnome::GObject::Object :widget($menu-item)
 ) {
-  note "Select 'New' from 'Sheet' menu";
+  note "Select 'About' from 'Help' menu";
 }
