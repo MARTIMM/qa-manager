@@ -62,7 +62,7 @@ submethod BUILD ( Str:D :$!sheet ) {
 method load ( --> Bool ) {
 
   # do not load if loaded in another Sheet object
-  return False if $opened-sheets{$!sheet}.defined;
+#  return False if $opened-sheets{$!sheet}.defined;
 
   # check if Sheet is loaded, ok if it is
   return True if $!pages.defined;
@@ -100,7 +100,7 @@ method load ( --> Bool ) {
     $!is-changed = True;
   }
 
-  $opened-sheets{$!sheet} = 1;
+#  $opened-sheets{$!sheet} = 1;
 
   True
 }
@@ -203,7 +203,7 @@ method save-as ( Str $new-sheet --> Bool ) {
 
   # check if this new sheet is loaded elsewhere
 #TODO is this correct? we opened it at least ourselves
-  return False if $opened-sheets{$new-sheet}.defined;
+#  return False if $opened-sheets{$new-sheet}.defined;
 
   # if set name does not exist, the new sheet is created
   "$!sheet-lib-dir/$new-sheet.cfg".IO.spurt(
@@ -211,14 +211,15 @@ method save-as ( Str $new-sheet --> Bool ) {
   );
 
   # remove from sheets and rename sheet
-  $opened-sheets{$!sheet}:delete;
+#  $opened-sheets{$!sheet}:delete;
   $!sheet = $new-sheet;
-  $opened-sheets{$!sheet} = 1;
+#  $opened-sheets{$!sheet} = 1;
 
   $!is-changed = False;
   True
 }
 
+#`{{
 #-------------------------------------------------------------------------------
 # remove from memory
 method purge ( Bool :$ignore-changes = False --> Bool ) {
@@ -235,6 +236,7 @@ method purge ( Bool :$ignore-changes = False --> Bool ) {
 
   True
 }
+}}
 
 #-------------------------------------------------------------------------------
 method delete-page ( :$name --> Bool ) {
@@ -256,7 +258,7 @@ method remove ( Str :$sheet, Bool :$ignore-changes = False --> Bool ) {
 
 #note "D: $!sheet-lib-dir/$sheet.cfg, ", $opened-sheets{$sheet}:exists;
   # check if this sheet is loaded here, otherwise we cannot delete it
-  return False unless $opened-sheets{$sheet}:exists;
+#  return False unless $opened-sheets{$sheet}:exists;
 
   # check if file exists
   return False unless "$!sheet-lib-dir/$sheet.cfg".IO.e;
@@ -264,12 +266,11 @@ method remove ( Str :$sheet, Bool :$ignore-changes = False --> Bool ) {
   $!pages = Nil;
   $!page-data = [];
   unlink "$!sheet-lib-dir/$sheet.cfg";
-  $opened-sheets{$sheet}:delete;
+#  $opened-sheets{$sheet}:delete;
 
   $!is-changed = False;
   True
 }
-
 
 #-------------------------------------------------------------------------------
 # Iterator to be used in for {} statements returning pages from this sheet

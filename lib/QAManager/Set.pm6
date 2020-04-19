@@ -15,9 +15,10 @@ has Hash $!keys;
 has Array $!kv-data;
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( Str:D :$!name, Str :$title ) {
+submethod BUILD ( Str:D :$!name, Str :$title, Str :$description ) {
 
   $!title = $title // $!name.tclc;
+  $!description = $description // $title;
   $!keys = %();
   $!kv-data = [];
 }

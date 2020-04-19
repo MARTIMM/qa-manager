@@ -10,7 +10,7 @@ use JSON::Fast;
 
 #-------------------------------------------------------------------------------
 # need to know if same category is opened elsewhere
-my Hash $opened-categories = %();
+#my Hash $opened-categories = %();
 
 # catagories are filenames holding sets
 has Str $.category is required;
@@ -44,7 +44,7 @@ submethod BUILD ( Str:D :$!category ) {
   }
 
   # test self to see if .= new() is used
-  self.purge if self.defined;
+#  self.purge if self.defined;
 
   # implicit load of categories, clear if it fails.
   unless self.load {
@@ -57,7 +57,7 @@ submethod BUILD ( Str:D :$!category ) {
 method load ( --> Bool ) {
 
   # do not lead if loaded in another Category object
-  return False if $opened-categories{$!category}.defined;
+#  return False if $opened-categories{$!category}.defined;
 
   # check if Category is loaded, ok if it is
   return True if $!sets.defined;
@@ -102,7 +102,7 @@ method load ( --> Bool ) {
     $!is-changed = True;
   }
 
-  $opened-categories{$!category} = 1;
+#  $opened-categories{$!category} = 1;
 
   True
 }
@@ -118,7 +118,7 @@ method save ( --> Bool ) {
   # check if Category is loaded, ok if it is
   return False unless $!sets.defined;
 
-  # if set name does not exist, the Category is created
+  # if category name does not exist, the Category is created
   "$!category-lib-dir/$!category.cfg".IO.spurt(to-json(self.category));
 
   $!is-changed = False;
@@ -131,15 +131,15 @@ method save-as ( Str $new-category --> Bool ) {
 
   # check if this new category is loaded elsewhere
 #TODO is this correct? we opened it at least ourselves
-  return False if $opened-categories{$new-category}.defined;
+#  return False if $opened-categories{$new-category}.defined;
 
   # if set name does not exist, the new category is created
   "$!category-lib-dir/$new-category.cfg".IO.spurt(to-json(self.category));
 
   # remove from categories and rename category
-  $opened-categories{$!category}:delete;
+#  $opened-categories{$!category}:delete;
   $!category = $new-category;
-  $opened-categories{$!category} = 1;
+#  $opened-categories{$!category} = 1;
 
   $!is-changed = False;
 
@@ -153,6 +153,7 @@ method category ( --> Hash ) {
   %(sets => map( { .set }, @$!set-data))
 }
 
+#`{{
 #-------------------------------------------------------------------------------
 # remove from memory
 method purge ( Bool :$ignore-changes = False --> Bool ) {
@@ -165,10 +166,11 @@ method purge ( Bool :$ignore-changes = False --> Bool ) {
 
   $!sets = Nil;
   $!set-data = [];
-  $opened-categories{$!category}:delete;
+#  $opened-categories{$!category}:delete;
 
   True
 }
+}}
 
 #-------------------------------------------------------------------------------
 # remove from memory and disk
@@ -185,7 +187,7 @@ method remove ( Bool :$ignore-changes = False --> Bool ) {
   $!sets = Nil;
   $!set-data = [];
   unlink "$!category-lib-dir/$!category.cfg";
-  $opened-categories{$!category}:delete;
+#  $opened-categories{$!category}:delete;
 
   True
 }
@@ -194,11 +196,42 @@ method remove ( Bool :$ignore-changes = False --> Bool ) {
 method add-set ( QAManager::Set:D $set --> Bool ) {
 
   # check if set exists, don't overwrite
-  return False if $!sets{$set.name}.defined;
+  return False if $!sets{$set.name}:exists;
 
   $!sets{$set.name} = $!set-data.elems;
   $!set-data.push: $set;
   $!is-changed = True;
+
+  True
+}
+
+#-------------------------------------------------------------------------------
+method replace-set ( QAManager::Set:D $set --> Bool ) {
+
+  if $!sets{$set.name}:exists {
+    $!set-data[$!sets{$set.name}] = $set;
+    $!is-changed = True;
+  }
+
+  else {
+    self.add-set($set);
+  }
+
+  True
+}
+
+#-------------------------------------------------------------------------------
+method delete-set ( Str:D $set-name --> Bool ) {
+
+  if $!sets{$set-name}:exists {
+    for $!sets.keys -> $k {
+      $!sets{$k}-- if $!sets{$k} > $!sets{$set-name};
+    }
+
+    $!set-data.splice( $!sets{$set-name}, 1);
+    $!sets{$set-name}:delete;
+    $!is-changed = True;
+  }
 
   True
 }
@@ -213,4 +246,16 @@ method get-setnames ( --> Seq ) {
 #-------------------------------------------------------------------------------
 method get-set ( Str:D $setname --> QAManager::Set ) {
   $!sets{$setname}.defined ?? $!set-data[$!sets{$setname}] !! QAManager::Set
+}
+
+#-------------------------------------------------------------------------------
+method get-category-list ( --> List ) {
+
+  my @cl = ();
+  for (dir $!category-lib-dir)>>.Str -> $category-path is copy {
+    $category-path ~~ s/ ^ .*? (<-[/]>+ ) \. 'cfg' $ /$0/;
+    @cl.push($category-path);
+  }
+
+  @cl
 }

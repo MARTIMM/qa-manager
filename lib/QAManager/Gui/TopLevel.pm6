@@ -70,7 +70,7 @@ submethod BUILD ( ) {
   $!style-context .= new;
 
   # setup style
-  my $css-file = %?RESOURCES<QAManager-style.css>.Str;
+  my $css-file = %?RESOURCES<g-resources/QAManager-style.css>.Str;
   my Gnome::Glib::Error $e = $!css-provider.load-from-path($css-file);
   die $e.message if $e.is-valid;
   $!style-context.add_provider_for_screen(
