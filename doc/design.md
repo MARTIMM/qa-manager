@@ -160,7 +160,7 @@ Summarized
 * [ ] maximum; optional. Maximum for number type or maximum number of characters for string type.
 * [ ] minimum; optional. Minimum for number type or minimum number of characters for string type.
 * [x] name; Required. Used as a key in returned data along with category and set. Also used as a name on the widget to find the widget.
-* [ ] populate; optional to provide values for a widget.
+* [ ] ? populate; optional to provide values for a widget.
 * [x] title; Optional. By default it is the first character uppercased of the name.
 * [x] tooltip; optional tooltip on input field
 * [ ] repeatable; boolean value when input is repeatable. Data must be stored in an array. To repeat, field must show a **+** to the right.
@@ -379,4 +379,101 @@ my $callback-handlers = class { method x ( ... ) { ... } }.new;
 my QAManager $qam .= new;
 my Hash $data = $qam.run-invoice( :sheet<Login>, :$callback-handlers, :!save);
 if ?$data { ... }
+```
+
+# QA Manager
+Main display
+* [x] Title
+* [x] Menu
+  * [x] File
+    * [ ] Quit; Quit program. Test for edit in progress
+
+  * [x] Sheet (visible when Sheets notebook page is selected)
+    * [ ] New
+    * [ ] Open
+    * [ ] Save
+    * [ ] Save As
+    * [ ] Delete
+
+  * [ ] Category (visible when Categories notebook page is selected)
+    * [ ] Open
+    * [ ] Close
+    * [ ] Save
+    * [ ] Delete
+
+  * [x] Set (visible when Sets notebook page is selected)
+    * [ ] New
+    * [ ] Add QA
+    * [ ] Delete QA
+    * [ ] Save
+    * [ ] Delete
+
+  * [x] Help
+    * [ ] Purpose
+    * [ ] Index
+    * [ ] About
+
+* [x] Notebook pages
+  * [x] Sheets
+    * [ ] Display a TreeView using a TreeStore model of available sheets with pages and sets.
+
+  * [x] Categories
+    * [ ] Shows a list of categories on the left. The right side is for two set lists. In between the set lists there are two arrow buttons.
+      When lists are filled using open from menu, a set can be selected and moved from one list to the other using the arrow buttons.
+      * [ ] First open from menu displayes a list of sets on the left from a selected category.
+      * [ ] Second open from menu displayes a list of sets on the right from a selected category.
+
+      * [ ] Close from menu closes the selected category
+      * [ ] Save from menu save the changes on disk
+      * [ ] Delete from menu deletes the category
+
+  * [x] Sets
+    * [ ] Display a TreeView using a TreeStore model of available categories with the defined sets and QA entries.
+      * [ ] New will create a new set. A dialog is shown with specific set questions. After finishing the dialog, the set is inserted in the set list without QA entries.
+      * [ ] Add QA will show a dialog where a QA entry can be specified. After closing the dialog, the entry will be visible in the tree view.
+      * [ ] Select a QA entry and keyboard arrow up/down will move the QA entry up or down the list.
+      * [ ] Select a QA entry and delete from menu will remove the QA entry.
+      * [ ] Save the set in the category on disk with menu save.
+
+* Dialogs
+  * [ ] Display of a QA content with two buttons to cancel or save.
+  * [ ] Message dialog for several informational messages or warnings with close button.
+  * [ ] Dialog to show help content with close button.
+  * [ ] About dialog to show the program info and version with close button.
+
+# Uml
+```plantuml
+scale 0.7
+title "Application page uses '::Gui::SetDialog' for set demo"
+
+class "::Gtk3::Dialog" as Gtk3dialog {
+  new()
+  N-GObject gtk_dialog_add_button()
+  gtk_dialog_set_default_response()
+  GtkResponseType gtk_dialog_run()
+  GObject gtk_dialog_get_content_area()
+}
+note right of Gtk3dialog: Module from Gnome. The\n rest is from QAManager"
+
+class "::App::Page::Set" as APset
+
+class "::Gui::Part::Dialog" as GPdialog {
+  add-dialog-button()
+  GtkResponseType show-dialog()
+}
+
+class "::Gui::Part::Set" as GPset
+class "::Gui::Part::KV" as GPkv
+
+class "::Gui::SetDialog" as GSdialog
+
+Gtk3dialog <|-- GPdialog
+GPdialog <|-- GSdialog
+GSdialog -> GPset
+GPset -> GPkv
+GPset --> Set
+GPset --> KV
+GPkv --> KV
+
+APset -> GSdialog
 ```

@@ -1,4 +1,4 @@
-<!--![gtk logo][logo] -->
+![gtk logo][logo]
 
 # Q & A Management
 
@@ -45,7 +45,20 @@ There are several dependencies from one package to the other because it was one 
 
 There are always some problems! If you find one, please help by filing an issue at [my github project](https://github.com/MARTIMM/qa-manager/issues).
 
+# License
+
+This software is made available under the Artistic 2.0 license.
+
+# Attribution
+
+* An icon is used for free from https://icons8.com in this Readme and also in the application.
+
 # Author
 
 Name: **Marcel Timmerman**
 Github account name: **MARTIMM**
+
+
+
+[//]: # (---- [refs] ----------------------------------------------------------)
+[logo]: resources/icons8-invoice-100.png
