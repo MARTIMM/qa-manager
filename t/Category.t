@@ -41,21 +41,26 @@ subtest 'Manipulations', {
   ok $category.save, '.save()';
   nok $category.is-changed, 'saved -> not changed';
 
-  # try to load category with same name -> fail
+#  # try to load category with same name -> fail
+#  my QAManager::Category $category2 .= new(:category('__category'));
+#  nok $category2.is-loaded, '2nd time not loaded';
+
+#  # purge
+#  $category.purge;
+#  nok $category2.remove, 'after purge no category';
+
+#  # after purge we can load it in another variable
   my QAManager::Category $category2 .= new(:category('__category'));
-  nok $category2.is-loaded, '2nd time not loaded';
-
-  # purge
-  $category.purge;
-  nok $category2.remove, 'after purge no category';
-
-  # after purge we can load it in another variable
-  $category2 .= new(:category('__category'));
   ok $category2.is-loaded, 'now loaded';
 
+  like (|$category2.get-setnames).join(','), / credentials /, '.get-setnames()';
+  $category2.delete-set('credentials');
+  unlike (|$category2.get-setnames).join(','), / credentials /,
+         'credentials deleted';
+
   # remove from disk
-  ok $category2.remove, '.remove()';
-  nok $category2.remove, 'category already removed';
+  ok $category2.remove(:ignore-changes), '.remove()';
+  nok $category2.remove, '__category already removed';
 }
 
 #-------------------------------------------------------------------------------

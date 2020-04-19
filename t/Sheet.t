@@ -73,19 +73,19 @@ note $sheet.WHAT;
     ok "$*HOME/.config/QAManager/QA.d/__login2.cfg".IO.r, '.save-as() __login2';
   }
 
-  # purge __login2
-  ok $sheet.purge(:ignore-changes), '.purge() __login2';
-  nok $sheet.remove(:sheet<__login2>), '__login2 not deleted, was purged';
+#  # purge __login2
+#  ok $sheet.purge(:ignore-changes), '.purge() __login2';
+#  nok $sheet.remove(:sheet<__login2>), '__login2 not deleted, was purged';
   $sheet .= new(:sheet<__login2>);
   ok $sheet.remove(:sheet<__login2>), '__login2 deleted';
   nok $sheet.remove(:sheet<__login2>), '__login2 not existent';
 
   # cannot remove unloaded sheets
-  nok $sheet.remove(:sheet<__login>), '__login not removed, not loaded';
-
-  # delete __login. for that we must load it first
-  $sheet .= new(:sheet<__login>);
   ok $sheet.remove(:sheet<__login>), '__login removed';
+
+#  # delete __login. for that we must load it first
+#  $sheet .= new(:sheet<__login>);
+#  ok $sheet.remove(:sheet<__login>), '__login removed';
 }
 
 #-------------------------------------------------------------------------------
