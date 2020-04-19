@@ -3,30 +3,103 @@ window {
   background-color: Yellow;
 }
 */
+@define-color regular-text-color #005050;
+@define-color label-text-color #0060af;
+@define-color title-text-color #0060af;
+@define-color description-text-color #00507f;
+@define-color message-text-color #00507f;
+@define-color -text-color #00507f;
+
+@define-color field-normal-color #00aaaa;
+@define-color field-ok-color #00ff88;
+@define-color field-fail-color #dd0000;
 
 .background {
 	/*background-color: #480044;*/
 	color: blue
 }
 
+/*
 .dontCare {
   border-color: #0088ff;
   border-width: 1px;
 }
+*/
+
+.fieldNormal {
+  border-color: @field-normal-color;
+  border-width: 1px;
+}
 
 .fieldFail {
-  border-color: Red;
-  border-width: 2px;
+  border-color: @field-fail-color;
+  border-width: 1px;
 }
 
 .fieldOk {
-  border-color: #00ff88;
+  border-color: @field-ok-color;
   border-width: 1px;
 }
 
 grid {
   background-color: #efefff;
-  color: #ff8000;
+  color: @regular-text-color;
+}
+
+.regularText {
+	color: @regular-text-color;
+
+  font-variant: normal;
+  font-style: normal;
+  font-weight: normal;
+  font-stretch: normal;
+  font-size: medium;
+}
+
+.labelText {
+	color: @label-text-color;
+
+  font-variant: normal;
+  font-style: normal;
+  font-weight: normal;
+  font-stretch: normal;
+  font-size: medium;
+}
+
+/*
+  frame
+  ├── border[.flat]
+  ├── <label widget>
+  ╰── <child>
+*/
+frame label {
+	color: @title-text-color;
+
+  font-variant: small-caps;
+  font-style: normal;
+  font-weight: bold;
+  font-stretch: semi-expanded;
+  font-size: larger;
+}
+
+.descriptionText {
+	color: @description-text-color;
+
+  font-variant: normal;
+  font-style: normal;
+  font-weight: bold;
+  font-stretch: normal;
+  font-size: larger;
+}
+
+.messageText {
+	color: @message-text-color;
+
+  font-variant: normal;
+  font-style: normal;
+  font-weight: normal;
+  font-stretch: normal;
+  font-size: medium;
 }
 
 /*
