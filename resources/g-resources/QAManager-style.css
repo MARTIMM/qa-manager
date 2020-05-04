@@ -102,6 +102,26 @@ frame label {
   font-size: medium;
 }
 
+radiobutton label {
+	color: @label-text-color;
+
+  font-variant: normal;
+  font-style: normal;
+  font-weight: normal;
+  font-stretch: normal;
+  /*font-size: medium;*/
+}
+
+checkbutton label {
+	color: @label-text-color;
+
+  font-variant: normal;
+  font-style: normal;
+  font-weight: normal;
+  font-stretch: normal;
+  /*font-size: medium;*/
+}
+
 /*
 container {
   border-color: #aaaaaa;
