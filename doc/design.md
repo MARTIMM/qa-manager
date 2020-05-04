@@ -133,38 +133,33 @@ Summarized
 * [x] example; optional example value
 
 * [x] field; optional. Default is QAEntry.
-  * [x] QAEntry; Single line input for text and number.
-        One value to get/set in user config.
-  * [ ] QAScale; Number input.
-        One value to get/set in user config.
-  * [x] QATextView; Multiline text input.
-        One value to get/set in user config.
-  * [ ] QAComboBox; List selects for one selection. Values for list is provided in 'values'.
-        One value to get/set in user config. An array is defined in the config to populate the combobox.
-  * [x] QAComboBox; List selects for one selection.
-  * [ ] QARadioButton; List selects for one selection.
+  * [x] QAEntry; Single line input for text and number. One or more values to get/set in user config.
+  * [x] QAScale; Number input. One value to get/set in user config.
+  * [x] QATextView; Multiline text input. One value to get/set in user config.
+  * [x] QAComboBox; List selects for one selection. Values for list is provided in 'values'. One value to get/set in user config.
+  * [x] QARadioButton; List selects for one selection.
   * [ ] QAList; List selects.
-  * [x] QACheckButton; Boolean input.
+  * [x] QACheckButton; Boolean input. One or more values to get/set in user config.
   * [x] QASwitch; Boolean input.
-  * [ ] QAToggleButton; Boolean input.
-  * [ ] QAFileChooserDialog
+  * [x] QAToggleButton; Boolean input.
+  * [ ] QAFileChooserDialog. One or more values to get/set in user config.
   * [ ] QADragAndDrop
   * [ ] QAColorChooserDialog
   * [ ] QADialog
   * [ ] QAStack
   * [ ] QANoteBook
-  * [ ] QAImage;
+  * [x] QAImage. One or more values to get/set in user config.
 
-* [x] invisible; when value is displayed as invisible characters
 * [x] height; optional height in pixels. Used for e.g. a TextView.
+* [x] invisible; when value is displayed as invisible characters
 * [ ] maximum; optional. Maximum for number type or maximum number of characters for string type.
 * [ ] minimum; optional. Minimum for number type or minimum number of characters for string type.
 * [x] name; Required. Used as a key in returned data along with category and set. Also used as a name on the widget to find the widget.
-* [ ] ? populate; optional to provide values for a widget.
+* [ ] repeatable; boolean value when input is repeatable. Data must be stored in an array. To repeat, field must show a **+** to the right.
+* [x] required; boolean value when input is required. show as a star.
+* [x] step; used in combination with max and min on QAScale.
 * [x] title; Optional. By default it is the first character uppercased of the name.
 * [x] tooltip; optional tooltip on input field
-* [ ] repeatable; boolean value when input is repeatable. Data must be stored in an array. To repeat, field must show a **+** to the right.
-* [x] required; boolean value when input is required. show as a star
 * [ ] values; array of strings for (multi)select lists
 * [ ] width; optional width in pixels
 
@@ -187,34 +182,47 @@ Summarized
 
 ##### A table where field specs are shown for each field type
 
-| Symbol | Explanation |
-|-|-|
-|!| Must be provided with used type |
-|o| Optional |
-| | Cannot be used and is ignored |
+| Symbol | Explanation
+|--------|-------------------------------------------|
+|!       | Must be provided with used type
+|o       | Optional
+|        | Cannot be used and is ignored
 
-|  | Entry | CheckButton | ComboBox | Image | List | RadioButton | Scale | Switch | TextView |
-|-------------|-|-|-|-|-|-|-|-|-|
-|button       | | | | | | | | | |
-|callback     |o| | | | | | | | |
-|cmpwith      |o| | | | | | | | |
-|default      |o| | | | | | | | |
-|description  |o|o|o|o|o|o|o|o|o|
-|encode       |o| | | | | | | | |
-|example      |o| | | | | | | | |
-|field        |o|!|!|!|!|!|!|!|!|
-|height       | | | | | | | | |o|
-|invisible    |o| | | | | | | | |
-|maximum      |o| | | | | | | | |
-|minimum      |o| | | | | | | | |
-|name         |!|!|!|!|!|!|!|!|!|
-|populate     | |o|o| |o|o| | | |
-|title        |o|o|o|o|o|o|o|o|o|
-|tooltip      |o|o|o|o|o|o|o|o|o|
-|repeatable   |o| | |o| | | | |o|
-|required     |o| | | |o| | | |o|
-|values       | |!|!| |!|!| | | |
-|width        | | | | | | | | | |
+| Type          | Used letter in table
+|---------------|------------------------------------|
+| Entry         | E
+| CheckButton   | h
+| ComboBox      | o
+| Image         | I
+| List          | L
+| RadioButton   | R
+| Scale         | c
+| Switch        | w
+| TextView      | x
+| ToggleButton  | g
+
+|             |E|h|o|I|L|R|c|w|x|g|
+|-------------|-|-|-|-|-|-|-|-|-|-|
+|button       | | | | | | | | | | |
+|callback     |o| | | | | | | | | |
+|cmpwith      |o| | | | | | | | | |
+|default      |o|o|o|o|o|o|o|o|o|o|
+|description  |o|o|o|o|o|o|o|o|o|o|
+|encode       |o| | | | | | | | | |
+|example      |o| | | | | | | | | |
+|field        |o|!|!|!|!|!|!|!|!|!|
+|height       | | | |o| | | | |o| |
+|invisible    |o| | | | | | | | | |
+|maximum      |o| | | | | |!| | | |
+|minimum      |o| | | | | |!| | | |
+|name         |!|!|!|!|!|!|!|!|!|!|
+|repeatable   |o| | |o| | | | |o| |
+|required     |o| |o|o|o|o| | |o| |
+|step         | | | | | | |!| | | |
+|title        |o|o|o|o|o|o|o|o|o|o|
+|tooltip      |o|o|o|o|o|o|o|o|o|o|
+|values       | |!|!| |!|!| | | | |
+|width        | | | |o| | | | | | |
 
 # Interactions
 
@@ -443,7 +451,7 @@ Main display
 
 # Uml
 ```plantuml
-scale 0.7
+scale 0.85
 title "Application page uses '::Gui::SetDialog' for set demo"
 
 class "::Gtk3::Dialog" as Gtk3dialog {
@@ -462,18 +470,26 @@ class "::Gui::Part::Dialog" as GPdialog {
   GtkResponseType show-dialog()
 }
 
-class "::Gui::Part::Set" as GPset
-class "::Gui::Part::KV" as GPkv
+class "::Gui::Part::Set" as GPset {
+  Hash $!part-user-data
+}
+
+class "::Gui::Part::KV" as GPkv {
+  build-entry()
+  check-field()
+  set-value()
+  get-value()
+}
 
 class "::Gui::SetDialog" as GSdialog
 
 Gtk3dialog <|-- GPdialog
 GPdialog <|-- GSdialog
-GSdialog -> GPset
+GSdialog *-> GPset
 GPset -> GPkv
-GPset --> Set
-GPset --> KV
-GPkv --> KV
+GPset *--> ::Set: $!set
+GPset --> ::KV
+GPkv --> ::KV
 
-APset -> GSdialog
+APset *-> GSdialog
 ```
