@@ -17,6 +17,7 @@ has Int $.height is rw;         # optional height in pixels
 has Bool $.invisible is rw;     # when value is displayed as invisible
 has Any $.minimum is rw;        # optional range for string or number type
 has Any $.maximum is rw;        # optional range for string or number type
+has Any $.step is rw;           # optional step for scale
 has Str $.name is required;
 has Str $.tooltip is rw;        # optional tooltip value for tooltip
 has Bool $.repeatable is rw;    # when value is repeatable
@@ -57,6 +58,7 @@ submethod BUILD ( Str:D :$!name, Hash :$kv ) {
   $!description = $kv<description> if $kv<description>.defined;
   $!minimum = $kv<minimum> if $kv<minimum>.defined;
   $!maximum = $kv<maximum> if $kv<maximum>.defined;
+  $!step = $kv<step> if $kv<step>.defined;
   $!default = $kv<default> if $kv<default>.defined;
   $!example = $kv<example> if $kv<example>.defined;
   $!tooltip = $kv<tooltip> if $kv<tooltip>.defined;
@@ -81,6 +83,7 @@ method kv-data ( --> Hash ) {
   $kv<description> = $!description if $!description.defined;
   $kv<minimum> = $!minimum if $!minimum.defined;
   $kv<maximum> = $!maximum if $!maximum.defined;
+  $kv<step> = $!step if $!step.defined;
   $kv<default> = $!default if $!default.defined;
   $kv<example> = $!example if $!example.defined;
   $kv<tooltip> = $!tooltip if $!tooltip.defined;

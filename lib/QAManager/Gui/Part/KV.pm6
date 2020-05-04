@@ -1,20 +1,27 @@
 use v6;
 
+use Gnome::Gdk3::Pixbuf;
+
 use Gnome::Gtk3::Grid;
 use Gnome::Gtk3::Label;
-use Gnome::Gtk3::Frame;
+use Gnome::Gtk3::ToolButton;
 use Gnome::Gtk3::Widget;
 use Gnome::Gtk3::Enums;
 use Gnome::Gtk3::Entry;
 use Gnome::Gtk3::TextView;
 use Gnome::Gtk3::CheckButton;
+use Gnome::Gtk3::ToggleButton;
+use Gnome::Gtk3::RadioButton;
 use Gnome::Gtk3::ComboBoxText;
+use Gnome::Gtk3::Scale;
 use Gnome::Gtk3::Switch;
 use Gnome::Gtk3::Image;
 use Gnome::Gtk3::StyleContext;
 
 use QAManager::QATypes;
 use QAManager::KV;
+use QAManager::Gui::Part::GroupFrame;
+use QAManager::Gui::Part::EntryFrame;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -23,9 +30,14 @@ Purpose of this part is to display a question in a row on a given grid.
 
 unit class QAManager::Gui::Part::KV;
 
+#-------------------------------------------------------------------------------
+my Hash $entry-objects = %( );
 
 #-------------------------------------------------------------------------------
-submethod BUILD (
+#submethod BUILD ( ) { }
+
+#-------------------------------------------------------------------------------
+method build-entry (
   Gnome::Gtk3::Grid :$kv-grid, Int :$grid-row, QAManager::KV :$kv
 ) {
 
@@ -37,32 +49,39 @@ submethod BUILD (
   # and input fields to the right
   given $kv.field {
     when QAEntry {
-      self.entry-field( $kv-grid, $grid-row, $kv);
+      self!entry-field( $kv-grid, $grid-row, $kv);
     }
 
     when QATextView {
-      self.textview-field( $kv-grid, $grid-row, $kv);
+      self!textview-field( $kv-grid, $grid-row, $kv);
     }
 
     when QAComboBox {
-      self.combobox-field( $kv-grid, $grid-row, $kv);
+      self!combobox-field( $kv-grid, $grid-row, $kv);
     }
 
     when QARadioButton {
+      self!radiobutton-field( $kv-grid, $grid-row, $kv);
     }
 
     when QACheckButton {
-      self.checkbutton-field( $kv-grid, $grid-row, $kv);
+      self!checkbutton-field( $kv-grid, $grid-row, $kv);
     }
 
     when QAToggleButton {
+      self!togglebutton-field( $kv-grid, $grid-row, $kv);
     }
 
     when QAScale {
+      self!scale-field( $kv-grid, $grid-row, $kv);
     }
 
     when QASwitch {
-#      self.switch-field( $kv-grid, $grid-row, $set, $kv);
+      self!switch-field( $kv-grid, $grid-row, $kv);
+    }
+
+    when QAImage {
+      self!image-field( $kv-grid, $grid-row, $kv);
     }
   }
 }
@@ -187,37 +206,31 @@ method shape-text-field (
 }}
 
 #-------------------------------------------------------------------------------
-method entry-field (
+method !entry-field (
   Gnome::Gtk3::Grid $kv-grid, Int $grid-row, QAManager::KV $kv
 ) {
 
-  my Gnome::Gtk3::Entry $w .= new;
+  # A frame with one or more entries
+  my QAManager::Gui::Part::EntryFrame $w .= new(
+    :widget-name($kv.name), :example($kv.example), :tooltip($kv.tooltip)
+    :visibility(!$kv.invisible), :repeatable($kv.repeatable)
+  );
 
   # select default if any
-  $w.set-text($kv.default) if ? $kv.default;
-
-  $w.widget-set-margin-top(3);
-  $w.set-size-request( 200, 1);
-  $w.widget-set-name($kv.name);
-  $w.set-tooltip-text($kv.tooltip) if ?$kv.tooltip;
-
-  $w.set-placeholder-text($kv.example) if ?$kv.example;
-  $w.set-visibility(!$kv.invisible);
-
-  self.set-status-hint( $w, QAStatusNormal);
+  $w.set-values( $kv.default, :!overwite) if $kv.default;
 
   $kv-grid.grid-attach( $w, 2, $grid-row, 1, 1);
+
 }
 
 #-------------------------------------------------------------------------------
-method textview-field (
+method !textview-field (
   #Gnome::Gtk3::Grid $kv-grid, Int $grid-row, QAManager::Set $set, Hash $kv
   Gnome::Gtk3::Grid $kv-grid, Int $grid-row, QAManager::KV $kv
 ) {
 
-  my Gnome::Gtk3::Frame $frame .= new;
-  $frame.set-shadow-type(GTK_SHADOW_ETCHED_IN);
-  $frame.widget-set-margin-top(3);
+  my QAManager::Gui::Part::GroupFrame $frame .= new;
+  $kv-grid.grid-attach( $frame, 2, $grid-row, 1, 1);
 
   my Gnome::Gtk3::TextView $w .= new;
   $frame.container-add($w);
@@ -232,12 +245,11 @@ method textview-field (
 #  my Str $text = $!user-data{$set.name}{$kv.name} // '';
 #  $tb.set-text( $text, $text.chars);
 
-  $kv-grid.grid-attach( $frame, 2, $grid-row, 1, 1);
 #  $!main-handler.add-widget( $w, $!invoice-title, $set, $kv);
 }
 
 #-------------------------------------------------------------------------------
-method combobox-field (
+method !combobox-field (
 #  Gnome::Gtk3::Grid $kv-grid, Int $grid-row, QAManager::Set $set, Hash $kv
   Gnome::Gtk3::Grid $kv-grid, Int $grid-row, QAManager::KV $kv
 ) {
@@ -266,13 +278,47 @@ method combobox-field (
 }
 
 #-------------------------------------------------------------------------------
-method checkbutton-field (
+method !radiobutton-field (
   Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::KV $kv
 ) {
 
-  my Gnome::Gtk3::Frame $frame .= new;
-  $frame.set-shadow-type(GTK_SHADOW_ETCHED_IN);
-  $frame.widget-set-margin-top(3);
+  my QAManager::Gui::Part::GroupFrame $frame .= new;
+  $set-grid.grid-attach( $frame, 2, $set-row, 1, 1);
+
+  # A series of checkbuttons are stored in a grid
+  my Gnome::Gtk3::Grid $g .= new;
+  $g.widget-set-name('radiobutton-grid');
+  $frame.container-add($g);
+
+  # user data is stored as a hash to make the check more easily
+#  my Array $v = $!user-data{$set.name}{$kv.name} // [];
+#  my Hash $reversed-v = $v.kv.reverse.hash;
+
+  my Int $rc = 0;
+  my Gnome::Gtk3::RadioButton $w1st;
+  for @($kv.values) -> $vname {
+    my Gnome::Gtk3::RadioButton $w .= new(:label($vname));
+#    $w.set-active($reversed-v{$vname}:exists);
+    $w.widget-set-name($kv.name);
+    $w.widget-set-margin-top(3);
+note "RB: $kv.default(), $vname, {($kv.default // '') eq $vname}";
+    $w.set-active(True) if ($kv.default // '') eq $vname;
+    $w.set-tooltip-text($kv.tooltip) if ?$kv.tooltip;
+
+    $w.join-group($w1st) if ?$w1st;
+    $w1st = $w unless ?$w1st;
+    $g.grid-attach( $w, 0, $rc++, 1, 1);
+  }
+
+#  $!main-handler.add-widget( $g, $!invoice-title, $set, $kv);
+}
+
+#-------------------------------------------------------------------------------
+method !checkbutton-field (
+  Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::KV $kv
+) {
+
+  my QAManager::Gui::Part::GroupFrame $frame .= new;
   $set-grid.grid-attach( $frame, 2, $set-row, 1, 1);
 
   # A series of checkbuttons are stored in a grid
@@ -290,6 +336,7 @@ method checkbutton-field (
 #    $w.set-active($reversed-v{$vname}:exists);
     $w.widget-set-name($kv.name);
     $w.widget-set-margin-top(3);
+    $w.set-active(?($kv.default // []).first($vname));
     $w.set-tooltip-text($kv.tooltip) if ?$kv.tooltip;
     $g.grid-attach( $w, 0, $rc++, 1, 1);
   }
@@ -298,7 +345,153 @@ method checkbutton-field (
 }
 
 #-------------------------------------------------------------------------------
-method set-status-hint (
+method !togglebutton-field (
+  Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::KV $kv
+) {
+
+  # user data is stored as a hash to make the check more easily
+#  my Array $v = $!user-data{$set.name}{$kv.name} // [];
+#  my Hash $reversed-v = $v.kv.reverse.hash;
+
+  my Gnome::Gtk3::ToggleButton $w .= new(
+    :label(($kv.values // ['toggle']).join(':'))
+  );
+
+  #    $w.set-active($reversed-v{$vname}:exists);
+  $w.widget-set-name($kv.name);
+  $w.widget-set-margin-top(3);
+  $w.set-active(?$kv.default);
+  $w.set-tooltip-text($kv.tooltip) if ?$kv.tooltip;
+  $set-grid.grid-attach( $w, 2, $set-row, 1, 1);
+
+#  $!main-handler.add-widget( $g, $!invoice-title, $set, $kv);
+}
+
+#-------------------------------------------------------------------------------
+method !scale-field (
+  Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::KV $kv
+) {
+
+  # user data is stored as a hash to make the check more easily
+#  my Array $v = $!user-data{$set.name}{$kv.name} // [];
+#  my Hash $reversed-v = $v.kv.reverse.hash;
+
+  my Gnome::Gtk3::Scale $w .= new(
+    :orientation(GTK_ORIENTATION_HORIZONTAL),
+    :min($kv.minimum // 0e0), :max($kv.maximum // 1e2), :step($kv.step // 1e0)
+  );
+
+  #    $w.set-active($reversed-v{$vname}:exists);
+  $w.widget-set-name($kv.name);
+  $w.widget-set-margin-top(3);
+  $w.set-draw-value(True);
+  $w.set-digits(2);
+  $w.set-value($kv.default // $kv.minimum // 0e0);
+  $w.set-tooltip-text($kv.tooltip) if ?$kv.tooltip;
+  $set-grid.grid-attach( $w, 2, $set-row, 1, 1);
+
+#  $!main-handler.add-widget( $g, $!invoice-title, $set, $kv);
+}
+
+#-------------------------------------------------------------------------------
+method !switch-field (
+  Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::KV $kv
+) {
+
+  # the switch is streched to the full width of the grid cell. this is ugly!
+  # to prevent this, create another grid to place the switch in. This is
+  # usually enough. here however, the switch must be justified to the right,
+  # so place a label in the first cell eating all available space. this will
+  # push the switch to the right.
+  my Gnome::Gtk3::Grid $g .= new;
+  my Gnome::Gtk3::Label $l .= new(:text(''));
+  $l.widget-set-hexpand(True);
+  $g.grid-attach( $l, 0, 0, 1, 1);
+
+  my Gnome::Gtk3::Switch $w .= new;
+#  my Bool $v = $!user-data{$set.name}{$kv.name} // Bool;
+  $w.set-active(?$kv.default);
+  $w.widget-set-margin-top(3);
+  $w.widget-set-name($kv.name);
+  $w.set-tooltip-text($kv.tooltip) if ?$kv.tooltip;
+
+  $g.grid-attach( $w, 1, 0, 1, 1);
+  $set-grid.grid-attach( $g, 2, $set-row, 1, 1);
+#  $!main-handler.add-widget( $w, $!invoice-title, $set, $kv);
+}
+
+#-------------------------------------------------------------------------------
+method !image-field (
+  Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::KV $kv
+) {
+
+  # user data is stored as a hash to make the check more easily
+#  my Array $v = $!user-data{$set.name}{$kv.name} // [];
+#  my Hash $reversed-v = $v.kv.reverse.hash;
+
+  my QAManager::Gui::Part::GroupFrame $frame .= new;
+  $set-grid.grid-attach( $frame, 2, $set-row, 1, 1);
+
+  my Str $file = $kv.default // '';
+#  $filename = %?RESOURCES{$filename}.Str unless $filename.IO.r;
+
+  my Int $width = $kv.width // 100;
+  my Int $height = $kv.height // 100;
+  my Gnome::Gdk3::Pixbuf $pb .= new(:$file, :$width, :$height);
+  my Gnome::Gtk3::Image $w .= new;
+  $w.set-from-pixbuf($pb);
+
+  #    $w.set-active($reversed-v{$vname}:exists);
+  $w.widget-set-name($kv.name);
+  $w.widget-set-margin-top(3);
+  $w.set-tooltip-text($kv.tooltip) if ?$kv.tooltip;
+
+  $frame.container-add(
+    self!field-with-button( self, 'select-image',
+    :field-text($file), :field-widget($w)
+    )
+  );
+
+#  $!main-handler.add-widget( $g, $!invoice-title, $set, $kv);
+}
+
+#-------------------------------------------------------------------------------
+method !field-with-button (
+  Any:D $handler-object, Str:D $handler-method,
+  Str :$field-text, :$field-widget?
+  --> Gnome::Gtk3::Grid
+) {
+
+  my Gnome::Gtk3::Image $w .= new(:filename(%?RESOURCES<Folder.png>.Str));
+  my Gnome::Gtk3::ToolButton $tb .= new(:icon($w));
+  $tb.register-signal( $handler-object, $handler-method, 'clicked');
+
+  my Gnome::Gtk3::Grid $fwb .= new;
+  if ?$field-text {
+    my Gnome::Gtk3::Label $l .= new(:text($field-text));
+    $l.set-use-markup(True);
+#    $l.widget-set-hexpand(True);
+    $l.set-line-wrap(True);
+    #$l.set-max-width-chars(40);
+#    $l.set-justify(GTK_JUSTIFY_FILL);
+    $l.widget-set-halign(GTK_ALIGN_START);
+    $l.widget-set-valign(GTK_ALIGN_CENTER);
+
+    $fwb.grid-attach( $l, 0, 0, 1, 1);
+    $fwb.grid-attach( $tb, 1, 0, 1, 1);
+  }
+
+  else {
+    $fwb.grid-attach( $tb, 0, 0, 2, 1);
+  }
+
+  $fwb.grid-attach( $field-widget, 0, 1, 2, 1) if $field-widget.defined;
+
+  $fwb
+}
+
+#-------------------------------------------------------------------------------
+method !set-status-hint (
   Gnome::Gtk3::Widget $widget, inputStatusHint $status
 ) {
   my Gnome::Gtk3::StyleContext $context .= new(
@@ -325,4 +518,30 @@ method set-status-hint (
 
   else {
   }
+}
+
+#-------------------------------------------------------------------------------
+method check-field (
+  Gnome::Gtk3::Grid :$kv-grid, Int :$grid-row, QAManager::KV :$kv
+) {
+  my $no = $kv-grid.get-child-at( 2, $grid-row);
+  my Gnome::Gtk3::Widget $w .= new(:native-object($no));
+note "Type: $kv.field(), $grid-row, $w.widget-get-name()";
+}
+
+#-------------------------------------------------------------------------------
+method set-value (
+  Gnome::Gtk3::Grid :$kv-grid, Int :$grid-row, Hash :$values, QAManager::KV :$kv
+) {
+#note "Type: $kv.field()";
+}
+
+#-------------------------------------------------------------------------------
+method select-image ( ) {
+note "select image";
+}
+
+#-------------------------------------------------------------------------------
+method clean-entries ( ) {
+  $entry-objects = %( );
 }

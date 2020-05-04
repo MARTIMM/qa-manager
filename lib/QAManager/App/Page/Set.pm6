@@ -126,18 +126,8 @@ method !create-treeview (
           QATypeColumn, ($kv.field // 'QAEntry').Str,
           CatNameColumn, $category, SetNameColumn, $set-name
         );
-        $qa-child-iter.clear-object;
       }
-
-      # clear the iterator before the next round overwrites it and leak memory
-      $qa-iter.clear-object;
     }
-
-    # clear category for later use
-#    $cat.purge;
-
-    # clear the iterator and path for the next round
-    $set-iter.clear-object;
   }
 
   $scrolled-treeview
@@ -194,9 +184,8 @@ method !create-set-menus ( --> List ) {
 #-------------------------------------------------------------------------------
 method !get-path-values ( --> List ) {
 
-  my Gnome::Gtk3::TreeIter $iter = $!set-table-store.get-iter(
-    Gnome::Gtk3::TreePath.new(:indices($!selected-path))
-  );
+  my Gnome::Gtk3::TreePath $selected .= new(:indices($!selected-path));
+  my Gnome::Gtk3::TreeIter $iter = $!set-table-store.get-iter($selected);
 
   my Array[Gnome::GObject::Value] $va = $!set-table-store.get-value(
     $iter, CatNameColumn, SetNameColumn
@@ -207,7 +196,7 @@ method !get-path-values ( --> List ) {
   my Str $set-name = $va[1].get-string;
   $va[1].clear-object;
 
-  $iter.clear-object;
+  $selected.clear-object;
 
 note "values from \($!selected-path\): $cat-name, $set-name";
   ( $cat-name, $set-name )
@@ -219,6 +208,7 @@ method show-menu (
   Gnome::Gtk3::Menu :$set-menu, Gnome::Gtk3::Menu :$qa-menu
   --> Int
  ) {
+  # do not free path, it is owned by the caller.
   my Gnome::Gtk3::TreePath $path .= new(:native-object($n-tree-path));
   $!selected-path = $path.gtk_tree_path_get_indices;
 note 'Show Menu: ', $!selected-path.Str;
@@ -278,7 +268,7 @@ method show-set ( ) {
     note 'dialog closed: ', $set-demo-dialog.dialog-content;
   }
 
-  $set-demo-dialog.widget-hide; #widget-destroy;
+  $set-demo-dialog.widget-destroy;
 #CATCH {.note}}
 }
 
@@ -327,11 +317,9 @@ method set-delete ( ) {
 #    $c.purge;
 
     # remove entry from treeview, entries on lower level disappear too
-    $!set-table-store.tree-store-remove(
-      $!set-table-store.get-iter(
-        Gnome::Gtk3::TreePath.new(:indices($!selected-path))
-      )
-    );
+    my Gnome::Gtk3::TreePath $path .= new(:indices($!selected-path));
+    $!set-table-store.tree-store-remove($!set-table-store.get-iter($path));
+    $path.clear-object;
   }
 
   $dm.widget-destroy;

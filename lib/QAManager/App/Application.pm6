@@ -76,7 +76,7 @@ submethod BUILD ( *%options ) {
 
 #-------------------------------------------------------------------------------
 method app-startup ( Gnome::Gtk3::Application :widget($app) ) {
-  #TODO check for tasks which do need a gui
+  #TODO check for tasks which do not need a gui, if so, don't self.run 
 
   self.run;
 }
