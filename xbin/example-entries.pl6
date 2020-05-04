@@ -17,110 +17,76 @@ use QAManager::Sheet;
 #-------------------------------------------------------------------------------
 my QAManager::Set $entry-dialog .= new(:name<example-entries>);
 $entry-dialog.title = 'Example Entries';
-$entry-dialog.description = 'Display of all available types of entries and their different ways of display';
+$entry-dialog.description = 'Display of all available types of entries other that text and their different ways of display';
 
-my QAManager::KV $field .= new(:name<entry1>);
-$field.description = 'Entry input field 1';
-$entry-dialog.add-kv($field);
-
-$field .= new(:name<entry2>);
-$field.description = 'Entry input field 2';
-$field.required = True;
-$entry-dialog.add-kv($field);
-
-$field .= new(:name<entry3>);
-$field.description = 'Entry input field 3';
-$field.default = 'default input';
-$entry-dialog.add-kv($field);
-
-$field .= new(:name<entry4>);
-$field.description = 'Entry input field 4';
-$field.example = 'example input';
-$entry-dialog.add-kv($field);
-
-$field .= new(:name<entry5>);
-$field.description = 'Entry input field 5';
-$field.default = 'password input';
-$field.invisible = True;
-$field.tooltip = 'Invisible for password';
-$entry-dialog.add-kv($field);
-
-
-$field .= new(:name<textview1>);
-$field.field = QATextView;
-$field.description = 'Textview input field 1';
-$entry-dialog.add-kv($field);
-
-
-$field .= new(:name<combobox1>);
+my QAManager::KV $field .= new(:name<combobox1>);
 $field.field = QAComboBox;
 $field.required = True;
-$field.values = [< value1  value2 value3 value4 >];
+$field.values = [< value1 value2 value3 value4 >];
 $field.description = 'Combobox input field 1';
 $entry-dialog.add-kv($field);
 
 $field .= new(:name<combobox2>);
 $field.field = QAComboBox;
-$field.values = [< value1  value2 value3 value4 >];
+$field.values = [< value1 value2 value3 value4 >];
 $field.default = 'value2';
 $field.description = 'Combobox input field 2';
 $entry-dialog.add-kv($field);
 
 
 $field .= new(:name<radio1>);
+$field.field = QARadioButton;
 $field.description = 'Radio button input field 1';
-$field.values = [< value1  value2 value3 value4 >];
-$field.field = QARadioButton;
-$field.required = True;
-$entry-dialog.add-kv($field);
-
-$field .= new(:name<radio2>);
-$field.description = 'Radio button input field 2';
-$field.values = [< value1  value2 value3 value4 >];
+$field.values = [< value1 value2 value3 value4 >];
 $field.default = 'value2';
-$field.field = QARadioButton;
 $entry-dialog.add-kv($field);
 
 
 $field .= new(:name<check1>);
-$field.description = 'Check button input field 1';
-$field.values = [< value1  value2 value3 value4 >];
 $field.field = QACheckButton;
+$field.description = 'Check button input field 1';
+$field.values = [< value1 value2 value3 value4 >];
 $field.required = True;
 $entry-dialog.add-kv($field);
 
 $field .= new(:name<check2>);
-$field.description = 'Check button input field 2';
-$field.values = [< value1  value2 value3 value4 >];
-$field.default = 'value2';
 $field.field = QACheckButton;
+$field.description = 'Check button input field 2';
+$field.values = [< value1 value2 value3 value4 >];
+$field.default = [ 'value2', 'value4'];
 $entry-dialog.add-kv($field);
 
 
 $field .= new(:name<toggle1>);
-$field.description = 'Toggle input field 1';
-$field.default = False;
 $field.field = QAToggleButton;
+$field.description = 'Toggle input field 1';
+$field.default = True;
 $entry-dialog.add-kv($field);
 
 
 $field .= new(:name<scale1>);
 $field.field = QAScale;
 $field.description = 'Scale input field 1';
+$field.minimum = 10e0;
+$field.maximum = 20e0;
+$field.default = 13e0;
+$field.step = 7e-1;
 $entry-dialog.add-kv($field);
 
 
 $field .= new(:name<switch1>);
-$field.description = 'Switch input field 1';
-$field.default = False;
 $field.field = QASwitch;
+$field.description = 'Switch input field 1';
+$field.default = True;
 $entry-dialog.add-kv($field);
 
 
 $field .= new(:name<image1>);
-$field.description = 'Image input field 1';
-#$field.default = ...path...;
 $field.field = QAImage;
+$field.description = 'Image input field 1';
+$field.default = 'resources/icons8-invoice-100.png';
+$field.width = 100;
+$field.height = 100;
 $entry-dialog.add-kv($field);
 
 
