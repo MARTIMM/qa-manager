@@ -49,21 +49,11 @@ grid {
 .regularText {
 	color: @regular-text-color;
 
-  font-variant: normal;
+  /*font-variant: normal;
   font-style: normal;
   font-weight: normal;
   font-stretch: normal;
-  font-size: medium;
-}
-
-.labelText {
-	color: @label-text-color;
-
-  font-variant: normal;
-  font-style: normal;
-  font-weight: normal;
-  font-stretch: normal;
-  font-size: medium;
+  font-size: normal;*/
 }
 
 /*
@@ -77,9 +67,9 @@ frame label {
 
   font-variant: small-caps;
   font-style: normal;
-  font-weight: bold;
+  font-weight: bolder;
   font-stretch: semi-expanded;
-  font-size: larger;
+  /*font-size: 0.6em;*/
 }
 
 .descriptionText {
@@ -87,9 +77,9 @@ frame label {
 
   font-variant: normal;
   font-style: normal;
-  font-weight: bold;
+  font-weight: 400;
   font-stretch: normal;
-  font-size: larger;
+  /*font-size: 0.3em;*/
 }
 
 .messageText {
@@ -99,7 +89,7 @@ frame label {
   font-style: normal;
   font-weight: normal;
   font-stretch: normal;
-  font-size: medium;
+  /*font-size: 0.3em;*/
 }
 
 radiobutton label {
@@ -109,7 +99,7 @@ radiobutton label {
   font-style: normal;
   font-weight: normal;
   font-stretch: normal;
-  /*font-size: medium;*/
+  /*font-size: 0.3em;*/
 }
 
 checkbutton label {
@@ -120,6 +110,16 @@ checkbutton label {
   font-weight: normal;
   font-stretch: normal;
   /*font-size: medium;*/
+}
+
+.labelText {
+	color: @label-text-color;
+
+  font-variant: normal;
+  font-style: normal;
+  font-weight: initial;
+  font-stretch: normal;
+  /*font-size: normal;*/
 }
 
 /*
