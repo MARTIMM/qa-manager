@@ -94,15 +94,18 @@ method !shape-label (
   Str $title, Str $description, Bool $required
 ) {
 
-  my Str $label-text = [~] '<b>', $description // $title, '</b>:';
+  #my Str $label-text = [~] '<b>', $description // $title, '</b>:';
+  my Str $label-text = $description // $title ~ ':';
   my Gnome::Gtk3::Label $l .= new(:text($label-text));
-  $l.set-use-markup(True);
-  $l.widget-set-hexpand(True);
+  #$l.set-use-markup(True);
+  $l.set-hexpand(True);
   $l.set-line-wrap(True);
   #$l.set-max-width-chars(40);
   $l.set-justify(GTK_JUSTIFY_FILL);
-  $l.widget-set-halign(GTK_ALIGN_START);
-  $l.widget-set-valign(GTK_ALIGN_CENTER);
+  $l.set-halign(GTK_ALIGN_START);
+  $l.set-valign(GTK_ALIGN_START);
+  $l.set-margin-top(6);
+  $l.set-margin-start(2);
   my Gnome::Gtk3::StyleContext $context .= new(
     :native-object($l.get-style-context)
   );
@@ -113,97 +116,10 @@ method !shape-label (
   $label-text = [~] ' <b>', $required ?? '*' !! '', '</b> ';
   $l .= new(:text($label-text));
   $l.set-use-markup(True);
-  $l.widget-set-valign(GTK_ALIGN_CENTER);
+  $l.set-valign(GTK_ALIGN_START);
+  $l.set-margin-top(6);
   $grid.grid-attach( $l, 1, $row, 1, 1);
 }
-
-#`{{
-#-------------------------------------------------------------------------------
-method text-field (
-  Gnome::Gtk3::Grid $kv-grid, Int $grid-row is copy,
-  QAManager::Set $set, Hash $kv
-#   --> Int
-) {
-
-  my Str $text;
-#`{{
-  # existing entries get a 'x' toolbar button
-  if ?$kv<repeatable> {
-    my Array $texts = $!user-data{$set.name}{$kv<name>} // [];
-    my Int $n-texts = +@$texts;
-    loop ( my Int $i = 0; $i < $n-texts; $i++ ) {
-      $text = $texts[$i];
-      self.shape-text-field(
-        $text, $kv, $kv-grid, $grid-row, $!invoice-title, $set
-      );
-
-      my Gnome::Gtk3::Image $image .= new(
-        :filename(%?RESOURCES<Delete.png>.Str)
-      );
-      my Gnome::Gtk3::ToolButton $tb .= new(:icon($image));
-      $tb.widget-set-name('delete-tb-button');
-      $tb.register-signal(
-        $!main-handler, 'add-or-delete-grid-row', 'clicked',
-        :$!invoice-title, :$set, :$kv
-      );
-      $kv-grid.grid-attach( $tb, 3, $grid-row, 1, 1);
-
-      $grid-row++;
-      $text = Str;
-    }
-  }
-
-  else {
-}}
-    $text = $!user-data{$set.name}{$kv<name>} // Str;
-#  }
-
-  self.shape-text-field(
-    $text, $kv, $kv-grid, $grid-row, $!invoice-title, $set
-  );
-#`{{
-  # last entry gets a '+' toolbar button
-  if ?$kv<repeatable> {
-    my Gnome::Gtk3::Image $image .= new(:filename(%?RESOURCES<Add.png>.Str));
-    my Gnome::Gtk3::ToolButton $tb .= new(:icon($image));
-    $tb.widget-set-name('add-tb-button');
-    $tb.register-signal(
-      $!main-handler, 'add-or-delete-grid-row', 'clicked',
-      :$!invoice-title, :$set, :$kv
-    );
-    $kv-grid.grid-attach( $tb, 3, $grid-row, 1, 1);
-  }
-}}
-
-  $grid-row
-}
-
-#-------------------------------------------------------------------------------
-method shape-text-field (
-  Str $text, Hash $kv, Gnome::Gtk3::Grid $kv-grid,
-  Int $grid-row, Str $!invoice-title#, QAManager::Set $set
-) {
-
-  my Gnome::Gtk3::Entry $w .= new;
-  $w.set-text($text) if ? $text;
-
-  $w.widget-set-margin-top(3);
-  $w.set-size-request( 200, 1);
-  $w.widget-set-name($kv<name>);
-  $w.set-tooltip-text($kv<tooltip>) if ?$kv<tooltip>;
-
-  $w.set-placeholder-text($kv<example>) if ?$kv<example>;
-  $w.set-visibility(!$kv<invisible>);
-
-  $kv-grid.grid-attach( $w, 2, $grid-row, 1, 1);
-#  $!main-handler.add-widget( $w, $!invoice-title, $set, $kv);
-#  $!main-handler.check-field( $w, $kv);
-
-#  $w.register-signal(
-#    $!main-handler, 'check-on-focus-change', 'focus-out-event', :$kv,
-#  );
-}
-}}
 
 #-------------------------------------------------------------------------------
 method !entry-field (
@@ -213,12 +129,12 @@ method !entry-field (
   # A frame with one or more entries
   my QAManager::Gui::Part::EntryFrame $w .= new(
     :widget-name($kv.name), :example($kv.example), :tooltip($kv.tooltip)
-    :visibility(!$kv.invisible), :repeatable($kv.repeatable)
+    :visibility(!$kv.invisible), :repeatable($kv.repeatable),
+    :entry-category($kv.values)
   );
 
   # select default if any
-  $w.set-values( $kv.default, :!overwite) if $kv.default;
-
+  $w.set-default($kv.default) if $kv.default;
   $kv-grid.grid-attach( $w, 2, $grid-row, 1, 1);
 
 }
@@ -235,9 +151,9 @@ method !textview-field (
   my Gnome::Gtk3::TextView $w .= new;
   $frame.container-add($w);
 
-  #$w.widget-set-margin-top(6);
+  #$w.set-margin-top(6);
   $w.set-size-request( 1, $kv.height // 50);
-  $w.widget-set-name($kv.name);
+  $w.set-name($kv.name);
   $w.set-tooltip-text($kv.tooltip) if ?$kv.tooltip;
   $w.set-wrap-mode(GTK_WRAP_WORD);
 
@@ -269,8 +185,8 @@ method !combobox-field (
 #    $w.set-active($value-index);
 #  }
 
-  $w.widget-set-margin-top(3);
-  $w.widget-set-name($kv.name);
+  $w.set-margin-top(3);
+  $w.set-name($kv.name);
   $w.set-tooltip-text($kv.tooltip) if ?$kv.tooltip;
 
   $kv-grid.grid-attach( $w, 2, $grid-row, 1, 1);
@@ -287,7 +203,7 @@ method !radiobutton-field (
 
   # A series of checkbuttons are stored in a grid
   my Gnome::Gtk3::Grid $g .= new;
-  $g.widget-set-name('radiobutton-grid');
+  $g.set-name('radiobutton-grid');
   $frame.container-add($g);
 
   # user data is stored as a hash to make the check more easily
@@ -299,8 +215,8 @@ method !radiobutton-field (
   for @($kv.values) -> $vname {
     my Gnome::Gtk3::RadioButton $w .= new(:label($vname));
 #    $w.set-active($reversed-v{$vname}:exists);
-    $w.widget-set-name($kv.name);
-    $w.widget-set-margin-top(3);
+    $w.set-name($kv.name);
+    $w.set-margin-top(3);
 note "RB: $kv.default(), $vname, {($kv.default // '') eq $vname}";
     $w.set-active(True) if ($kv.default // '') eq $vname;
     $w.set-tooltip-text($kv.tooltip) if ?$kv.tooltip;
@@ -323,7 +239,7 @@ method !checkbutton-field (
 
   # A series of checkbuttons are stored in a grid
   my Gnome::Gtk3::Grid $g .= new;
-  $g.widget-set-name('checkbutton-grid');
+  $g.set-name('checkbutton-grid');
   $frame.container-add($g);
 
   # user data is stored as a hash to make the check more easily
@@ -334,8 +250,8 @@ method !checkbutton-field (
   for @($kv.values) -> $vname {
     my Gnome::Gtk3::CheckButton $w .= new(:label($vname));
 #    $w.set-active($reversed-v{$vname}:exists);
-    $w.widget-set-name($kv.name);
-    $w.widget-set-margin-top(3);
+    $w.set-name($kv.name);
+    $w.set-margin-top(3);
     $w.set-active(?($kv.default // []).first($vname));
     $w.set-tooltip-text($kv.tooltip) if ?$kv.tooltip;
     $g.grid-attach( $w, 0, $rc++, 1, 1);
@@ -358,8 +274,8 @@ method !togglebutton-field (
   );
 
   #    $w.set-active($reversed-v{$vname}:exists);
-  $w.widget-set-name($kv.name);
-  $w.widget-set-margin-top(3);
+  $w.set-name($kv.name);
+  $w.set-margin-top(3);
   $w.set-active(?$kv.default);
   $w.set-tooltip-text($kv.tooltip) if ?$kv.tooltip;
   $set-grid.grid-attach( $w, 2, $set-row, 1, 1);
@@ -382,8 +298,8 @@ method !scale-field (
   );
 
   #    $w.set-active($reversed-v{$vname}:exists);
-  $w.widget-set-name($kv.name);
-  $w.widget-set-margin-top(3);
+  $w.set-name($kv.name);
+  $w.set-margin-top(3);
   $w.set-draw-value(True);
   $w.set-digits(2);
   $w.set-value($kv.default // $kv.minimum // 0e0);
@@ -405,14 +321,14 @@ method !switch-field (
   # push the switch to the right.
   my Gnome::Gtk3::Grid $g .= new;
   my Gnome::Gtk3::Label $l .= new(:text(''));
-  $l.widget-set-hexpand(True);
+  $l.set-hexpand(True);
   $g.grid-attach( $l, 0, 0, 1, 1);
 
   my Gnome::Gtk3::Switch $w .= new;
 #  my Bool $v = $!user-data{$set.name}{$kv.name} // Bool;
   $w.set-active(?$kv.default);
-  $w.widget-set-margin-top(3);
-  $w.widget-set-name($kv.name);
+  $w.set-margin-top(3);
+  $w.set-name($kv.name);
   $w.set-tooltip-text($kv.tooltip) if ?$kv.tooltip;
 
   $g.grid-attach( $w, 1, 0, 1, 1);
@@ -442,8 +358,8 @@ method !image-field (
   $w.set-from-pixbuf($pb);
 
   #    $w.set-active($reversed-v{$vname}:exists);
-  $w.widget-set-name($kv.name);
-  $w.widget-set-margin-top(3);
+  $w.set-name($kv.name);
+  $w.set-margin-top(3);
   $w.set-tooltip-text($kv.tooltip) if ?$kv.tooltip;
 
   $frame.container-add(
@@ -470,12 +386,12 @@ method !field-with-button (
   if ?$field-text {
     my Gnome::Gtk3::Label $l .= new(:text($field-text));
     $l.set-use-markup(True);
-#    $l.widget-set-hexpand(True);
+#    $l.set-hexpand(True);
     $l.set-line-wrap(True);
     #$l.set-max-width-chars(40);
 #    $l.set-justify(GTK_JUSTIFY_FILL);
-    $l.widget-set-halign(GTK_ALIGN_START);
-    $l.widget-set-valign(GTK_ALIGN_CENTER);
+    $l.set-halign(GTK_ALIGN_START);
+    $l.set-valign(GTK_ALIGN_CENTER);
 
     $fwb.grid-attach( $l, 0, 0, 1, 1);
     $fwb.grid-attach( $tb, 1, 0, 1, 1);
@@ -526,7 +442,7 @@ method check-field (
 ) {
   my $no = $kv-grid.get-child-at( 2, $grid-row);
   my Gnome::Gtk3::Widget $w .= new(:native-object($no));
-note "Type: $kv.field(), $grid-row, $w.widget-get-name()";
+note "Type: $kv.field(), $grid-row, $w.get-name()";
 }
 
 #-------------------------------------------------------------------------------

@@ -14,16 +14,34 @@ submethod new ( |c ) {
 
 #-------------------------------------------------------------------------------
 submethod BUILD (
-  Str :$text, Str :$example, Str :$tooltip, Bool :$visibility,
-  Str :$widget-name
+  Str :$text = '', Str :$example = '', Str :$tooltip = '',
+  Bool :$visibility = True, Str :$widget-name = '',
+  *%options
 ) {
+  # do not change settings if object comes from elsewhere
+  return if %options<native-object>:exists;
 
-  self.widget-set-name($widget-name) if ?$widget-name;
-  self.widget-set-margin-top(3);
+note "V: {$text//'-'}, {$visibility//'-'}";
+  self.set-name($widget-name) if ?$widget-name;
+  self.set-margin-top(3);
   self.set-size-request( 200, 1);
-  self.widget-set-hexpand(True);
+  self.set-hexpand(True);
   self.set-text($text) if ?$text;
   self.set-tooltip-text($tooltip) if ?$tooltip;
   self.set-visibility(?$visibility);
   self.set-placeholder-text($example) if ?$example;
 }
+
+#`{{
+#-------------------------------------------------------------------------------
+multi prefix:<?>( QAManager::Gui::Part::Entry $e --> Bool ) is export {
+note "Test text exist: $e.get-text()";
+  ? ($e.get-text);
+}
+
+#-------------------------------------------------------------------------------
+multi prefix:<!>( QAManager::Gui::Part::Entry $e --> Bool ) is export {
+note "Test text does not exist: $e.get-text()";
+  ! ($e.get-text);
+}
+}}

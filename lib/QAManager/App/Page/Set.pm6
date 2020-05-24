@@ -256,7 +256,6 @@ note 'Show Menu: ', $!selected-path.Str;
 # receiving a button click.
 method show-set ( ) {
 #Gnome::N::debug(:on);
-#try {
   # sets are at depth 1
   return unless $!selected-path.defined; # and $!selected-path.elems == 1;
   note 'Show set';
@@ -269,7 +268,6 @@ method show-set ( ) {
   }
 
   $set-demo-dialog.widget-destroy;
-#CATCH {.note}}
 }
 
 #-------------------------------------------------------------------------------
