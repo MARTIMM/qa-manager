@@ -117,22 +117,22 @@ Summarized
 
 ![image](Images/a-displayed-set.png)
 
-### Visual clues on validity of value
+#### Visual clues on validity of value
 
 * [x] Stylesheet installed in resources
-* [x] Border color of entries are specified for faulty (red) and ok entries (green).
-* [x] A messagebox is shown on Finish if there are errors found. Finish will then not exit.
+* [ ] Border color of entries are specified for faulty (red) and ok entries (green).
+* [ ] A messagebox is shown on Finish if there are errors found. Finish will then not exit.
 
-### Field key specifications
-* [ ] button; optional to create another dialog
-* [x] callback; optional to check a value from text input.
-* [ ] cmpwith; optional to check value against other field
-* [x] default; optional default value
-* [x] description; Optional. By default it uses the title. It is shown in front of the input field.
-* [ ] encode; when value must be encoded with sha256
-* [x] example; optional example value
+#### Field key specifications
+* [ ] ?? button; Used to create another dialog
+* [ ] callback; Method name in previously provided object. Used to check a value when there is text input.
+* [ ] ?? cmpwith; Used to check a value against another field
+* [x] default; Used to show a default value set in the input field.
+* [x] description; Show text in front of the input field. By default it uses the title of the input field.
+* [ ] encode; Used to encode the textual input with sha256.
+* [x] example; Used to show an example value in the text input field. It is shown in light gray.
 
-* [x] field; optional. Default is QAEntry.
+* [x] field; Specify the type of field. Default is QAEntry.
   * [x] QAEntry; Single line input for text and number. One or more values to get/set in user config.
   * [x] QAScale; Number input. One value to get/set in user config.
   * [x] QATextView; Multiline text input. One value to get/set in user config.
@@ -143,44 +143,104 @@ Summarized
   * [x] QASwitch; Boolean input.
   * [x] QAToggleButton; Boolean input.
   * [ ] QAFileChooserDialog. One or more values to get/set in user config.
-  * [ ] QADragAndDrop
   * [ ] QAColorChooserDialog
-  * [ ] QADialog
-  * [ ] QAStack
-  * [ ] QANoteBook
   * [x] QAImage. One or more values to get/set in user config.
 
-* [x] height; optional height in pixels. Used for e.g. a TextView.
-* [x] invisible; when value is displayed as invisible characters
-* [ ] maximum; optional. Maximum for number type or maximum number of characters for string type.
-* [ ] minimum; optional. Minimum for number type or minimum number of characters for string type.
+  * [ ] ?? QADragAndDrop
+
+* [x] height; Height in pixels. Used for e.g. a TextView.
+* [x] invisible; Used to display text as invisible characters (*)
+* [ ] maximum; Used to define maximum for number type or maximum number of characters for string type.
+* [ ] minimum; Used to define minimum for number type or minimum number of characters for string type.
 * [x] name; Required. Used as a key in returned data along with category and set. Also used as a name on the widget to find the widget.
-* [ ] repeatable; boolean value when input is repeatable. Data must be stored in an array. To repeat, field must show a **+** to the right.
-* [x] required; boolean value when input is required. show as a star.
-* [x] step; used in combination with max and min on QAScale.
-* [x] title; Optional. By default it is the first character uppercased of the name.
-* [x] tooltip; optional tooltip on input field
-* [ ] values; array of strings for (multi)select lists
-* [ ] width; optional width in pixels
+* [x] repeatable; Used to be able to repeat an input value when set True. Data must be stored in an array. To repeat, last field must show a **+** to the right to add a row and other fields must show **x** to delete those rows.
+* [x] required; A boolean value used to show that input is required. It shows  star **\*** at the front of the input.
+* [x] step; used in combination with maximum and minimum on QAScale.
+* [x] title; By default it is the first character uppercased of the name.
+* [x] tooltip; Used as a tooltip shown above input field
+* [ ] values; An array of strings for (multi)select lists or comboboxes. Also text entries can have a combobox added to select a category for its input. For example <work home mobile> for telephone numbers.
+* [ ] width; Used for width in pixels
 
-## Run invoice
-* [x] load user data
-* [x] select sheet
-* [x] display invoice and fill fields with user data
-* [x] return data
-* [x] save data
+#### Display
 
-## Additions
-* [ ] change pages depending on what is input
-* [ ] use a button to open a new dialog
-* [ ] button should be inserted next to the other buttons
-* buttons
+Dialogs are based on a sheet. There are dialog types specified with the sheet.
+
+* [ ] QADialog. Plain dialog showing one set.
+* [ ] QAStack. Dialog showing pages. Each page can have several sets.
+* [x] QANoteBook. Dialog showing pages. Each page can have several sets.
+* [ ] QAAssistant. Dialog showing pages. Each page has one set.
+
+* Dialog buttons shown at the bottom
   * [x] cancel; close dialog and return nothing
   * [x] finish; close dialog and return data
   * [ ] next; to get to the next page when not a NoteBook
   * [ ] previous; to get to the previous page when not a NoteBook
 
-##### A table where field specs are shown for each field type
+#### Setting and getting values
+
+Values are stored in users config environment (.config in Linux using freedesktop specs).
+
+Example JSON Structure of the saved data entered in the dialogs;
+```
+{
+  "QA Forms 1": {
+    "profile": {
+      "email": "dfgdf",
+      "www": "",
+      "image": "",
+      "age18": true
+    },
+    "credentials": {
+      "password": "dfg",
+      "username": "adfg"
+    }
+  },
+  "QA Forms 2": {
+    "profile": {
+      "image": "sfdg",
+      "email": "",
+      "www": ""
+    }
+  }
+}
+```
+##### The keys in the structure
+
+* sheet name
+  * set name
+    * field name: field input
+
+##### Field input
+
+The field input is a structure which can be used in all types of fields
+
+* Entry:
+  * `[ $value, ]`             This supports single and repeated values.
+  * `[ :$value($category), ]` This supports repeated values with combobox categories. `:repeatable` and `:values` are set as to fill a combobox
+* CheckButton:
+  * `[ $value, ]`             Checked values
+* ComboBox
+  * `$value`                  Single selection
+  * `[ $value, ]`             Multi selection
+* Image
+  * `$value`                  Path to image
+* List
+  * `$value`                  Single selection
+  * `[ $value, ]`             Multi selection
+* RadioButton
+  * `$value`                  The one selected in the group
+* Scale
+  * `$value`                  The value set in the scale
+* Switch
+  * `$value`                  True or False
+* TextView
+  * `$value`                  Text
+* ToggleButton
+  * `$value`                  True or False
+
+
+
+### A table where field specs are shown for each field type
 
 | Symbol | Explanation
 |--------|-------------------------------------------|
@@ -221,8 +281,12 @@ Summarized
 |step         | | | | | | |!| | | |
 |title        |o|o|o|o|o|o|o|o|o|o|
 |tooltip      |o|o|o|o|o|o|o|o|o|o|
-|values       | |!|!| |!|!| | | | |
+|values       |o|!|!| |!|!| | | | |
 |width        | | | |o| | | | | | |
+|-------------|--|--|--|--|--|--|--|--|--|--|
+|display      |🗸
+|set value    |🗸
+|get value    |
 
 # Interactions
 
@@ -436,7 +500,7 @@ Main display
       * [ ] Delete from menu deletes the category
 
   * [x] Sets
-    * [ ] Display a TreeView using a TreeStore model of available categories with the defined sets and QA entries.
+    * [x] Display a TreeView using a TreeStore model of available categories with the defined sets and QA entries.
       * [ ] New will create a new set. A dialog is shown with specific set questions. After finishing the dialog, the set is inserted in the set list without QA entries.
       * [ ] Add QA will show a dialog where a QA entry can be specified. After closing the dialog, the entry will be visible in the tree view.
       * [ ] Select a QA entry and keyboard arrow up/down will move the QA entry up or down the list.
