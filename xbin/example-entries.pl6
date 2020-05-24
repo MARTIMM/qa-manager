@@ -17,7 +17,7 @@ use QAManager::Sheet;
 #-------------------------------------------------------------------------------
 my QAManager::Set $entry-dialog .= new(:name<example-entries>);
 $entry-dialog.title = 'Example Entries';
-$entry-dialog.description = 'Display of all available types of entries other that text and their different ways of display';
+$entry-dialog.description = 'Display of all available types of entries other than text and their different ways of display';
 
 my QAManager::KV $field .= new(:name<combobox1>);
 $field.field = QAComboBox;

@@ -19,10 +19,22 @@ my QAManager::Set $entry-dialog .= new(:name<example-text-entries>);
 $entry-dialog.title = 'Example Text Entries';
 $entry-dialog.description = 'Display of text entries and their different ways of display';
 
-my QAManager::KV $field .= new(:name<entry1>);
-$field.description = 'Entry input field 1';
+my QAManager::KV $field .= new(:name<entry1a>);
+$field.description = 'Entry input field 1a';
 $field.repeatable = True;
-#$field.default = ['default input 1','default input 2',];
+$entry-dialog.add-kv($field);
+
+$field .= new(:name<entry1b>);
+$field.description = 'Entry input field 1b';
+$field.repeatable = True;
+$field.values = [< value1 value2 value3 value4 >];
+$entry-dialog.add-kv($field);
+
+$field .= new(:name<entry1c>);
+$field.description = 'Entry input field 1c';
+$field.repeatable = True;
+$field.values = [< value1 value2 value3 value4 >];
+$field.default = 'my default answer' => 'value3';
 $entry-dialog.add-kv($field);
 
 $field .= new(:name<entry2>);
@@ -32,7 +44,7 @@ $entry-dialog.add-kv($field);
 
 $field .= new(:name<entry3>);
 $field.description = 'Entry input field 3';
-$field.default = ['default input',];
+$field.default = 'default input';
 $entry-dialog.add-kv($field);
 
 $field .= new(:name<entry4>);
@@ -42,7 +54,7 @@ $entry-dialog.add-kv($field);
 
 $field .= new(:name<entry5>);
 $field.description = 'Entry input field 5';
-$field.default = ['password input',];
+$field.default = 'password input';
 $field.invisible = True;
 $field.tooltip = 'Invisible for password';
 $entry-dialog.add-kv($field);
