@@ -251,7 +251,7 @@ note "NR: $!results-valid";
 
 #-------------------------------------------------------------------------------
 method check-on-focus-change (
-  GdkEventFocus $event, :widget($w), Hash :$kv
+  N-GdkEventFocus $event, :widget($w), Hash :$kv
   --> Int
 ) {
 #Gnome::N::debug(:on);

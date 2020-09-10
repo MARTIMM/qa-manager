@@ -235,7 +235,7 @@ note 'Show Menu: ', $!selected-path.Str;
     if $!selected-path.elems == 3 {
       $qa-menu.popup-at-rect(
         $!set-table-view.get-window, $rect,
-        GDK_GRAVITY_CENTER, GDK_GRAVITY_NORTH, GdkEvent
+        GDK_GRAVITY_CENTER, GDK_GRAVITY_NORTH, N-GdkEvent
       );
     }
 
@@ -243,7 +243,7 @@ note 'Show Menu: ', $!selected-path.Str;
     elsif $!selected-path.elems == 2 {
       $set-menu.popup-at-rect(
         $!set-table-view.get-window, $rect,
-        GDK_GRAVITY_CENTER, GDK_GRAVITY_NORTH, GdkEvent
+        GDK_GRAVITY_CENTER, GDK_GRAVITY_NORTH, N-GdkEvent
       );
     }
 #  }
