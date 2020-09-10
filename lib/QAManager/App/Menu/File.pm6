@@ -14,7 +14,8 @@ submethod BUILD ( :$!app ) { }
 #-------------------------------------------------------------------------------
 # File > Quit
 method file-quit (
-  Gnome::GObject::Object :widget($menu-item)
+  Int :$_handler_id,
+    Gnome::GObject::Object :_widget($menu-item)
 ) {
   note "Select 'Quit' from 'File' menu";
 

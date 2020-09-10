@@ -16,7 +16,8 @@ submethod BUILD ( :$!app ) { }
 
 #-------------------------------------------------------------------------------
 # Set > New
-method set-new ( Gnome::GObject::Object :widget($menu-item) ) {
+method set-new ( Int :$_handler_id,
+    Gnome::GObject::Object :_widget($menu-item) ) {
 #Gnome::N::debug(:on);
   note "Select 'New' from 'Set' menu, dft=$*DataFileType";
 

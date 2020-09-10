@@ -14,7 +14,8 @@ submethod BUILD ( :$!app ) { }
 #-------------------------------------------------------------------------------
 # Sheet > New
 method sheet-new (
-  Gnome::GObject::Object :widget($menu-item)
+  Int :$_handler_id,
+    Gnome::GObject::Object :_widget($menu-item)
 ) {
   note "Select 'New' from 'Sheet' menu";
 }

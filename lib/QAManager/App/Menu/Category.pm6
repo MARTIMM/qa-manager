@@ -14,7 +14,8 @@ submethod BUILD ( :$!app ) { }
 #-------------------------------------------------------------------------------
 # category > New
 method category-new (
-  Gnome::GObject::Object :widget($menu-item)
+  Int :$_handler_id,
+    Gnome::GObject::Object :_widget($menu-item)
 ) {
   note "Select 'New' from 'Category' menu";
 }
