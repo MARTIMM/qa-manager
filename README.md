@@ -6,10 +6,6 @@
 
 Documentation, references and examples are (or at least, will be 😄) displayed [here](https://martimm.github.io/qa-manager/).
 
-# Description
-
-Questionnaires and configurations have all some form of key - value sheets serving all kinds of purposes. This library tries to help setting up a question/answer (QA from now on) sheet and store it in the managers environment.
-
 # Versions of involved software
 
 * Program is tested against the latest version of **Raku** on **rakudo** en **moarvm**. It is also necessary to have the (almost) newest compiler, because there are some code changes which made e.g. variable argument lists to the native subs possible. Older compilers cannot handle that (before summer 2019 I believe). This means that Rakudo Star is not usable because the newest release is from March 2019.
