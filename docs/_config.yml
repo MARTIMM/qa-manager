@@ -92,6 +92,11 @@ github_username: MARTIMM
 port: 4002
 baseurl: "/qa-manager"
 
+plugins:
+  - jekyll-feed
+  - kramdown
+  - kramdown-plantuml
+
 # https://jekyllrb.com/docs/configuration/front-matter-defaults/
 #defaults:
 #  -
