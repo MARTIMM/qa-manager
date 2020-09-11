@@ -1,3 +1,4 @@
+```plantuml
 @startuml
 scale 0.8
 
@@ -27,3 +28,4 @@ qamp <-> qaml
 qaml <-> ucs1
 ucs1 <-> qaa
 @enduml
+```
