@@ -89,17 +89,17 @@ email: mt1957@gmail.com
 github_username: MARTIMM
 
 #url: "https://martimm.github.io"
-#port: 4002
+port: 4002
 baseurl: "/qa-manager"
 
-plugins:
-  - jekyll-feed
-  - kramdown
-  - kramdown-plantuml
+#plugins:
+#  - jekyll-feed
+#  - kramdown
+#  - kramdown-plantuml
 
-sass:
-  sass_dir: _sass
-  style: compressed
+#sass:
+#  sass_dir: _sass
+#  style: compressed
 
 # https://jekyllrb.com/docs/configuration/front-matter-defaults/
 #defaults:
