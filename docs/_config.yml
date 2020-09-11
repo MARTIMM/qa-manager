@@ -97,6 +97,10 @@ plugins:
   - kramdown
   - kramdown-plantuml
 
+sass:
+  sass_dir: _sass
+  style: compressed
+
 # https://jekyllrb.com/docs/configuration/front-matter-defaults/
 #defaults:
 #  -
