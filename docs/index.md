@@ -12,7 +12,7 @@ nav_menu: default-nav
 
 # Description
 
-Questionnaires and configurations have all some form of key - value sheets serving all kinds of purposes. This library tries to help setting up a question/answer (QA from now on) sheet and store it in the managers environment.
+Questionnaires and configurations have all some form of key - value sheets serving all kinds of purposes. This library tries to help setting up a question/answer sheet and store it in the managers environment. Then a user application can retrieve a sheet to display and store the results.
 
 # Versions of involved software
 
