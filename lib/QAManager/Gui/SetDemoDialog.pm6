@@ -7,7 +7,7 @@ use Gnome::Gtk3::Enums;
 use Gnome::Gtk3::Dialog;
 use Gnome::Gtk3::Grid;
 
-use QAManager::QATypes;
+#use QAManager::QATypes;
 use QAManager::Category;
 use QAManager::Set;
 use QAManager::Gui::Part::Dialog;

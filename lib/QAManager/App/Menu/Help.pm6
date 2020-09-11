@@ -14,8 +14,7 @@ submethod BUILD ( :$!app ) { }
 #-------------------------------------------------------------------------------
 # Help > About
 method help-about (
-  Int :$_handler_id,
-    Gnome::GObject::Object :_widget($menu-item)
+  Int :$_handler_id, Gnome::GObject::Object :_widget($menu-item)
 ) {
   note "Select 'About' from 'Help' menu";
 }
