@@ -23,16 +23,12 @@ use Gnome::Gtk3::TreePath;
 use Gnome::Gtk3::TreeIter;
 use Gnome::Gtk3::Dialog;
 
-#use QAManager::Sheet;
-
 use QAManager::Category;
 use QAManager::Set;
 use QAManager::KV;
 use QAManager::Gui::DeleteMsgDialog;
-use QAManager::Gui::SetDemoDialog;
+use QAManager::Gui::Part::Set;
 
-#try {
-#CATCH {.note}}
 #Gnome::N::debug(:on);
 
 #-------------------------------------------------------------------------------
@@ -44,8 +40,8 @@ enum set-columns < CatSetQAColumn QATypeColumn CatNameColumn SetNameColumn >;
 has Gnome::Gtk3::TreeStore $!set-table-store;
 has Gnome::Gtk3::TreeView $!set-table-view;
 has Str $!rbase-path is required;
-has $!app;
-has $!app-window;
+#has $!app;
+#has $!app-window;
 has Array $!selected-path;
 
 #-------------------------------------------------------------------------------
@@ -54,7 +50,8 @@ submethod new ( |c ) {
 }
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( :$!app, :$!app-window, :$!rbase-path ) {
+#submethod BUILD ( :$!app, :$!app-window, :$!rbase-path ) {
+submethod BUILD ( Str:D :$!rbase-path ) {
 
   my Gnome::Gtk3::Menu ( $set-menu, $qa-menu) = self!create-set-menus;
 
@@ -256,12 +253,12 @@ note 'Show Menu: ', $!selected-path.Str;
 # receiving a button click.
 method show-set ( ) {
 #Gnome::N::debug(:on);
-  # sets are at depth 1
+
   return unless $!selected-path.defined; # and $!selected-path.elems == 1;
   note 'Show set';
 
-  my QAManager::Gui::SetDemoDialog $set-demo-dialog .= new;
-  $set-demo-dialog.set-dialog-content(|(self!get-path-values));
+  my Str ( $category, $set-name) = |(self!get-path-values);
+  my QAManager::Gui::Part::Set $set-demo-dialog .= new( :$category, :$set-name);
   my Int $response = $set-demo-dialog.show-dialog;
   if $response ~~ GTK_RESPONSE_CLOSE {
     note 'dialog closed: ', $set-demo-dialog.dialog-content;

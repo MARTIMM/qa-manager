@@ -2,15 +2,16 @@ use v6;
 
 use Gnome::Gtk3::Grid;
 use Gnome::Gtk3::Frame;
-#use Gnome::Gtk3::Widget;
 use Gnome::Gtk3::Enums;
 use Gnome::Gtk3::Separator;
 use Gnome::Gtk3::StyleContext;
 
+use QAManager::Category;
 use QAManager::Set;
 use QAManager::KV;
 use QAManager::Gui::Part::KV;
 use QAManager::Gui::Part::Frame;
+use QAManager::Gui::DemoDialog;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -30,18 +31,31 @@ The format is roughly;
   The questions are placed in a grid.
 =end pod
 
-unit class QAManager::Gui::Part::Set;
+unit class QAManager::Gui::Part::Set:auth<github:MARTIMM>;
+also is QAManager::Gui::DemoDialog;
 
 #-------------------------------------------------------------------------------
 has Hash $!part-user-data;
 has QAManager::Set $!set;
 
 #-------------------------------------------------------------------------------
+# must repeat this new call because it won't call the one of
+# QAManager::Gui::SetDemoDialog
+submethod new ( |c ) {
+  self.bless( :GtkDialog, |c);
+}
+
+#-------------------------------------------------------------------------------
 submethod BUILD (
-  Gnome::Gtk3::Grid:D :grid($parent-grid),
-  Int:D :grid-row($parent-grid-row) = 0,
-  QAManager::Set:D :$!set, Hash :$!part-user-data = %(),
+  Int:D :grid-row($parent-grid-row) = 0, Str:D :$category, Str:D :$set-name,
+  Hash :$!part-user-data = %(),
 ) {
+
+  # get the grid of the dialog
+  my $parent-grid = self.dialog-content;
+
+  # get the set from
+  $!set = QAManager::Category.new(:$category).get-set($set-name);
 
   # create a frame with title
   my QAManager::Gui::Part::Frame $set-frame .= new(:label($!set.title));
