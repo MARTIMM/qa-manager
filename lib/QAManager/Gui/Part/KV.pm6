@@ -87,6 +87,32 @@ method build-entry (
 }
 
 #-------------------------------------------------------------------------------
+method check-field (
+  Gnome::Gtk3::Grid :$kv-grid, Int :$grid-row, QAManager::KV :$kv
+) {
+  my $no = $kv-grid.get-child-at( 2, $grid-row);
+  my Gnome::Gtk3::Widget $w .= new(:native-object($no));
+note "Type: $kv.field(), $grid-row, $w.get-name()";
+}
+
+#-------------------------------------------------------------------------------
+method set-value (
+  Gnome::Gtk3::Grid :$kv-grid, Int :$grid-row, Hash :$values, QAManager::KV :$kv
+) {
+#note "Type: $kv.field()";
+}
+
+#-------------------------------------------------------------------------------
+method select-image ( ) {
+note "select image";
+}
+
+#-------------------------------------------------------------------------------
+method clean-entries ( ) {
+  $entry-objects = %( );
+}
+
+#-------------------------------------------------------------------------------
 # on the left side a text label for the input field on the right
 # this text must take  the available space pressing fields to the right
 method !shape-label (
@@ -434,30 +460,4 @@ method !set-status-hint (
 
   else {
   }
-}
-
-#-------------------------------------------------------------------------------
-method check-field (
-  Gnome::Gtk3::Grid :$kv-grid, Int :$grid-row, QAManager::KV :$kv
-) {
-  my $no = $kv-grid.get-child-at( 2, $grid-row);
-  my Gnome::Gtk3::Widget $w .= new(:native-object($no));
-note "Type: $kv.field(), $grid-row, $w.get-name()";
-}
-
-#-------------------------------------------------------------------------------
-method set-value (
-  Gnome::Gtk3::Grid :$kv-grid, Int :$grid-row, Hash :$values, QAManager::KV :$kv
-) {
-#note "Type: $kv.field()";
-}
-
-#-------------------------------------------------------------------------------
-method select-image ( ) {
-note "select image";
-}
-
-#-------------------------------------------------------------------------------
-method clean-entries ( ) {
-  $entry-objects = %( );
 }
