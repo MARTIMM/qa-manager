@@ -10,7 +10,7 @@ use QAManager::Category;
 use QAManager::Set;
 use QAManager::KV;
 use QAManager::Gui::Part::KV;
-use QAManager::Gui::Part::Frame;
+use QAManager::Gui::Frame;
 use QAManager::Gui::DemoDialog;
 
 #-------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ submethod BUILD (
   $!set = QAManager::Category.new(:$category).get-set($set-name);
 
   # create a frame with title
-  my QAManager::Gui::Part::Frame $set-frame .= new(:label($!set.title));
+  my QAManager::Gui::Frame $set-frame .= new(:label($!set.title));
   $parent-grid.grid-attach( $set-frame, 0, $parent-grid-row, 1, 1);
 
   # the grid is for displaying the input fields and are
