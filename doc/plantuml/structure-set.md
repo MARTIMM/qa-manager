@@ -5,6 +5,8 @@ skinparam packageStyle rectangle
 set namespaceSeparator ::
 hide members
 
+'title part of the Set page
+
 application -> QAManager::App::Application
 
 'QAManager::App::Application --> QAManager::App::ApplicationWindow
@@ -24,8 +26,10 @@ QAManager::App::Application --> QAManager::App::Page::Set
 QAManager::App::Page::Set --> QAManager::Category
 QAManager::App::Page::Set --> QAManager::Set
 QAManager::App::Page::Set --> QAManager::KV
-QAManager::App::Page::Set --> QAManager::Gui::DeleteMsgDialog
-QAManager::App::Page::Set --> QAManager::Gui::DemoDialog
+QAManager::App::Page::Set -> QAManager::Gui::DeleteMsgDialog
+QAManager::App::Page::Set --> QAManager::Gui::Part::Set
+note "See structure for\n 'the set demo dialog'" as N1
+QAManager::Gui::Part::Set .. N1
 
 Gnome::Gtk3::Grid <|-- QAManager::App::Page::Set
 

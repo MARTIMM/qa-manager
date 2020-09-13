@@ -5,6 +5,7 @@ skinparam packageStyle rectangle
 set namespaceSeparator ::
 hide members
 
+'title top level application
 application -> QAManager::App::Application
 
 QAManager::App::Application -> QAManager::App::ApplicationWindow
