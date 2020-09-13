@@ -1,7 +1,7 @@
 {
   "description": "Q & A Manager",
   "name": "QAManager",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "authors": [ "Marcel Timmerman"],
   "tags": [ "questionnaire", "configuration", "application", "tool", "gtk"],
 
@@ -9,25 +9,36 @@
   "license": "Artistic-2.0",
 
   "provides": {
+    "QAManager::App::Appication": "lib/QAManager/App/Appication.pm6",
+    "QAManager::App::AppicationWindow": "lib/QAManager/App/AppicationWindow.pm6",
+
+    "QAManager::App::Menu::Category": "lib/QAManager/App/Menu/Category.pm6",
+    "QAManager::App::Menu::File": "lib/QAManager/App/Menu/File.pm6",
+    "QAManager::App::Menu::Help": "lib/QAManager/App/Menu/Help.pm6",
+    "QAManager::App::Menu::Set": "lib/QAManager/App/Menu/Set.pm6",
+    "QAManager::App::Menu::Sheet": "lib/QAManager/App/Menu/Sheet.pm6",
+
+    "QAManager::App::Page::Category": "lib/QAManager/App/Page/Category.pm6",
+    "QAManager::App::Page::Set": "lib/QAManager/App/Page/Set.pm6",
+    "QAManager::App::Page::Sheet": "lib/QAManager/App/Page/Sheet.pm6",
+
     "QAManager::Category": "lib/QAManager/Category.pm6",
-    "QAManager::Gui::Application": "lib/QAManager/Gui/Application.pm6",
+
     "QAManager::Gui::DeleteMsgDialog": "lib/QAManager/Gui/DeleteMsgDialog.pm6",
     "QAManager::Gui::Dialog": "lib/QAManager/Gui/Dialog.pm6",
-    "QAManager::Gui::Main": "lib/QAManager/Gui/Main.pm6",
-    "QAManager::Gui::Menu::Category": "lib/QAManager/Gui/Menu/Category.pm6",
-    "QAManager::Gui::Menu::File": "lib/QAManager/Gui/Menu/File.pm6",
-    "QAManager::Gui::Menu::Help": "lib/QAManager/Gui/Menu/Help.pm6",
-    "QAManager::Gui::Menu::Set": "lib/QAManager/Gui/Menu/Set.pm6",
-    "QAManager::Gui::Menu::Sheet": "lib/QAManager/Gui/Menu/Sheet.pm6",
-    "QAManager::Gui::Page::Category": "lib/QAManager/Gui/Page/Category.pm6",
-    "QAManager::Gui::Page::Set": "lib/QAManager/Gui/Page/Set.pm6",
-    "QAManager::Gui::Page::Sheet": "lib/QAManager/Gui/Page/Sheet.pm6",
-    "QAManager::Gui::TopLevel": "lib/QAManager/Gui/TopLevel.pm6",
+    "QAManager::Gui::Frame": "lib/QAManager/Gui/Frame.pm6",
+
+    "QAManager::Gui::Part::Entry": "lib/QAManager/Gui/Part/Entry.pm6",
+    "QAManager::Gui::Part::EntryFrame": "lib/QAManager/Gui/Part/EntryFrame.pm6",
+    "QAManager::Gui::Part::GroupFrame": "lib/QAManager/Gui/Part/GroupFrame.pm6",
+    "QAManager::Gui::Part::KV": "lib/QAManager/Gui/Part/KV.pm6",
+    "QAManager::Gui::Part::Set": "lib/QAManager/Gui/Part/Set.pm6",
+
     "QAManager::KV": "lib/QAManager/KV.pm6",
     "QAManager::QATypes": "lib/QAManager/QATypes.pm6",
     "QAManager::Set": "lib/QAManager/Set.pm6",
     "QAManager::Sheet": "lib/QAManager/Sheet.pm6",
-    "QAManager": "lib/QAManager.pm6"
+    "QAManager::ValueRepr": "lib/QAManager/ValueRepr.pm6"
   },
 
   "source-url": "git://github.com/MARTIMM/qa-manager.git",
