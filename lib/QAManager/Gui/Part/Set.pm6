@@ -1,5 +1,6 @@
 use v6;
 
+use Gnome::Gtk3::Dialog;
 use Gnome::Gtk3::Grid;
 use Gnome::Gtk3::Frame;
 use Gnome::Gtk3::Enums;
@@ -11,7 +12,7 @@ use QAManager::Set;
 #use QAManager::KV;
 use QAManager::Gui::Part::KV;
 use QAManager::Gui::Frame;
-use QAManager::Gui::DemoDialog;
+use QAManager::Gui::Dialog;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -32,7 +33,7 @@ The format is roughly;
 =end pod
 
 unit class QAManager::Gui::Part::Set:auth<github:MARTIMM>;
-also is QAManager::Gui::DemoDialog;
+also is QAManager::Gui::Dialog;
 
 #-------------------------------------------------------------------------------
 has Hash $!part-user-data;
@@ -50,6 +51,11 @@ submethod BUILD (
   Int:D :grid-row($parent-grid-row) = 0, Str:D :$category, Str:D :$set-name,
   Hash :$!part-user-data = %(),
 ) {
+
+  self.set-title('Question Answer Set Demo');
+  self.add-dialog-button(
+    self, 'close-dialog', 'Close', GTK_RESPONSE_CLOSE
+  );
 
   # get the grid of the dialog
   my $parent-grid = self.dialog-content;
@@ -97,6 +103,13 @@ submethod BUILD (
 #  self!build-set-fields( $kv-grid, $grid-row);
 #  self!set-field-values( $kv-grid, $grid-row, $!part-user-data);
 #  $kv-grid.show-all;
+}
+
+#-------------------------------------------------------------------------------
+method close-dialog ( --> Int ) {
+  note 'close dialog';
+
+  1
 }
 
 #`{{
