@@ -10,13 +10,13 @@ use Gnome::Gtk3::Image;
 use Gnome::Gtk3::Enums;
 use Gnome::Gtk3::ComboBoxText;
 
+use QAManager::ValueRepr;
 use QAManager::Gui::Part::Entry;
-use QAManager::App::Part::ValueRepr;
 
 #-------------------------------------------------------------------------------
 unit class QAManager::Gui::Part::EntryFrame;
 also is Gnome::Gtk3::Frame;
-also is QAManager::App::Part::ValueRepr;
+also is QAManager::ValueRepr;
 
 #-------------------------------------------------------------------------------
 has Array[QAManager::Gui::Part::Entry] $!entries;
