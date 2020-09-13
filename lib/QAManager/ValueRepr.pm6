@@ -2,7 +2,7 @@ use v6.d;
 
 use Gnome::Gtk3::ComboBoxText;
 
-unit class QAManager::App::Part::ValueRepr;
+unit class QAManager::ValueRepr;
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
