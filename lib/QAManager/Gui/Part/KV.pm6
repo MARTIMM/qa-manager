@@ -26,7 +26,7 @@ use QAManager::Gui::Part::EntryFrame;
 
 #-------------------------------------------------------------------------------
 =begin pod
-Purpose of this part is to display a question in a row on a given grid.
+Purpose of this part is to display a question in a row on a given grid. This line consists of several columns. The first column shows a text posing the question, the second shows an optional star to show that an input is required. Then the third column is used to show the input area which can be one of several types of input like text, combobox or checkbox groups.
 =end pod
 
 unit class QAManager::Gui::Part::KV;
@@ -149,8 +149,9 @@ method clean-entries ( ) {
 }
 
 #-------------------------------------------------------------------------------
-# on the left side a text label for the input field on the right
-# this text must take  the available space pressing fields to the right
+# on the left side a text label is laced for the input field on the right.
+# this label must take the available space pressing the input fields to the
+# right.
 method !shape-label (
   Gnome::Gtk3::Grid $grid, Int $row,
   Str $title, Str $description, Bool $required
@@ -158,29 +159,33 @@ method !shape-label (
 
   #my Str $label-text = [~] '<b>', $description // $title, '</b>:';
   my Str $label-text = $description // $title ~ ':';
-  my Gnome::Gtk3::Label $l .= new(:text($label-text));
-  #$l.set-use-markup(True);
-  $l.set-hexpand(True);
-  $l.set-line-wrap(True);
-  #$l.set-max-width-chars(40);
-  $l.set-justify(GTK_JUSTIFY_FILL);
-  $l.set-halign(GTK_ALIGN_START);
-  $l.set-valign(GTK_ALIGN_START);
-  $l.set-margin-top(6);
-  $l.set-margin-start(2);
+  given my Gnome::Gtk3::Label $label .= new(:text($label-text)) {
+    #.set-use-markup(True);
+    .set-hexpand(True);
+    .set-line-wrap(True);
+    #.set-max-width-chars(40);
+    .set-justify(GTK_JUSTIFY_FILL);
+    .set-halign(GTK_ALIGN_START);
+    .set-valign(GTK_ALIGN_START);
+    .set-margin-top(6);
+    .set-margin-start(2);
+  }
+
   my Gnome::Gtk3::StyleContext $context .= new(
-    :native-object($l.get-style-context)
+    :native-object($label.get-style-context)
   );
   $context.add-class('labelText');
-  $grid.grid-attach( $l, 0, $row, 1, 1);
+  $grid.grid-attach( $label, 0, $row, 1, 1);
+
 
   # mark required fields with a bold star
   $label-text = [~] ' <b>', $required ?? '*' !! '', '</b> ';
-  $l .= new(:text($label-text));
-  $l.set-use-markup(True);
-  $l.set-valign(GTK_ALIGN_START);
-  $l.set-margin-top(6);
-  $grid.grid-attach( $l, 1, $row, 1, 1);
+  given $label .= new(:text($label-text)) {
+    .set-use-markup(True);
+    .set-valign(GTK_ALIGN_START);
+    .set-margin-top(6);
+  }
+  $grid.grid-attach( $label, 1, $row, 1, 1);
 }
 
 #-------------------------------------------------------------------------------
