@@ -19,6 +19,7 @@ use Gnome::Gtk3::Image;
 use Gnome::Gtk3::StyleContext;
 
 use QAManager::QATypes;
+use QAManager::Set;
 use QAManager::KV;
 use QAManager::Gui::Part::GroupFrame;
 use QAManager::Gui::Part::EntryFrame;
@@ -35,6 +36,41 @@ my Hash $entry-objects = %( );
 
 #-------------------------------------------------------------------------------
 #submethod BUILD ( ) { }
+
+#-------------------------------------------------------------------------------
+method build-set-fields (
+  QAManager::Set $set, Gnome::Gtk3::Grid $kv-grid, Int $grid-row is copy
+) {
+#Gnome::N::debug(:on);
+
+  my QAManager::Gui::Part::KV $kv-part .= new;
+  $kv-part.clean-entries;
+
+  for @($set.get-kv) -> QAManager::KV $kv {
+note "kv: $kv.name(), $kv.field()";
+    $kv-part .= new;
+
+    $kv-part.build-entry( :$kv-grid, :$grid-row, :$kv);
+    $kv-part.check-field( :$kv-grid, :$grid-row, :$kv);
+
+    $grid-row++;
+  }
+}
+
+#-------------------------------------------------------------------------------
+method set-field-values (
+  QAManager::Set $set, Gnome::Gtk3::Grid $kv-grid, Int $grid-row is copy,
+  Hash $part-user-data
+) {
+#Gnome::N::debug(:on);
+
+  for @($set.get-kv) -> QAManager::KV $kv {
+    my QAManager::Gui::Part::KV $kv-part .= new;
+    $kv-part.set-value( :$kv-grid, :$grid-row, :values($part-user-data), :$kv);
+#    QAManager::Gui::Part::KV.new( :$kv-grid, :$grid-row, :$value, :$kv);
+#    $grid-row++;
+  }
+}
 
 #-------------------------------------------------------------------------------
 method build-entry (

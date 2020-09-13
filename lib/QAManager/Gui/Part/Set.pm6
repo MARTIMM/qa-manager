@@ -8,7 +8,7 @@ use Gnome::Gtk3::StyleContext;
 
 use QAManager::Category;
 use QAManager::Set;
-use QAManager::KV;
+#use QAManager::KV;
 use QAManager::Gui::Part::KV;
 use QAManager::Gui::Frame;
 use QAManager::Gui::DemoDialog;
@@ -90,11 +90,16 @@ submethod BUILD (
 
 
   # show set with user data if any
-  self!build-set-fields( $kv-grid, $grid-row);
-  self!set-field-values( $kv-grid, $grid-row, $!part-user-data);
+  my QAManager::Gui::Part::KV $kv-part .= new;
+  $kv-part.build-set-fields( $!set, $kv-grid, $grid-row);
+  $kv-part.set-field-values( $!set, $kv-grid, $grid-row, $!part-user-data);
+
+#  self!build-set-fields( $kv-grid, $grid-row);
+#  self!set-field-values( $kv-grid, $grid-row, $!part-user-data);
 #  $kv-grid.show-all;
 }
 
+#`{{
 #-------------------------------------------------------------------------------
 method !build-set-fields ( Gnome::Gtk3::Grid $kv-grid, Int $grid-row is copy ) {
 #Gnome::N::debug(:on);
@@ -126,3 +131,4 @@ method !set-field-values (
 #    $grid-row++;
   }
 }
+}}

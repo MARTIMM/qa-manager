@@ -25,7 +25,7 @@ QAManager::App::Page::Set --> QAManager::Category
 QAManager::App::Page::Set --> QAManager::Set
 QAManager::App::Page::Set --> QAManager::KV
 QAManager::App::Page::Set --> QAManager::Gui::DeleteMsgDialog
-QAManager::App::Page::Set --> QAManager::Gui::SetDemoDialog
+QAManager::App::Page::Set --> QAManager::Gui::DemoDialog
 
 Gnome::Gtk3::Grid <|-- QAManager::App::Page::Set
 
