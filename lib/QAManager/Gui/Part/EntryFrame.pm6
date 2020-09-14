@@ -10,6 +10,7 @@ use Gnome::Gtk3::Image;
 use Gnome::Gtk3::Enums;
 use Gnome::Gtk3::ComboBoxText;
 
+use QAManager::KV;
 use QAManager::ValueRepr;
 use QAManager::Gui::Part::Entry;
 
@@ -28,6 +29,7 @@ has Str $!tooltip;
 has Bool $!repeatable;
 has Bool $!visibility;
 has Array $!entry-category;
+has QAManager::KV $!kv-object;
 
 #-------------------------------------------------------------------------------
 submethod new ( |c ) {
@@ -36,21 +38,21 @@ submethod new ( |c ) {
 }
 
 #-------------------------------------------------------------------------------
-submethod BUILD (
-  Str:D :$!widget-name, Str :$!example, Str :$!tooltip,
-  Bool :$!repeatable, Bool :$!visibility,
-  Array :$!entry-category
-) {
-  $!example //= '';
-  $!tooltip //= '';
-  $!repeatable //= False;
-  $!visibility //= True;
-  $!entry-category //= [];
+submethod BUILD ( QAManager::KV:D :$!kv-object ) {
+
+  $!widget-name = $!kv-object.name;
+  $!example = $!kv-object.example // '';
+  $!tooltip = $!kv-object.tooltip // '';
+  $!repeatable = $!kv-object.repeatable // False;
+  $!visibility = !$!kv-object.invisible // True;
+  $!entry-category = $!kv-object.values // [];
 
 note "\nB: $!widget-name, $!example, $!tooltip, $!repeatable, $!visibility";
 
-  # clear values and modify frame if not repeatable
+  # clear values
   $!entries = Array[QAManager::Gui::Part::Entry].new;
+
+  # modify frame if not repeatable
   self.set-shadow-type(GTK_SHADOW_NONE) unless $!repeatable;
 
   # fiddle a bit
@@ -59,7 +61,8 @@ note "\nB: $!widget-name, $!example, $!tooltip, $!repeatable, $!visibility";
   self.widget-set-name($!widget-name);
   self.widget-set-hexpand(True);
 
-  # add a grid to the frame
+  # add a grid to the frame. a grid is used to cope with repeatable values.
+  # they will be placed under each other in one column.
   $!grid .= new;
   self.container-add($!grid);
 
@@ -72,13 +75,13 @@ method set-value (
   $data-key, $data-value, $row, Bool :$overwrite = True, Bool :$last-row
 ) {
 
-  # if not repeatable, only row 0 can exist
+  # if not repeatable, only row 0 can exist. the rest is ignored.
   return if not $!repeatable and $row > 0;
 
 #  my Int $tb-col = self.check-toolbutton-column;
 
-  # if key is a number then only text without a combobox is shown. Text is
-  # found in $data-value. If combobox is needed then text is in text-key
+  # if $data-key is a number then only text without a combobox is shown. Text
+  # is found in $data-value. If a combobox is needed then text is in text-key
   # and combobox selection in text-value.
   my Bool $need-combobox = $!entry-category.elems.Bool;
   my Str $text = ($data-key ~~ m/^ \d+ $/).Bool ?? $data-value !! $data-key;
@@ -91,6 +94,9 @@ note "SV: {$data-key//'-'}, {$data-value//'-'}, {$text//'-'}";
   if $!entries[$row].defined {
     $new-row = False;
     $entry .= new(:native-object($!grid.get-child-at( 0, $row)));
+    $entry.register-signal(
+      self, 'check-on-focus-change', 'focus-out-event', :$!kv-object.kv-data,
+    );
   }
 
   else {
