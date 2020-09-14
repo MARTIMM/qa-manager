@@ -149,7 +149,7 @@ Summarized
   * [ ] ?? QADragAndDrop
 
 * [x] height; Height in pixels. Used for e.g. a TextView.
-* [x] invisible; Used to display text as invisible characters (*)
+* [x] invisible; Used to display text as invisible characters (\*)
 * [ ] maximum; Used to define maximum for number type or maximum number of characters for string type.
 * [ ] minimum; Used to define minimum for number type or minimum number of characters for string type.
 * [x] name; Required. Used as a key in returned data along with category and set. Also used as a name on the widget to find the widget.
