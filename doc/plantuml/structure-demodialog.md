@@ -33,5 +33,7 @@ Gnome::Gtk3::Frame <|-- QAManager::Gui::Part::GroupFrame
 Gnome::Gtk3::Frame <|-- QAManager::Gui::Part::EntryFrame
 QAManager::Gui::Part::EntryFrame -|> QAManager::ValueRepr
 
+QAManager::Gui::Part::Entry <|-- QAManager::Gui::Part::EntryFrame
+
 @enduml
 ```
