@@ -49,8 +49,9 @@ submethod BUILD (
 
 note "\nB: $!widget-name, $!example, $!tooltip, $!repeatable, $!visibility";
 
-  # clear values
+  # clear values and modify frame if not repeatable
   $!entries = Array[QAManager::Gui::Part::Entry].new;
+  self.set-shadow-type(GTK_SHADOW_NONE) unless $!repeatable;
 
   # fiddle a bit
   self.widget-set-margin-top(3);
