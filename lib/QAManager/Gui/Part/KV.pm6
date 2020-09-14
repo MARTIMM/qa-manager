@@ -43,15 +43,12 @@ method build-set-fields (
 ) {
 #Gnome::N::debug(:on);
 
-  my QAManager::Gui::Part::KV $kv-part .= new;
-  $kv-part.clean-entries;
+  self.clean-entries;
 
   for @($set.get-kv) -> QAManager::KV $kv {
 note "kv: $kv.name(), $kv.field()";
-    $kv-part .= new;
-
-    $kv-part.build-entry( :$kv-grid, :$grid-row, :$kv);
-    $kv-part.check-field( :$kv-grid, :$grid-row, :$kv);
+    self.build-entry( :$kv-grid, :$grid-row, :$kv);
+    self.check-field( :$kv-grid, :$grid-row, :$kv);
 
     $grid-row++;
   }
@@ -62,13 +59,9 @@ method set-field-values (
   QAManager::Set $set, Gnome::Gtk3::Grid $kv-grid, Int $grid-row is copy,
   Hash $part-user-data
 ) {
-#Gnome::N::debug(:on);
 
   for @($set.get-kv) -> QAManager::KV $kv {
-    my QAManager::Gui::Part::KV $kv-part .= new;
-    $kv-part.set-value( :$kv-grid, :$grid-row, :values($part-user-data), :$kv);
-#    QAManager::Gui::Part::KV.new( :$kv-grid, :$grid-row, :$value, :$kv);
-#    $grid-row++;
+    self.set-value( :$kv-grid, :$grid-row, :values($part-user-data), :$kv);
   }
 }
 

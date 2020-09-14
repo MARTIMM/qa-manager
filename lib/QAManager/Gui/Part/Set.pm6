@@ -9,7 +9,6 @@ use Gnome::Gtk3::StyleContext;
 
 use QAManager::Category;
 use QAManager::Set;
-#use QAManager::KV;
 use QAManager::Gui::Part::KV;
 use QAManager::Gui::Frame;
 use QAManager::Gui::Dialog;
@@ -94,15 +93,10 @@ submethod BUILD (
   );
   $kv-grid.grid-attach( $sep, 0, $grid-row++, 3, 1);
 
-
   # show set with user data if any
   my QAManager::Gui::Part::KV $kv-part .= new;
   $kv-part.build-set-fields( $!set, $kv-grid, $grid-row);
   $kv-part.set-field-values( $!set, $kv-grid, $grid-row, $!part-user-data);
-
-#  self!build-set-fields( $kv-grid, $grid-row);
-#  self!set-field-values( $kv-grid, $grid-row, $!part-user-data);
-#  $kv-grid.show-all;
 }
 
 #-------------------------------------------------------------------------------
@@ -111,37 +105,3 @@ method close-dialog ( --> Int ) {
 
   1
 }
-
-#`{{
-#-------------------------------------------------------------------------------
-method !build-set-fields ( Gnome::Gtk3::Grid $kv-grid, Int $grid-row is copy ) {
-#Gnome::N::debug(:on);
-
-  my QAManager::Gui::Part::KV $kv-part .= new;
-  $kv-part.clean-entries;
-
-  for @($!set.get-kv) -> QAManager::KV $kv {
-note "kv: $kv.name(), $kv.field()";
-    $kv-part .= new;
-
-    $kv-part.build-entry( :$kv-grid, :$grid-row, :$kv);
-    $kv-part.check-field( :$kv-grid, :$grid-row, :$kv);
-
-    $grid-row++;
-  }
-}
-
-#-------------------------------------------------------------------------------
-method !set-field-values (
-  Gnome::Gtk3::Grid $kv-grid, Int $grid-row is copy, Hash $part-user-data
-) {
-#Gnome::N::debug(:on);
-
-  for @($!set.get-kv) -> QAManager::KV $kv {
-    my QAManager::Gui::Part::KV $kv-part .= new;
-    $kv-part.set-value( :$kv-grid, :$grid-row, :values($part-user-data), :$kv);
-#    QAManager::Gui::Part::KV.new( :$kv-grid, :$grid-row, :$value, :$kv);
-#    $grid-row++;
-  }
-}
-}}
