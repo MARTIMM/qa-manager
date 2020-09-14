@@ -32,7 +32,7 @@ Purpose of this part is to display a question in a row on a given grid. This lin
 unit class QAManager::Gui::Part::KV;
 
 #-------------------------------------------------------------------------------
-my Hash $entry-objects = %( );
+has Hash $!entry-objects = %( );
 
 #-------------------------------------------------------------------------------
 #submethod BUILD ( ) { }
@@ -43,7 +43,7 @@ method build-set-fields (
 ) {
 #Gnome::N::debug(:on);
 
-  self.clean-entries;
+  self!clean-entries;
 
   for @($set.get-kv) -> QAManager::KV $kv {
 note "kv: $kv.name(), $kv.field()";
@@ -137,12 +137,12 @@ note "select image";
 }
 
 #-------------------------------------------------------------------------------
-method clean-entries ( ) {
-  $entry-objects = %( );
+method !clean-entries ( ) {
+  $!entry-objects = %( );
 }
 
 #-------------------------------------------------------------------------------
-# on the left side a text label is laced for the input field on the right.
+# on the left side a text label is placed for the input field on the right.
 # this label must take the available space pressing the input fields to the
 # right.
 method !shape-label (
