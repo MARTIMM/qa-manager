@@ -1,7 +1,7 @@
 {
   "description": "Q & A Manager",
   "name": "QAManager",
-  "version": "0.9.0",
+  "version": "0.7.0",
   "authors": [ "Marcel Timmerman"],
   "tags": [ "questionnaire", "configuration", "application", "tool", "gtk"],
 
@@ -9,8 +9,8 @@
   "license": "Artistic-2.0",
 
   "provides": {
-    "QAManager::App::Appication": "lib/QAManager/App/Appication.pm6",
-    "QAManager::App::AppicationWindow": "lib/QAManager/App/AppicationWindow.pm6",
+    "QAManager::App::Application": "lib/QAManager/App/Application.pm6",
+    "QAManager::App::ApplicationWindow": "lib/QAManager/App/ApplicationWindow.pm6",
 
     "QAManager::App::Menu::File": "lib/QAManager/App/Menu/File.pm6",
     "QAManager::App::Menu::Help": "lib/QAManager/App/Menu/Help.pm6",
@@ -30,12 +30,12 @@
     "QAManager::Gui::Part::GroupFrame": "lib/QAManager/Gui/Part/GroupFrame.pm6",
     "QAManager::Gui::Part::KV": "lib/QAManager/Gui/Part/KV.pm6",
     "QAManager::Gui::Part::Set": "lib/QAManager/Gui/Part/Set.pm6",
+    "QAManager::Gui::ValueRepr": "lib/QAManager/Gui/ValueRepr.pm6",
 
     "QAManager::KV": "lib/QAManager/KV.pm6",
     "QAManager::QATypes": "lib/QAManager/QATypes.pm6",
     "QAManager::Set": "lib/QAManager/Set.pm6",
-    "QAManager::Sheet": "lib/QAManager/Sheet.pm6",
-    "QAManager::ValueRepr": "lib/QAManager/ValueRepr.pm6"
+    "QAManager::Sheet": "lib/QAManager/Sheet.pm6"
   },
 
   "source-url": "git://github.com/MARTIMM/qa-manager.git",
