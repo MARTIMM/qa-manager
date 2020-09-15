@@ -1,9 +1,9 @@
 use v6.d;
 
-use Gnome::Gtk3::ComboBoxText;
+#use Gnome::Gtk3::ComboBoxText;
 
-unit class QAManager::ValueRepr:auth<github:MARTIMM>;
 #-------------------------------------------------------------------------------
+unit class QAManager::ValueRepr:auth<github:MARTIMM>;
 
 #-------------------------------------------------------------------------------
 method get-values ( --> Array ) {
@@ -15,8 +15,9 @@ method set-values ( Array $data-array, Bool :$overwrite = True ) {
   my Int $row = 0;
   for @$data-array -> $t {
     my ( $data-key, $data-value) = $t.kv;
+note 'svs: ', $data-key//'--dk--', ', ', $data-value//'--dv--';
     self.set-value(
-      $data-key//0, $data-value//'', $row, :$overwrite,
+      $data-key // 0, $data-value // '', $row, :$overwrite,
       :last-row( ($row + 1) == $data-array.elems )
     );
 
