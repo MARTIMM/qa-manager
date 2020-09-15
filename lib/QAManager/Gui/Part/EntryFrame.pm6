@@ -66,12 +66,12 @@ note "\nB: $!widget-name, $!example, $!tooltip, $!repeatable, $!visibility";
   $!grid .= new;
   self.container-add($!grid);
 
-  # create one entry
+  # create one entry. call ValueRepr.set-values
   self.set-values(['',]);
 }
 
 #-------------------------------------------------------------------------------
-# called from ValeRepr.set-values
+# called from ValueRepr.set-values
 method set-value (
   $data-key, $data-value, $row, Bool :$overwrite = True, Bool :$last-row
 ) {

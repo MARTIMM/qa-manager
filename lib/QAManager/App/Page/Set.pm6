@@ -251,14 +251,16 @@ note 'Show Menu: ', $!selected-path.Str;
 #-------------------------------------------------------------------------------
 # $!selected-path is filled in by method show-menu() with indices after
 # receiving a button click.
-method show-set ( ) {
+method show-set ( Hash :$part-user-data = %() ) {
 #Gnome::N::debug(:on);
 
   return unless $!selected-path.defined; # and $!selected-path.elems == 1;
   note 'Show set';
 
   my Str ( $category, $set-name) = |(self!get-path-values);
-  my QAManager::Gui::Part::Set $set-demo-dialog .= new( :$category, :$set-name);
+  my QAManager::Gui::Part::Set $set-demo-dialog .= new(
+    :$category, :$set-name, :$part-user-data
+  );
   my Int $response = $set-demo-dialog.show-dialog;
   if $response ~~ GTK_RESPONSE_CLOSE {
     note 'dialog closed: ', $set-demo-dialog.dialog-content;
