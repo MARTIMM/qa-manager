@@ -2,22 +2,25 @@ use v6.d;
 
 use Gnome::N::N-GObject;
 
+use Gnome::Gdk3::Events;
+
 use Gnome::Gtk3::Frame;
 use Gnome::Gtk3::ComboBoxText;
 use Gnome::Gtk3::Grid;
 use Gnome::Gtk3::ToolButton;
 use Gnome::Gtk3::Image;
 use Gnome::Gtk3::Enums;
-use Gnome::Gtk3::ComboBoxText;
+#use Gnome::Gtk3::StyleContext;
 
+use QAManager::QATypes;
 use QAManager::KV;
-use QAManager::ValueRepr;
+use QAManager::Gui::ValueRepr;
 use QAManager::Gui::Part::Entry;
 
 #-------------------------------------------------------------------------------
 unit class QAManager::Gui::Part::EntryFrame;
 also is Gnome::Gtk3::Frame;
-also is QAManager::ValueRepr;
+also does QAManager::Gui::ValueRepr;
 
 #-------------------------------------------------------------------------------
 has Array[QAManager::Gui::Part::Entry] $!entries;
@@ -47,7 +50,7 @@ submethod BUILD ( QAManager::KV:D :$!kv-object ) {
   $!visibility = !$!kv-object.invisible // True;
   $!entry-category = $!kv-object.values // [];
 
-note "\nB: $!widget-name, $!example, $!tooltip, $!repeatable, $!visibility";
+#note "\nEF B: $!widget-name, $!example, $!tooltip, $!repeatable, $!visibility, {$!kv-object.required // False}";
 
   # clear values
   $!entries = Array[QAManager::Gui::Part::Entry].new;
@@ -76,6 +79,7 @@ method set-value (
   $data-key, $data-value, $row, Bool :$overwrite = True, Bool :$last-row
 ) {
 
+#note "SV 0: set value $data-key, $data-value, $row";
   # if not repeatable, only row 0 can exist. the rest is ignored.
   return if not $!repeatable and $row > 0;
 
@@ -86,7 +90,7 @@ method set-value (
   # and combobox selection in text-value.
   my Bool $need-combobox = $!entry-category.elems.Bool;
   my Str $text = ($data-key ~~ m/^ \d+ $/).Bool ?? $data-value !! $data-key;
-note "SV: {$data-key//'-'}, {$data-value//'-'}, {$text//'-'}";
+#note "SV 1: $text";
 
   # check if there is an input field defined. if not, create input field.
   # otherwise get object from grid
@@ -95,14 +99,16 @@ note "SV: {$data-key//'-'}, {$data-value//'-'}, {$text//'-'}";
   if $!entries[$row].defined {
     $new-row = False;
     $entry .= new(:native-object($!grid.get-child-at( 0, $row)));
-    $entry.register-signal(
-      self, 'check-on-focus-change', 'focus-out-event', :$!kv-object.kv-data,
-    );
   }
 
   else {
     $new-row = True;
     $entry .= new( :$text, :$!example, :$!tooltip, :$!visibility);
+
+    $entry.register-signal(
+      self, 'check-on-focus-change', 'focus-out-event',
+      :kv-data($!kv-object.kv-data)
+    );
     $!grid.grid-attach( $entry, 0, $row, 1, 1);
     $!entries.push($entry);
   }
@@ -262,4 +268,51 @@ method set-combobox-select( Gnome::Gtk3::ComboBoxText $cbt, Str $select = '' ) {
 
   my Int $value-index = $!entry-category.first( $select, :k) // 0;
   $cbt.set-active($value-index);
+}
+
+#-------------------------------------------------------------------------------
+method check-on-focus-change (
+  N-GdkEventFocus $event, :widget($w), Hash :$kv-data
+  --> Int
+) {
+#note 'focus change';
+  self.check-field( $w, $kv-data);
+
+  # must propogate further to prevent messages when notebook page is switched
+  # otherwise it would do ok to return 1.
+  0
+}
+
+#-------------------------------------------------------------------------------
+method check-field ( $w, Hash $kv ) {
+
+#note "check $kv<name> field $w.^name(), cb: ", ($kv<callback>//'_') ~ '-sts';
+
+  if $w.get-class-name eq 'GtkEntry' {
+    my Gnome::Gtk3::Entry $entry .= new(:native-object($w));
+    my Str $input = $entry.get-text;
+#    $input = $kv<default> // Str unless ?$input;
+
+    my Bool $faulty-state;
+    my Str $cb-name = ($kv<callback> // '_') ~ '-sts';
+    if ?$*callback-object and $*callback-object.^can($cb-name) {
+      $faulty-state = $*callback-object."$cb-name"( :$input, :$kv);
+    }
+
+    else {
+      $faulty-state = (?$kv<required> and !$input);
+    }
+
+    if $faulty-state {
+      self.set-status-hint( $entry, QAStatusFail);
+    }
+
+    elsif ?$kv<required> {
+      self.set-status-hint( $entry, QAStatusOk);
+    }
+
+    else {
+      self.set-status-hint( $entry, QAStatusNormal);
+    }
+  }
 }

@@ -95,7 +95,8 @@ method !create-treeview (
   self!treeview-column( CatNameColumn, '');
   self!treeview-column( SetNameColumn, '');
 
-  my Gnome::Gtk3::TreeIter ( $set-iter, $qa-iter, $qa-child-iter);
+  #my Gnome::Gtk3::TreeIter ( $set-iter, $qa-iter, $qa-child-iter);
+  my Gnome::Gtk3::TreeIter ( $set-iter, $qa-iter);
   my QAManager::Category $cx .= new(:category<_NON_EXISTENT_CAT_NAME_>);
   for $cx.get-category-list.sort -> Str $category {
 
@@ -116,9 +117,10 @@ method !create-treeview (
       my QAManager::Set $set = $cat.get-set($set-name);
       for @($set.get-kv) -> QAManager::KV $kv {
 
-        # $qa-child-iter is not really used but needed to clear the object
-        # later it will be done in one go.
-        $qa-child-iter = $!set-table-store.insert-with-values(
+        ## $qa-child-iter is not really used but needed to clear the object.
+        ## later it will be done in one go.
+        #$qa-child-iter = $!set-table-store.insert-with-values(
+        $!set-table-store.insert-with-values(
           $qa-iter, -1, CatSetQAColumn, $kv.name,
           QATypeColumn, ($kv.field // 'QAEntry').Str,
           CatNameColumn, $category, SetNameColumn, $set-name

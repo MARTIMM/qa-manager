@@ -46,7 +46,7 @@ method build-set-fields (
   self!clean-entries;
 
   for @($set.get-kv) -> QAManager::KV $kv-object {
-note "kv: $kv-object.name(), $kv-object.field()";
+#note "kv: $kv-object.name(), $kv-object.field()";
     self.build-entry( :$kv-grid, :$grid-row, :$kv-object);
     self.check-field( :$kv-grid, :$grid-row, :$kv-object);
 
@@ -125,10 +125,10 @@ method check-field (
   my $no = $kv-grid.get-child-at( 2, $grid-row);
   my Gnome::Gtk3::Widget $w .= new(:native-object($no));
 
-  note "check field, Type: $kv-object.field(), $grid-row, $w.get-name()";
+note "check field, Type: $kv-object.field(), $grid-row, $w.get-name()";
   my Hash $kv = $kv-object.kv-data;
   for $kv.keys.sort -> $key {
-    note "  $key";
+#note "  $key";
   }
 }
 
@@ -139,7 +139,7 @@ method set-value (
 ) {
   my $no = $kv-grid.get-child-at( 2, $grid-row);
   my Gnome::Gtk3::Widget $w .= new(:native-object($no));
-note "set value, type: $kv-object.field(), $grid-row, $w.get-name()";
+#note "set value, type: $kv-object.field(), $grid-row, $w.get-name()";
 }
 
 #-------------------------------------------------------------------------------
@@ -198,7 +198,8 @@ method !entry-field (
 ) {
 
   # A frame with one or more entries
-  my QAManager::Gui::Part::EntryFrame $w .= new($kv-object.values);
+#note "KVO vals: $kv-object.perl()";
+  my QAManager::Gui::Part::EntryFrame $w .= new(:$kv-object);
 
   # select default if any
   $w.set-default($kv-object.default) if $kv-object.default;
