@@ -15,7 +15,6 @@ use Gnome::Gtk3::Notebook;
 use Gnome::Gtk3::Frame;
 use Gnome::Gtk3::Label;
 use Gnome::Gtk3::MenuBar;
-#use Gnome::Gtk3::MenuItem;
 use Gnome::Gtk3::Application;
 use Gnome::Gtk3::Builder;
 use Gnome::Gtk3::CssProvider;
@@ -24,14 +23,10 @@ use Gnome::Gtk3::StyleProvider;
 
 use QAManager::App::ApplicationWindow;
 use QAManager::App::Menu::File;
-#use QAManager::App::Menu::Sheet;
-#use QAManager::App::Menu::Category;
-#use QAManager::App::Menu::Set;
 use QAManager::App::Menu::Help;
 use QAManager::App::Page::Category;
 use QAManager::App::Page::Sheet;
 use QAManager::App::Page::Set;
-#use QAManager::Sheet;
 
 #Gnome::N::debug(:on);
 
@@ -76,7 +71,7 @@ submethod BUILD ( *%options ) {
 
 #-------------------------------------------------------------------------------
 method app-startup ( Gnome::Gtk3::Application :widget($app) ) {
-  #TODO check for tasks which do not need a gui, if so, don't self.run 
+  #TODO check for tasks which do not need a gui, if so, don't self.run
 
   self.run;
 }
@@ -115,7 +110,8 @@ method app-activate ( Gnome::Gtk3::Application :widget($app) ) {
   $!app-window.container-add($!grid);
 
   self.setup-menu($builder);
-  my Gnome::Gtk3::Grid $fst-page = self.setup-workarea;
+  #my Gnome::Gtk3::Grid $fst-page = self.setup-workarea;
+  self.setup-workarea;
 
 #Gnome::N::debug(:on);
   $!app-window.show-all;
@@ -135,23 +131,16 @@ method setup-menu ( Gnome::Gtk3::Builder $builder ) {
   my $app := self;
 
   my QAManager::App::Menu::File $file .= new(:$app);
-#  my QAManager::App::Menu::Sheet $sheet .= new(:$app);
-#  my QAManager::App::Menu::Category $cat .= new(:$app);
-#  my QAManager::App::Menu::Set $set .= new(:$app);
   my QAManager::App::Menu::Help $help .= new(:$app);
 
   my Hash $handlers = %(
     :file-quit($file),
-#    :sheet-new($sheet),
-#    :category-new($cat),
-#    :set-new($set),
     :help-about($help),
   );
 
-#Gnome::N::debug(:on);
   $builder.connect-signals-full($handlers);
-#Gnome::N::debug(:off);
 }
+
 #`{{
 #-------------------------------------------------------------------------------
 # register a handler for a menu item. The $build-id is also the name
