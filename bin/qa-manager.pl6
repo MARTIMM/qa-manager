@@ -10,13 +10,15 @@ use QAManager::App::Application;
 #Gnome::N::debug(:on);
 
 #-------------------------------------------------------------------------------
-my Str $*DataFileType = 'json';
+my Str $*data-file-type = 'json';
+my Any $*callback-object;
+
 my QAManager::App::Application $app;
 
 #-------------------------------------------------------------------------------
 sub MAIN ( Str :$dft? where * ~~ any( Any, 'json', 'toml', 'ini') ) {
 
-  my Str $*DataFileType = $dft // 'json';
+  $*data-file-type = $dft // 'json';
 
   $app .= new(
     :app-id('io.github.martimm.qa'),
