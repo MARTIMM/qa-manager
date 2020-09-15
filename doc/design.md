@@ -4,17 +4,21 @@
 
 Questionnaires and configurations are all some form of key - value sheets serving all kinds of purposes ranging from configuration settings, installation dialogs to household todo lists. This library tries to help you with two facilities, first, setting up a question-answer (QA from now on) sheet and store it in the managers environment and second, use this sheet to provide questions the user must answer and save the results in the users program environment.
 
-# Setup
-
-The program using a previously created sheet provides this sheet by showing it in a dialog on screen like this example below
-
+## Examples
+### Login screen
+### Account definition form
 ![qa-invoice](Images/config-sheets.png)
+### Installation script
+
+
+# Setup
 
 ## Management of QA sheets.
 
- The created sheets are stored in some config environment of the QAManager. The QAManager needs to ask questions about how to create a user sheet. This special QA sheet is stored in the resources directory belonging to the program.
+The created sheets are stored in some configuration environment of the QAManager. To create sheets, the QAManager needs to ask questions like a name and description and also the questions to pose to the user of the sheet. For this, the program has some sheets of its own to present the forms to create the sheets for the users application.
 
- A QA sheet is build up from parts, called sets. A series of sets is stored in a file called a category. A selection of sets from several categories can be presented to the user as a QA sheet.
+A sheet or form can be represented as a Notebook, Stack or an Assistant. On such a sheet you can find different items depending of the implementation. For example a Stack shows everything on one page and a Notebook or Assistent on several pages. A description of the sheet comes at the top or on the first page.
+....is build up from parts, called sets. A series of sets is stored in a file called a category. A selection of sets from several categories can be presented to the user as a QA sheet.
 
 All values can be checked for its type and definedness by several methods.
 
