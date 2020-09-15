@@ -1,9 +1,13 @@
 use v6.d;
 
+use Gnome::Gtk3::Widget;
 #use Gnome::Gtk3::ComboBoxText;
+use Gnome::Gtk3::StyleContext;
+
+use QAManager::QATypes;
 
 #-------------------------------------------------------------------------------
-unit class QAManager::ValueRepr:auth<github:MARTIMM>;
+unit role QAManager::Gui::ValueRepr:auth<github:MARTIMM>;
 
 #-------------------------------------------------------------------------------
 method get-values ( --> Array ) {
@@ -44,4 +48,35 @@ method set-default ( $t ) {
 #-------------------------------------------------------------------------------
 method check-values ( ) {
   ...
+}
+
+#-------------------------------------------------------------------------------
+method set-status-hint (
+  Gnome::Gtk3::Widget $widget, inputStatusHint $status
+) {
+  my Gnome::Gtk3::StyleContext $context .= new(
+    :native-object($widget.get-style-context)
+  );
+
+  # remove classes first
+  $context.remove-class('dontcare');
+  $context.remove-class('fieldOk');
+  $context.remove-class('fieldFail');
+
+#note "sts hint: {inputStatusHint($status)}";
+  # add class depending on status
+  if $status ~~ QAStatusNormal {
+    $context.add-class('fieldNormal');
+  }
+
+  elsif $status ~~ QAStatusOk {
+    $context.add-class('fieldOk');
+  }
+
+  elsif $status ~~ QAStatusFail {
+    $context.add-class('fieldFail');
+  }
+
+  else {
+  }
 }
