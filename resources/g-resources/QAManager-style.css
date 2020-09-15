@@ -10,9 +10,9 @@ window {
 @define-color message-text-color #00507f;
 @define-color -text-color #00507f;
 
-@define-color field-normal-color #00aaaa;
-@define-color field-ok-color #00ff88;
-@define-color field-fail-color #dd0000;
+@define-color field-normal-color #00eeee;
+@define-color field-ok-color #00ff44;
+@define-color field-fail-color #dd4400;
 
 .background {
 	/*background-color: #480044;*/
