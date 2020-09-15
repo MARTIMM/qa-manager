@@ -70,7 +70,8 @@ note "\nB: $!widget-name, $!example, $!tooltip, $!repeatable, $!visibility";
   self.set-values(['',]);
 }
 
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# called from ValeRepr.set-values
 method set-value (
   $data-key, $data-value, $row, Bool :$overwrite = True, Bool :$last-row
 ) {
