@@ -8,7 +8,11 @@ layout: sidebar
 
 See [semantic versioning](http://semver.org/). Please note point 4. on that page: **_Major version zero (0.y.z) is for initial development. Anything may change at any time. The public API should not be considered stable._**
 
-#### 2020-08-10 0.5.1
+#### 2020-09-15 0.7.0
+  * Reorganize modules and cleanup
+  * Add check value of entry types
+
+#### 2020-08-10 0.6.0
   * Build a documentation site for the project.
   * CHANGES file not updated anymore. Look for it [here](https://martimm.github.io/qa-manager//content-docs/About/release-notes.html)
 
