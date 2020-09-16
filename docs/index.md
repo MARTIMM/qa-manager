@@ -6,7 +6,7 @@ nav_menu: default-nav
 #sidebar_menu: main-sidebar
 ---
 
-[![License](http://martimm.github.io/label/License-label.svg)](http://www.perlfoundation.org/artistic_license_2_0)
+[![License](http://martimm.github.io/label/License-label.svg)](http://www.perlfoundation.org/artistic_license_2_0) [![License](http://martimm.github.io/label/License-label-docs.svg)](http://www.perlfoundation.org/artistic_license_2_0)
 
 
 # Question Answer Manager
@@ -35,15 +35,5 @@ Simple and strait forward.
 
 There are always some problems! If you find one, please help by filing an issue at [my github project](https://github.com/MARTIMM/qa-manager/issues).
 
-# License
-
-This software is made available under the Artistic 2.0 license.
-
-# Attribution
-
-* An icon is used for free from https://icons8.com in the Readme, in the applications and elsewhere on the documentation site.
-
-# Author
-
-Name: **Marcel Timmerman**
-Github account name: **MARTIMM**
+# See also
+The section at [About](content-docs/About/about.html)
