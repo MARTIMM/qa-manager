@@ -5,6 +5,8 @@ nav_menus:
   - nav_pages:
     - title: "Home"
       url: '/'
+    - title: "Setup"
+      url: "/content-docs/Setup/configuration.html"
     - title: "About"
       url: "/content-docs/About/about.html"
 
