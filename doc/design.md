@@ -17,8 +17,12 @@ Questionnaires and configurations are all some form of key - value sheets servin
 
 The created sheets are stored in some configuration environment of the QAManager. To create sheets, the QAManager needs to ask questions like a name and description and also the questions to pose to the user of the sheet. For this, the program has some sheets of its own to present the forms to create the sheets for the users application.
 
-A sheet or form can be represented as a Notebook, Stack or an Assistant. On such a sheet you can find different items depending of the implementation. For example a Stack shows everything on one page and a Notebook or Assistent on several pages. A description of the sheet comes at the top or on the first page.
-....is build up from parts, called sets. A series of sets is stored in a file called a category. A selection of sets from several categories can be presented to the user as a QA sheet.
+A sheet or form can be represented as a Notebook, Stack or an Assistant. On such a sheet you can find different items depending of the implementation. For example a Stack shows everything on one page and a Notebook or Assistent on several pages.
+
+A description of the sheet comes at the top or on the first page when there are mages like a Notebook or Assistant has. In a Stack, one or more sets are displayed. The sets are spread over several pages when a Notebook or Assistant is used.
+
+A set displays a number of questions together with proper input fields. At the top a description explains the purpose of the questions or whatever.
+
 
 All values can be checked for its type and definedness by several methods.
 
