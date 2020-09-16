@@ -1,16 +1,5 @@
 [toc]
 
-# Purpose
-
-Questionnaires and configurations are all some form of key - value sheets serving all kinds of purposes ranging from configuration settings, installation dialogs to household todo lists. This library tries to help you with two facilities, first, setting up a question-answer (QA from now on) sheet and store it in the managers environment and second, use this sheet to provide questions the user must answer and save the results in the users program environment.
-
-## Examples
-### Login screen
-### Account definition form
-![qa-invoice](Images/config-sheets.png)
-### Installation script
-
-
 # Setup
 
 ## Management of QA sheets.
