@@ -39,7 +39,7 @@ $entry-dialog.add-kv($field);
       QAToggleButton
     >];
 #  .default = 'QAEntry';
-  .description = 'Describe what it is for';
+  .description = 'Describe what the use is for';
 $entry-dialog.add-kv($field);
 
 #`{{
@@ -110,9 +110,9 @@ $entry-dialog.add-kv($field);
 
 #note $entry-dialog.set;
 
-#my QAManager::Category $category .= new(:category<QAManagerDialogs>);
-#$category.replace-set($entry-dialog);
-#$category.save;
+my QAManager::Category $category .= new(:category<QAManagerDialogs>);
+$category.replace-set($entry-dialog);
+$category.save;
 
 
 my QAManager::Sheet $sheet .= new(:sheet<QAManagerSheetDialog>);
