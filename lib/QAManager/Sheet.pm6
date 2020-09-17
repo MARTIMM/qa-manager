@@ -33,7 +33,7 @@ has QADisplayType $.display is rw;
 
 #-------------------------------------------------------------------------------
 # TODO , Bool :$!ro
-submethod BUILD ( Str:D :$!sheet ) {
+submethod BUILD ( Str:D :$!sheet, Bool :$resource = False ) {
 
   if $*DISTRO.is-win {
   }

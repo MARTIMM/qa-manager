@@ -29,7 +29,7 @@ has Array $!set-data;
 #-------------------------------------------------------------------------------
 # TODO , Bool :$!ro
 # TODO , Bool :$!QAManager = False ??
-submethod BUILD ( Str:D :$!category ) {
+submethod BUILD ( Str:D :$!category, Bool :$resource = False ) {
 
   if $*DISTRO.is-win {
   }
