@@ -77,9 +77,24 @@ Initialization of dynamic variables. The application can modify the variables be
 
 The following variables are used in this program;
 
-=item QADataFileType $*data-file-type; You can choose from INI, JSON or TOML. By default it saves the answers in json formatted files.
-=item Hash $*callback-objects;
-... structure ...
+=item QADataFileType C<$*data-file-type>; You can choose from INI, JSON or TOML. By default it saves the answers in json formatted files.
+
+=item Hash C<$*callback-objects>; User defined callback handlers. The $*callback-objects have two toplevel keys, `actions` to specify action like callbacks and `checks` to have callbacks for checking the input data. The next level is a name which is defined along a question/answer entry. The value of that name key is an array. The first value is the handler object, the second is the method name, the rest are obtional pairs of values which are also provided to the method. The manager will also add some parameters to the method.
+
+Summarized
+
+  $*callback-objects = %(
+      actions => %(
+        user-key => [ $handler-object, $method-name, :myval1($val1), ...],
+        ...
+      ),
+      checks => %(
+        user-key => [ $handler-object, $method-name, :myval1($val1), ...],
+        ...
+      ),
+    );
+
+See also subroutine C<set-handler()>.
 
 =end pod
 state Bool $initialized = False;
@@ -93,7 +108,7 @@ sub init ( ) is export {
     $*data-file-type = 'json';
     $*callback-objects = %(
       actions => %(),
-      qachecks => %(),
+      checks => %(),
     );
 
     $initialized = True;
