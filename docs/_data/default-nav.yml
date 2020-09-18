@@ -6,9 +6,12 @@ nav_menus:
     - title: "Home"
       url: '/'
     - title: "Setup"
-      url: "/content-docs/Setup/configuration.html"
+      url: "/content-docs/setup/configuration.html"
+    - title: "Reference"
+      url: "/content-docs/reference.html"
     - title: "About"
-      url: "/content-docs/About/about.html"
+      url: "/content-docs/about/about.html"
+      right: true
 
 #    - title: "Projects"
 #      url: "/content-docs/projects.html"
