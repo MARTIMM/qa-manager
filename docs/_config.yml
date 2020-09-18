@@ -102,12 +102,13 @@ baseurl: "/qa-manager"
 #  style: compressed
 
 # https://jekyllrb.com/docs/configuration/front-matter-defaults/
-#defaults:
-#  -
-#    scope:
-#      path: "content-docs/reference/Gtk3"
-#    values:
-#      layout: reference-page
-#      title: References to the Gtk3 package modules
+defaults:
+  -
+    scope:
+      path: "content-docs/reference"
+    values:
+      layout: reference-page
+      title: References to the QAManager package modules
+      nav_menu: default-nav
 #      nav_menu: references-nav
-#      sidebar_menu: references-gtk3-sidebar
+      sidebar_menu: reference-sidebar
