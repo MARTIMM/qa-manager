@@ -46,21 +46,24 @@ submethod BUILD ( Str:D :$!category, Bool :$resource = False ) {
   # test self to see if .= new() is used
 #  self.purge if self.defined;
 
-  # implicit load of categories, clear if it fails.
-  unless self.load {
-    $!sets = Nil;
-    $!set-data = [];
-  }
+#  # implicit load of categories, clear if it fails.
+#  unless self.load {
+#    $!sets = Nil;
+#    $!set-data = [];
+#  }
+  self.load
 }
 
 #-------------------------------------------------------------------------------
-method load ( --> Bool ) {
+#method load ( --> Bool ) {
+method load ( ) {
 
   # do not lead if loaded in another Category object
 #  return False if $opened-categories{$!category}.defined;
 
   # check if Category is loaded, ok if it is
-  return True if $!sets.defined;
+  #return True if $!sets.defined;
+  return if $!sets.defined;
 
   # initialize sets
   $!sets = %();
@@ -104,7 +107,7 @@ method load ( --> Bool ) {
 
 #  $opened-categories{$!category} = 1;
 
-  True
+#  True
 }
 
 #-------------------------------------------------------------------------------

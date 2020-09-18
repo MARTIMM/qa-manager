@@ -9,7 +9,7 @@ also does Iterable;
 
 #-------------------------------------------------------------------------------
 # need to know if same sheet is opened elsewhere
-my Hash $opened-sheets = %();
+#my Hash $opened-sheets = %();
 
 # directory to store sheets
 has Str $!sheet-lib-dir;
@@ -35,6 +35,7 @@ has QADisplayType $.display is rw;
 # TODO , Bool :$!ro
 submethod BUILD ( Str:D :$!sheet, Bool :$resource = False ) {
 
+#`{{
   if $*DISTRO.is-win {
   }
 
@@ -50,22 +51,29 @@ submethod BUILD ( Str:D :$!sheet, Bool :$resource = False ) {
     $!category-lib-dir ~~ s/ 'QA.d' $/QAlib.d/;
     mkdir( $!category-lib-dir, 0o760) unless $!category-lib-dir.IO.d;
   }
+}}
 
-  # implicit load of categories, clear if it fails.
-  unless self.load {
-    $!pages = Nil;
-    $!page-data = [];
-  }
+  # initialize if needed
+  QATypes::init();
+
+#  # implicit load of categories, clear if it fails.
+#  unless self.load {
+#    $!pages = Nil;
+#    $!page-data = [];
+#  }
+  self.load;
 }
 
 #-------------------------------------------------------------------------------
-method load ( --> Bool ) {
+method load ( ) {
+#method load ( --> Bool ) {
 
   # do not load if loaded in another Sheet object
 #  return False if $opened-sheets{$!sheet}.defined;
 
   # check if Sheet is loaded, ok if it is
-  return True if $!pages.defined;
+  return if $!pages.defined;
+  #return True if $!pages.defined;
 
   # initialize sheets
   $!pages = %();
@@ -102,7 +110,7 @@ method load ( --> Bool ) {
 
 #  $opened-sheets{$!sheet} = 1;
 
-  True
+#  True
 }
 
 #-------------------------------------------------------------------------------
