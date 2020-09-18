@@ -11,6 +11,7 @@ See [semantic versioning](http://semver.org/). Please note point 4. on that page
 #### 2020-09-15 0.7.0
   * Reorganize modules and cleanup
   * Add check value of entry types
+  * Add first reference to site
 
 #### 2020-08-10 0.6.0
   * Build a documentation site for the project.
