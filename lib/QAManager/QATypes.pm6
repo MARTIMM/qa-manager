@@ -2,6 +2,8 @@
 
 use v6.d;
 
+use JSON::Fast;
+
 #-------------------------------------------------------------------------------
 =begin pod
 A singleton class to provide types and global variables
@@ -19,7 +21,7 @@ unit class QAManager::QATypes:auth<github:MARTIMM>;
 =head2 QADataFileType
 =end pod
 #tt:1:QADataFileType:
-enum QADataFileType is export < INI JSON TOML >;
+enum QADataFileType is export < QAINI QAJSON QATOML >;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -76,7 +78,6 @@ has Str $.cfgloc-category is rw;
 has Str $.cfgloc-sheet is rw;
 has Str $.cfgloc-resource is rw;
 
-
 #-------------------------------------------------------------------------------
 =begin pod
 =head1 Methods
@@ -95,6 +96,47 @@ method instance ( --> QAManager::QATypes ) {
   $instance //= self.bless;
 
   $instance
+}
+
+#-------------------------------------------------------------------------------
+method qa-path( Str:D $qa-filename, Bool :$sheet = False --> Str ) {
+  my Str $qa-path;
+  if $sheet {
+    $qa-path = "$!cfgloc-sheet/$qa-filename.cfg";
+  }
+
+  else {
+    $qa-path = "$!cfgloc-category/$qa-filename.cfg";
+  }
+
+  $qa-path
+}
+
+#-------------------------------------------------------------------------------
+method qa-load ( Str:D $qa-filename, Bool :$sheet = False --> Hash ) {
+  my Str $qa-path = self.qa-path( $qa-filename, :$sheet);
+  my $data = from-json($qa-path.IO.slurp) if $qa-path.IO.r;
+  $data // Hash
+}
+
+#-------------------------------------------------------------------------------
+method qa-save ( Str:D $qa-filename, Hash:D $qa-data, Bool :$sheet = False ) {
+  my Str $qa-path = self.qa-path( $qa-filename, :$sheet);
+  $qa-path.IO.spurt(to-json($qa-data));
+}
+
+#-------------------------------------------------------------------------------
+method qa-remove ( Str:D $qa-filename, Bool :$sheet = False ) {
+  my Str $qa-path = self.qa-path( $qa-filename, :$sheet);
+  unlink $qa-path;
+}
+
+#-------------------------------------------------------------------------------
+method user-load ( Str $user-filename --> Hash ) {
+}
+
+#-------------------------------------------------------------------------------
+method user-save ( Hash $user-data ) {
 }
 
 #-------------------------------------------------------------------------------
@@ -135,7 +177,7 @@ If any of C<$!cfgloc-category>, C<$!cfgloc-sheet> or C<$!cfgloc-resource> is cha
 #tm:0:init:
 method !init ( ) {
 
-  $!data-file-type = 'json';
+  $!data-file-type = QAJSON;
   $!callback-objects = %(
     actions => %(),
     checks => %(),
