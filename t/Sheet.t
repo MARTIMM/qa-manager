@@ -18,7 +18,7 @@ subtest 'ISO-Test', {
 
 #-------------------------------------------------------------------------------
 subtest 'Manipulations', {
-  ok $sheet.is-loaded, '.is-loaded()';
+#  ok $sheet.is-loaded, '.is-loaded()';
   is $sheet.display, QANoteBook, '.display()';
 
   ok $sheet.new-page(:name<tstsheet2>), '.new-page()';

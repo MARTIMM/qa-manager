@@ -1,6 +1,5 @@
 use v6.d;
 
-use JSON::Fast;
 use QAManager::QATypes;
 
 #-------------------------------------------------------------------------------
@@ -30,6 +29,9 @@ has Iterator $!iterator;
 has Hash $!page;
 
 has QADisplayType $.display is rw;
+#TODO display properties
+
+has QAManager::QATypes $!qa-types;
 
 #-------------------------------------------------------------------------------
 # TODO , Bool :$!ro
@@ -53,19 +55,19 @@ submethod BUILD ( Str:D :$!sheet, Bool :$resource = False ) {
   }
 }}
 
-  # initialize if needed
-  QATypes::init();
+  # initialize types
+  $!qa-types .= instance;
 
 #  # implicit load of categories, clear if it fails.
 #  unless self.load {
 #    $!pages = Nil;
 #    $!page-data = [];
 #  }
-  self.load;
+  self!load;
 }
 
 #-------------------------------------------------------------------------------
-method load ( ) {
+method !load ( ) {
 #method load ( --> Bool ) {
 
   # do not load if loaded in another Sheet object
@@ -79,6 +81,37 @@ method load ( ) {
   $!pages = %();
   $!page-data = [];
 
+  my Hash $sheet = $!qa-types.qa-load( $!sheet, :sheet);
+  if ?$sheet {
+
+    $!display =
+      QADisplayType(QADisplayType.enums{$sheet<display>//''}) // QANoteBook;
+
+    # the rest are pages
+    for @($sheet<pages>) -> $h-page is copy {
+      next unless ?$h-page;
+      if $h-page<name>:exists and ?$h-page<name> {
+
+        $h-page<title> //= $h-page<name>.tclc;
+        $h-page<description> //= $h-page<title>;
+
+        $!pages{$h-page<name>} = $!page-data.elems;
+        $!page-data.push: $h-page;
+      }
+
+      else {
+        note "Name of page not defined, page skipped";
+      }
+    }
+
+    $!is-changed = False;
+  }
+
+  else {
+    $!display = QANoteBook;
+    $!is-changed = True;
+  }
+#`{{
   # check if Sheet file exists then load, if not, Sheet is created
   my Str $sheetfile = "$!sheet-lib-dir/$!sheet.cfg";
 
@@ -107,16 +140,18 @@ method load ( ) {
     $!display = QANoteBook;
     $!is-changed = True;
   }
-
 #  $opened-sheets{$!sheet} = 1;
 
 #  True
+}}
 }
 
+#`{{
 #-------------------------------------------------------------------------------
 method is-loaded ( --> Bool ) {
   $!pages.defined
 }
+}}
 
 #-------------------------------------------------------------------------------
 method new-page (
@@ -192,23 +227,29 @@ method remove-set ( Str:D :$category, Str:D :$set --> Bool ) {
 }
 
 #-------------------------------------------------------------------------------
-method save ( --> Bool ) {
+method save ( ) {
 
   # check if Category is loaded, ok if it is
-  return False unless $!pages.defined;
+#(a $!pages is always defined after BUILD!)
+#  return False unless $!pages.defined;
 
-  # if set name does not exist, the Category is created
-  "$!sheet-lib-dir/$!sheet.cfg".IO.spurt(
-    to-json( %(:$!display, :pages($!page-data)) )
-  );
+#  # if set name does not exist, the Category is created
+#  "$!sheet-lib-dir/$!sheet.cfg".IO.spurt(
+#    to-json( %(:$!display, :pages($!page-data)) )
+#  );
+
+  $!qa-types.qa-save( $!sheet, %(:$!display, :pages($!page-data)), :sheet);
 
   $!is-changed = False;
-  True
 }
 
 #-------------------------------------------------------------------------------
-method save-as ( Str $new-sheet --> Bool ) {
+method save-as ( Str $new-sheet ) {
 
+  $!qa-types.qa-save( $new-sheet, %(:$!display, :pages($!page-data)), :sheet);
+
+
+#`{{
   # check if this new sheet is loaded elsewhere
 #TODO is this correct? we opened it at least ourselves
 #  return False if $opened-sheets{$new-sheet}.defined;
@@ -220,11 +261,12 @@ method save-as ( Str $new-sheet --> Bool ) {
 
   # remove from sheets and rename sheet
 #  $opened-sheets{$!sheet}:delete;
-  $!sheet = $new-sheet;
 #  $opened-sheets{$!sheet} = 1;
 
+}}
+
+  $!sheet = $new-sheet;
   $!is-changed = False;
-  True
 }
 
 #`{{
