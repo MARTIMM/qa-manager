@@ -113,21 +113,29 @@ method qa-path( Str:D $qa-filename, Bool :$sheet = False --> Str ) {
 }
 
 #-------------------------------------------------------------------------------
-method qa-load ( Str:D $qa-filename, Bool :$sheet = False --> Hash ) {
-  my Str $qa-path = self.qa-path( $qa-filename, :$sheet);
+method qa-load (
+  Str:D $qa-filename, Bool :$sheet = False, Str :$qa-path is copy
+  --> Hash
+) {
+  $qa-path //= self.qa-path( $qa-filename, :$sheet);
   my $data = from-json($qa-path.IO.slurp) if $qa-path.IO.r;
   $data // Hash
 }
 
 #-------------------------------------------------------------------------------
-method qa-save ( Str:D $qa-filename, Hash:D $qa-data, Bool :$sheet = False ) {
-  my Str $qa-path = self.qa-path( $qa-filename, :$sheet);
+method qa-save (
+  Str:D $qa-filename, Hash:D $qa-data, Bool :$sheet = False,
+  Str :$qa-path is copy
+) {
+  $qa-path //= self.qa-path( $qa-filename, :$sheet);
   $qa-path.IO.spurt(to-json($qa-data));
 }
 
 #-------------------------------------------------------------------------------
-method qa-remove ( Str:D $qa-filename, Bool :$sheet = False ) {
-  my Str $qa-path = self.qa-path( $qa-filename, :$sheet);
+method qa-remove (
+  Str:D $qa-filename, Bool :$sheet = False, Str :$qa-path is copy
+) {
+  $qa-path //= self.qa-path( $qa-filename, :$sheet);
   unlink $qa-path;
 }
 
