@@ -1,30 +1,30 @@
 use v6.d;
 use Test;
 
-use QAManager::KV;
+use QAManager::Question;
 
 #-------------------------------------------------------------------------------
-my QAManager::KV $qa-kv .= new(
-  :name<username>, :kv(%(:default<mickey>))
+my QAManager::Question $q .= new(
+  :name<username>, :qa-data(%(:default<mickey>))
 );
 
 #-------------------------------------------------------------------------------
 subtest 'ISO-Test', {
 
-  isa-ok $qa-kv, QAManager::KV, 'QA key values';
+  isa-ok $q, QAManager::Question;
 }
 
 #-------------------------------------------------------------------------------
 subtest 'Manipulations', {
-  $qa-kv.description = 'Username of account';
-  $qa-kv.required = True;
+  $q.description = 'Username of account';
+  $q.required = True;
 
-  my Hash $x = $qa-kv.kv-data;
+  my Hash $x = $q.qa-data;
   is $x<description>, 'Username of account', '.description()';
   ok $x<required>, '.required()';
   is $x<default>, 'mickey', '.new()';
 
-#  note $qa-kv.kv-data;
+#  note $q.kv-data;
 }
 
 #-------------------------------------------------------------------------------

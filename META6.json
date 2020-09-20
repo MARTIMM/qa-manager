@@ -1,7 +1,7 @@
 {
   "description": "Q & A Manager",
   "name": "QAManager",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "authors": [ "Marcel Timmerman"],
   "tags": [ "questionnaire", "configuration", "application", "tool", "gtk"],
 
@@ -32,8 +32,8 @@
     "QAManager::Gui::Part::Set": "lib/QAManager/Gui/Part/Set.pm6",
     "QAManager::Gui::ValueRepr": "lib/QAManager/Gui/ValueRepr.pm6",
 
-    "QAManager::KV": "lib/QAManager/KV.pm6",
     "QAManager::QATypes": "lib/QAManager/QATypes.pm6",
+    "QAManager::Question": "lib/QAManager/Question.pm6",
     "QAManager::Set": "lib/QAManager/Set.pm6",
     "QAManager::Sheet": "lib/QAManager/Sheet.pm6"
   },
