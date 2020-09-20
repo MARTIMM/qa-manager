@@ -96,11 +96,14 @@ method new-page (
 }
 
 #-------------------------------------------------------------------------------
-method add-set ( Str:D :$category, Str:D :$set, Str :$qa-path --> Bool ) {
+method add-set (
+  Str:D :$category, Str:D :$set, Str :$qa-path is copy --> Bool
+) {
 # TODO check existence
 
   my Bool $set-ok = False;
 
+  $qa-path ~= "/$category";
   my Hash $cat = $!qa-types.qa-load( $category, :$qa-path, :!sheet);
   if ?$cat {
     for @($cat<sets>) -> Hash $h-set {
