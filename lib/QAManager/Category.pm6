@@ -20,7 +20,7 @@ has Str $.description is rw;
 # directory to store categories
 has Str $!category-lib-dir;
 
-has Bool $.is-changed;
+#has Bool $.is-changed;
 
 # this QAManager::Category's sets
 has Hash $!sets;
@@ -110,11 +110,11 @@ method !load ( ) {
       }
     }
 
-    $!is-changed = False;
+#    $!is-changed = False;
   }
 
   else {
-    $!is-changed = True;
+#    $!is-changed = True;
   }
 
 #`{{
@@ -179,7 +179,7 @@ method save ( ) {
   # if category name does not exist, the Category is created
   "$!category-lib-dir/$!category.cfg".IO.spurt(to-json(self.category));
 }}
-  $!is-changed = False;
+#  $!is-changed = False;
 
 #  True
 }
@@ -203,7 +203,7 @@ method save-as ( Str $new-category --> Bool ) {
 }}
 
   $!category = $new-category;
-  $!is-changed = False;
+#  $!is-changed = False;
 
   True
 }
@@ -239,7 +239,7 @@ method purge ( Bool :$ignore-changes = False --> Bool ) {
 method remove ( Bool :$ignore-changes = False --> Bool ) {
 
   # check if Category is changed
-  return False if !$ignore-changes and $!is-changed;
+#  return False if !$ignore-changes and $!is-changed;
 
 #TODO yes/no message using 'Bool :$gui = False' argument
 
@@ -250,7 +250,7 @@ method remove ( Bool :$ignore-changes = False --> Bool ) {
   $!set-data = [];
   $!qa-types.qa-remove($!category);
 #  $opened-categories{$!category}:delete;
-  $!is-changed = True;
+#  $!is-changed = False;
 
   True
 }
@@ -263,7 +263,7 @@ method add-set ( QAManager::Set:D $set --> Bool ) {
 
   $!sets{$set.name} = $!set-data.elems;
   $!set-data.push: $set;
-  $!is-changed = True;
+#  $!is-changed = True;
 
   True
 }
@@ -273,7 +273,7 @@ method replace-set ( QAManager::Set:D $set --> Bool ) {
 
   if $!sets{$set.name}:exists {
     $!set-data[$!sets{$set.name}] = $set;
-    $!is-changed = True;
+#    $!is-changed = True;
   }
 
   else {
@@ -293,7 +293,7 @@ method delete-set ( Str:D $set-name --> Bool ) {
 
     $!set-data.splice( $!sets{$set-name}, 1);
     $!sets{$set-name}:delete;
-    $!is-changed = True;
+#    $!is-changed = True;
   }
 
   True
