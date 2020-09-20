@@ -6,7 +6,7 @@ use JSON::Fast;
 
 #-------------------------------------------------------------------------------
 =begin pod
-A singleton class to provide types and global variables
+A singleton class to provide types, global variables and some routines.
 
 =end pod
 
@@ -17,9 +17,9 @@ unit class QAManager::QATypes:auth<github:MARTIMM>;
 =end pod
 
 #-------------------------------------------------------------------------------
-=begin pod
-=head2 QADataFileType
-=end pod
+#=begin pod
+#=head2 QADataFileType
+#=end pod
 #tt:1:QADataFileType:
 enum QADataFileType is export < QAINI QAJSON QATOML >;
 
@@ -64,9 +64,9 @@ enum inputStatusHint is export <QAStatusNormal QAStatusOk QAStatusFail>;
 sub check-data-file-type ( --> QADataFileType ) is export {
   my QADataFileType $dft = JSON;
 
-  $dft = INI if 'ini' ∈ @*ARGS;
-  $dft = TOML if 'toml' ∈ @*ARGS;
-  $dft = JSON if 'json' ∈ @*ARGS;
+  $dft = QAINI if 'ini' ∈ @*ARGS;
+  $dft = QATOML if 'toml' ∈ @*ARGS;
+  $dft = QAJSON if 'json' ∈ @*ARGS;
 }
 }}
 #-------------------------------------------------------------------------------
@@ -84,6 +84,13 @@ has Str $.cfgloc-resource is rw;
 =end pod
 
 #-------------------------------------------------------------------------------
+=begin pod
+=head2 new
+
+The class is a singleton class where C<.new()> is prevented to be used. The call will throw an exception. To get the object, call C<.instance()>.
+=end pod
+
+#tm:1:new
 submethod new ( ) { !!! }
 
 #-------------------------------------------------------------------------------
@@ -92,66 +99,10 @@ submethod BUILD ( ) {
 }
 
 #-------------------------------------------------------------------------------
-method instance ( --> QAManager::QATypes ) {
-  $instance //= self.bless;
-
-  $instance
-}
-
-#-------------------------------------------------------------------------------
-method qa-path( Str:D $qa-filename, Bool :$sheet = False --> Str ) {
-  my Str $qa-path;
-  if $sheet {
-    $qa-path = "$!cfgloc-sheet/$qa-filename.cfg";
-  }
-
-  else {
-    $qa-path = "$!cfgloc-category/$qa-filename.cfg";
-  }
-
-  $qa-path
-}
-
-#-------------------------------------------------------------------------------
-method qa-load (
-  Str:D $qa-filename, Bool :$sheet = False, Str :$qa-path is copy
-  --> Hash
-) {
-  $qa-path //= self.qa-path( $qa-filename, :$sheet);
-  my $data = from-json($qa-path.IO.slurp) if $qa-path.IO.r;
-  $data // Hash
-}
-
-#-------------------------------------------------------------------------------
-method qa-save (
-  Str:D $qa-filename, Hash:D $qa-data, Bool :$sheet = False,
-  Str :$qa-path is copy
-) {
-  $qa-path //= self.qa-path( $qa-filename, :$sheet);
-  $qa-path.IO.spurt(to-json($qa-data));
-}
-
-#-------------------------------------------------------------------------------
-method qa-remove (
-  Str:D $qa-filename, Bool :$sheet = False, Str :$qa-path is copy
-) {
-  $qa-path //= self.qa-path( $qa-filename, :$sheet);
-  unlink $qa-path;
-}
-
-#-------------------------------------------------------------------------------
-method user-load ( Str $user-filename --> Hash ) {
-}
-
-#-------------------------------------------------------------------------------
-method user-save ( Hash $user-data ) {
-}
-
-#-------------------------------------------------------------------------------
 =begin pod
-=head2 !init
+=head2 instance
 
-Initialization of dynamic variables. The application can modify the variables before opening any query sheets.
+The application can modify the variables before opening any query sheets.
 
 The following variables are used in this program;
 
@@ -182,6 +133,131 @@ If any of C<$!cfgloc-category>, C<$!cfgloc-sheet> or C<$!cfgloc-resource> is cha
 
 =end pod
 
+#tm:1:instance
+method instance ( --> QAManager::QATypes ) {
+  $instance //= self.bless;
+
+  $instance
+}
+
+#-------------------------------------------------------------------------------
+=begin pod
+=head2 qa-path
+
+Return a path where a QA based sheet or category should be found.
+
+=item Str $qa-filename; the filename for the category or sheet.
+=item Bool $sheet; switch between sheet or category.
+=end pod
+
+#tm:1:qa-path
+method qa-path( Str:D $qa-filename, Bool :$sheet = False --> Str ) {
+  my Str $qa-path;
+  if $sheet {
+    $qa-path = "$!cfgloc-sheet/$qa-filename.cfg";
+  }
+
+  else {
+    $qa-path = "$!cfgloc-category/$qa-filename.cfg";
+  }
+
+  $qa-path
+}
+
+#-------------------------------------------------------------------------------
+=begin pod
+=head2 qa-load
+
+Load a JSON QA based sheet or category file into a Hash. There is no use for it directly. To load data, use the modules B<QManager::Category> or B<QManager::Sheet>.
+
+  method qa-load (
+    Str:D $qa-filename, Bool :$sheet, Str :$qa-path --> Hash
+  )
+
+=item Str $qa-filename; the filename for the category or sheet.
+=item Bool $sheet; switch between sheet or category.
+=item Str $qa-path; optional path to locate the file. $qa-filename and $sheet are then ignored.
+=end pod
+
+#tm:1:qa-load
+method qa-load (
+  Str:D $qa-filename, Bool :$sheet = False, Str :$qa-path is copy
+  --> Hash
+) {
+  $qa-path //= self.qa-path( $qa-filename, :$sheet);
+  my $data = from-json($qa-path.IO.slurp) if $qa-path.IO.r;
+  $data // Hash
+}
+
+#-------------------------------------------------------------------------------
+=begin pod
+=head2 qa-save
+
+Save a Hash of QA type data into a file. There is no use for it directly. To save data, use the modules B<QManager::Category> or B<QManager::Sheet>.
+
+  method qa-save (
+    Str:D $qa-filename, Hash:D $qa-data, Bool :$sheet, Str :$qa-path
+  )
+
+=item Str $qa-filename; the filename for the category or sheet.
+=item Hash $qa-data; sheet or category data.
+=item Bool $sheet; switch between sheet or category.
+=item Str $qa-path; optional path to locate the file. $qa-filename and $sheet are then ignored.
+=end pod
+
+#tm:1:qa-save
+method qa-save (
+  Str:D $qa-filename, Hash:D $qa-data, Bool :$sheet = False,
+  Str :$qa-path is copy
+) {
+  $qa-path //= self.qa-path( $qa-filename, :$sheet);
+  $qa-path.IO.spurt(to-json($qa-data));
+}
+
+#-------------------------------------------------------------------------------
+=begin pod
+=head2 qa-remove
+
+Remove a QA type data file. There is no use for it directly. To remove data, use the modules B<QManager::Category> or B<QManager::Sheet>.
+
+  method qa-remove (
+    Str:D $qa-filename, Bool :$sheet, Str :$qa-path
+  )
+
+=item Str $qa-filename; the filename for the category or sheet.
+=item Bool $sheet; switch between sheet or category.
+=item Str $qa-path; optional path to locate the file. $qa-filename and $sheet are then ignored.
+=end pod
+
+#tm:1:qa-remove
+method qa-remove (
+  Str:D $qa-filename, Bool :$sheet = False, Str :$qa-path is copy
+) {
+  $qa-path //= self.qa-path( $qa-filename, :$sheet);
+  unlink $qa-path;
+}
+
+#-------------------------------------------------------------------------------
+#`{{
+=begin pod
+=head2
+=end pod
+
+#tm:1:
+method user-load ( Str $user-filename --> Hash ) {
+}
+
+#-------------------------------------------------------------------------------
+=begin pod
+=head2
+=end pod
+
+#tm:1:
+method user-save ( Hash $user-data ) {
+}
+}}
+
+#-------------------------------------------------------------------------------
 #tm:0:init:
 method !init ( ) {
 

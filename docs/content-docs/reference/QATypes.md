@@ -1,10 +1,7 @@
-A singleton class to provide types and global variables
+A singleton class to provide types, global variables and some routines.
 
 Types
 =====
-
-QADataFileType
---------------
 
 QAFieldType
 -----------
@@ -30,10 +27,15 @@ QAFieldType is an enumeration of field types to provide an anwer. The types are 
 Methods
 =======
 
-!init
------
+new
+---
 
-Initialization of dynamic variables. The application can modify the variables before opening any query sheets.
+The class is a singleton class where `.new()` is prevented to be used. The call will throw an exception. To get the object, call `.instance()`.
+
+instance
+--------
+
+The application can modify the variables before opening any query sheets.
 
 The following variables are used in this program;
 
@@ -63,4 +65,60 @@ See also subroutine `set-handler()`.
   * Str `$!cfgloc-resource`; Location where sheets are stored or retrieved from a resources directory for your application. Default is `./resources/Sheets` on *nix systems.
 
 If any of `$!cfgloc-category`, `$!cfgloc-sheet` or `$!cfgloc-resource` is changed, make sure that the directories exists!
+
+qa-path
+-------
+
+Return a path where a QA based sheet or category should be found.
+
+  * Str $qa-filename; the filename for the category or sheet.
+
+  * Bool $sheet; switch between sheet or category.
+
+qa-load
+-------
+
+Load a JSON QA based sheet or category file into a Hash. There is no use for it directly. To load data, use the modules **QManager::Category** or **QManager::Sheet**.
+
+    method qa-load (
+      Str:D $qa-filename, Bool :$sheet, Str :$qa-path --> Hash
+    )
+
+  * Str $qa-filename; the filename for the category or sheet.
+
+  * Bool $sheet; switch between sheet or category.
+
+  * Str $qa-path; optional path to locate the file. $qa-filename and $sheet are then ignored.
+
+qa-save
+-------
+
+Save a Hash of QA type data into a file. There is no use for it directly. To save data, use the modules **QManager::Category** or **QManager::Sheet**.
+
+    method qa-save (
+      Str:D $qa-filename, Hash:D $qa-data, Bool :$sheet, Str :$qa-path
+    )
+
+  * Str $qa-filename; the filename for the category or sheet.
+
+  * Hash $qa-data; sheet or category data.
+
+  * Bool $sheet; switch between sheet or category.
+
+  * Str $qa-path; optional path to locate the file. $qa-filename and $sheet are then ignored.
+
+qa-remove
+---------
+
+Remove a QA type data file. There is no use for it directly. To remove data, use the modules **QManager::Category** or **QManager::Sheet**.
+
+    method qa-remove (
+      Str:D $qa-filename, Bool :$sheet, Str :$qa-path
+    )
+
+  * Str $qa-filename; the filename for the category or sheet.
+
+  * Bool $sheet; switch between sheet or category.
+
+  * Str $qa-path; optional path to locate the file. $qa-filename and $sheet are then ignored.
 
