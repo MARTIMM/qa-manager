@@ -8,6 +8,9 @@ layout: sidebar
 
 See [semantic versioning](http://semver.org/). Please note point 4. on that page: **_Major version zero (0.y.z) is for initial development. Anything may change at any time. The public API should not be considered stable._**
 
+#### 2020-09-15 0.7.1
+  * Renamed module KV into Question together with some of the methods.
+
 #### 2020-09-15 0.7.0
   * Reorganize modules and cleanup
   * Add check value of entry types
@@ -18,7 +21,7 @@ See [semantic versioning](http://semver.org/). Please note point 4. on that page
   * CHANGES file not updated anymore. Look for it [here](https://martimm.github.io/qa-manager//content-docs/About/release-notes.html)
 
 #### 2020-02-19 0.5.0
-  * Add Sheet module. Categories are now in the QAlib.d directory and sheets will go into QA.d directory.
+  * Add Sheet module. Categories are now in the Categories.d directory and sheets will go into Sheets.d directory.
   * Moved QATypes to QAManager directory.
 
 #### 2020-02-07 0.4.0
