@@ -27,7 +27,7 @@ Directory where the set categories are stored will be `$*HOME/.config/QAManager/
 
 A complete QA sheet consists of a set of pages with one or more sets. Each page has a title and description.
 
-Directory where the set sheets are stored will be `$*HOME/.config/QAManager/QA.d` on `*ux` systems. <!-- and `$*HOME/QAManager/QA.d` on Windows.-->
+Directory where the set sheets are stored will be `$*HOME/.config/QAManager/Sheets.d` on `*ux` systems. <!-- and `$*HOME/QAManager/Sheets` on Windows.-->
 
 ## Sets
 
