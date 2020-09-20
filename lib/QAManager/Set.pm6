@@ -1,6 +1,6 @@
 use v6.d;
 
-use QAManager::KV;
+use QAManager::Question;
 
 #-------------------------------------------------------------------------------
 unit class QAManager::Set:auth<github:MARTIMM>;
@@ -10,9 +10,9 @@ has Str $.title is rw;
 has Str $.description is rw;
 
 # this QAManager::KV's keys and values. $!keys is to check the names and index
-# into $!kv-data and $!kv-data is to keep order as it is input.
+# into $!questions and $!questions is to keep order as it is input.
 has Hash $!keys;
-has Array $!kv-data;
+has Array $!questions;
 
 #-------------------------------------------------------------------------------
 submethod BUILD ( Str:D :$!name, Str :$title, Str :$description ) {
@@ -20,39 +20,37 @@ submethod BUILD ( Str:D :$!name, Str :$title, Str :$description ) {
   $!title = $title // $!name.tclc;
   $!description = $description // $title;
   $!keys = %();
-  $!kv-data = [];
+  $!questions = [];
 }
 
 #-------------------------------------------------------------------------------
-method add-kv ( QAManager::KV:D $kv --> Bool ) {
+method add-question ( QAManager::Question:D $question --> Bool ) {
 
   # check if key exists, don't overwrite
-  return False if $!keys{$kv.name}.defined;
+  return False if $!keys{$question.name}.defined;
 
-  $!keys{$kv.name} = $!kv-data.elems;
-  $!kv-data.push: $kv;
+  $!keys{$question.name} = $!questions.elems;
+  $!questions.push: $question;
 
   True
 }
 
 #-------------------------------------------------------------------------------
-method get-kv ( --> Array ) {
+method get-questions ( --> Array ) {
 
-  $!kv-data
+  $!questions
 }
 
 #-------------------------------------------------------------------------------
-method replace-kv ( QAManager::KV:D $kv --> Bool ) {
+method replace-question ( QAManager::Question:D $question ) {
 
-  $!kv-data[$!keys{$kv.name}] = $kv;
-
-  True
+  $!questions[$!keys{$question.name}] = $question;
 }
 
 #-------------------------------------------------------------------------------
 method set ( --> Hash ) {
 
   %( :$!name, :$!title, :$!description,
-     entries => [map {.kv-data}, @$!kv-data]
+     entries => [map {.questions}, @$!questions]
   )
 }
