@@ -16,7 +16,7 @@ has Str $!category-lib-dir; # for checks
 
 # sheets are filenames holding pages of sets
 has Str $!sheet is required;
-has Bool $.is-changed;
+#has Bool $.is-changed;
 
 # this QAManager::Sheet's pages
 has Hash $!pages;
@@ -104,12 +104,12 @@ method !load ( ) {
       }
     }
 
-    $!is-changed = False;
+#    $!is-changed = False;
   }
 
   else {
     $!display = QANoteBook;
-    $!is-changed = True;
+#    $!is-changed = True;
   }
 #`{{
   # check if Sheet file exists then load, if not, Sheet is created
@@ -155,11 +155,9 @@ method is-loaded ( --> Bool ) {
 
 #-------------------------------------------------------------------------------
 method new-page (
-  Str:D :$name, Str :$title = '', Str :$description = ''
+  Str:D :$name where ?$name, Str :$title = '', Str :$description = ''
   --> Bool
 ) {
-
-  return False unless ?$name;
 
   return False if $!pages{$name}:exists;
 
@@ -173,18 +171,18 @@ method new-page (
   $!pages{$name} = $!page-data.elems;
   $!page-data.push: $!page;
 
-  $!is-changed = True;
+#  $!is-changed = True;
   True
 }
 
 #-------------------------------------------------------------------------------
-method add-set ( Str:D :$category, Str:D :$set --> Bool ) {
+method add-set ( Str:D :$category, Str:D :$set, Str :$qa-path --> Bool ) {
 # TODO check existence
 
   my Bool $set-ok = False;
 
-  if "$!category-lib-dir/$category.cfg".IO.r {
-    my Hash $cat = from-json("$!category-lib-dir/$category.cfg".IO.slurp);
+  my Hash $cat = $!qa-types.qa-load( $category, :!sheet);
+  if ?$cat {
     for @($cat<sets>) -> Hash $h-set {
       if $h-set<name> eq $set {
         $set-ok = True;
@@ -195,7 +193,7 @@ method add-set ( Str:D :$category, Str:D :$set --> Bool ) {
 
   $!set-data.push: %( :$category, :$set);
 
-  $!is-changed = True;
+#  $!is-changed = True;
   $set-ok
 }
 
@@ -222,7 +220,7 @@ method remove-set ( Str:D :$category, Str:D :$set --> Bool ) {
     }
   }
 
-  $!is-changed = True;
+#  $!is-changed = True;
   $removed
 }
 
@@ -240,7 +238,7 @@ method save ( ) {
 
   $!qa-types.qa-save( $!sheet, %(:$!display, :pages($!page-data)), :sheet);
 
-  $!is-changed = False;
+#  $!is-changed = False;
 }
 
 #-------------------------------------------------------------------------------
@@ -266,7 +264,7 @@ method save-as ( Str $new-sheet ) {
 }}
 
   $!sheet = $new-sheet;
-  $!is-changed = False;
+#  $!is-changed = False;
 }
 
 #`{{
@@ -304,21 +302,24 @@ method delete-page ( :$name --> Bool ) {
 
 
 #-------------------------------------------------------------------------------
-method remove ( Str :$sheet, Bool :$ignore-changes = False --> Bool ) {
+method remove ( Bool :$ignore-changes = False --> Bool ) {
 
 #note "D: $!sheet-lib-dir/$sheet.cfg, ", $opened-sheets{$sheet}:exists;
   # check if this sheet is loaded here, otherwise we cannot delete it
 #  return False unless $opened-sheets{$sheet}:exists;
 
   # check if file exists
-  return False unless "$!sheet-lib-dir/$sheet.cfg".IO.e;
+#  return False unless "$!sheet-lib-dir/$sheet.cfg".IO.e;
+#note "ic & ic: {!$ignore-changes} and $!is-changed, ", (!$ignore-changes and $!is-changed);
+#  return False if !$ignore-changes and $!is-changed;
 
   $!pages = Nil;
   $!page-data = [];
-  unlink "$!sheet-lib-dir/$sheet.cfg";
+#  unlink "$!sheet-lib-dir/$sheet.cfg";
 #  $opened-sheets{$sheet}:delete;
+  $!qa-types.qa-remove( $!sheet, :sheet);
 
-  $!is-changed = False;
+#  $!is-changed = False;
   True
 }
 

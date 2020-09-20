@@ -1,7 +1,6 @@
 use v6.d;
 use Test;
 
-#use QAManager;
 use QAManager::Sheet;
 use QAManager::Category;
 use QAManager::Set;
@@ -9,7 +8,12 @@ use QAManager::KV;
 use QAManager::QATypes;
 
 #-------------------------------------------------------------------------------
+my QAManager::QATypes $qa-types .= instance;
 my QAManager::Sheet $sheet .= new(:sheet<__login>);
+
+# create some category data with some sets
+make-category();
+
 #-------------------------------------------------------------------------------
 subtest 'ISO-Test', {
 
@@ -18,7 +22,7 @@ subtest 'ISO-Test', {
 
 #-------------------------------------------------------------------------------
 subtest 'Manipulations', {
-#  ok $sheet.is-loaded, '.is-loaded()';
+
   is $sheet.display, QANoteBook, '.display()';
 
   ok $sheet.new-page(:name<tstsheet2>), '.new-page()';
@@ -33,10 +37,10 @@ subtest 'Manipulations', {
 
   ok $sheet.add-set( :category<__test-accounting>, :set<credentials>),
      '.add-set()';
-  nok $sheet.remove-set( :category<__test-accounting>, :set<credents>),
-     'not added';
+  nok $sheet.remove-set( :category<__test-accounting>, :set<creds>),
+     'creds set not added';
   nok $sheet.remove-set( :category<__test-accounting>, :set<profile>),
-     'not removed';
+     'profile set not removed';
   ok $sheet.remove-set( :category<__test-accounting>, :set<credentials>),
      '.remove-set()';
 
@@ -45,15 +49,7 @@ subtest 'Manipulations', {
   ok $sheet.add-set( :category<__test-accounting>, :set<profile>),
      '.add-set()';
 
-#`{{
-note $sheet.WHAT;
-  for $sheet -> $page {
-    note "P: ", $page.perl;
-  }
-}}
-
   $sheet.delete-page(:name<tstsheet2>);
-
   $sheet.save;
 
   if $*DISTRO.is-win {
@@ -61,7 +57,8 @@ note $sheet.WHAT;
   }
 
   else {
-    ok "$*HOME/.config/QAManager/QA.d/__login.cfg".IO.r, '.save() __login';
+    my Str $qa-path = $qa-types.qa-path( '__login', :sheet);
+    ok $qa-path.IO.r, '.save() __login';
   }
 
   $sheet.save-as('__login2');
@@ -70,23 +67,63 @@ note $sheet.WHAT;
   }
 
   else {
-    ok "$*HOME/.config/QAManager/QA.d/__login2.cfg".IO.r, '.save-as() __login2';
+    my Str $qa-path = $qa-types.qa-path( '__login2', :sheet);
+    ok $qa-path.IO.r, '.save-as() __login2';
   }
 
-#  # purge __login2
-#  ok $sheet.purge(:ignore-changes), '.purge() __login2';
-#  nok $sheet.remove(:sheet<__login2>), '__login2 not deleted, was purged';
   $sheet .= new(:sheet<__login2>);
-  ok $sheet.remove(:sheet<__login2>), '__login2 deleted';
-  nok $sheet.remove(:sheet<__login2>), '__login2 not existent';
+  ok $sheet.remove, '__login2 deleted';
 
   # cannot remove unloaded sheets
-  ok $sheet.remove(:sheet<__login>), '__login removed';
-
-#  # delete __login. for that we must load it first
-#  $sheet .= new(:sheet<__login>);
-#  ok $sheet.remove(:sheet<__login>), '__login removed';
+  $sheet .= new(:sheet<__login>);
+  ok $sheet.remove, '__login removed';
 }
 
 #-------------------------------------------------------------------------------
-done-testing
+my QAManager::Category $category .= new(:category<__test-accounting>);
+$category.remove;
+
+done-testing;
+
+#-------------------------------------------------------------------------------
+# create some category data with some sets
+sub make-category ( ) {
+  my QAManager::Category $category .= new(:category<__test-accounting>);
+
+  # 1 set
+  my QAManager::Set $set .= new(:name<credentials>);
+  $set.description = 'Name and password for account';
+
+  # 1st kv and add to set
+  my QAManager::KV $kv .= new(:name<username>);
+  $kv.description = 'Username of account';
+  $kv.required = True;
+  $set.add-kv($kv);
+
+  # 2nd kv and add to set
+  $kv .= new(:name<password>);
+  $kv.description = 'Password for username';
+  $kv.required = True;
+  $kv.encode = True;
+  $kv.invisible = True;
+  $set.add-kv($kv);
+
+  # add set to category
+  $category.add-set($set);
+
+  # 2 set
+  $set .= new(:name<profile>);
+  $set.description = 'Extra info for account';
+
+  # 1st kv and add to set
+  $kv .= new(:name<waddress>);
+  $kv.description = 'Work Address';
+  $kv.required = True;
+  $set.add-kv($kv);
+
+  # add set to category
+  $category.add-set($set);
+
+  # save category
+  $category.save;
+}
