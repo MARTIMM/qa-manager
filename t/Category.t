@@ -2,9 +2,8 @@ use v6.d;
 use Test;
 
 use QAManager::Set;
-use QAManager::KV;
+use QAManager::Question;
 use QAManager::Category;
-
 use QAManager::QATypes;
 
 #-------------------------------------------------------------------------------
@@ -19,19 +18,19 @@ subtest 'Manipulations', {
   is $set.title, 'Credentials', '.title()';
   $set.description = 'Name and password for account';
 
-  # 1st kv and add to set
-  my QAManager::KV $kv .= new(:name<username>);
-  $kv.description = 'Username of account';
-  $kv.required = True;
-  ok $set.add-kv($kv), '.add-kv() username';
+  # 1st question and add to set
+  my QAManager::Question $question .= new(:name<username>);
+  $question.description = 'Username of account';
+  $question.required = True;
+  ok $set.add-question($question), '.add-question() username';
 
-  # 2nd kv and add to set
-  $kv .= new(:name<password>);
-  $kv.description = 'Password for username';
-  $kv.required = True;
-  $kv.encode = True;
-  $kv.invisible = True;
-  ok $set.add-kv($kv), '.add-kv() password';
+  # 2nd question and add to set
+  $question .= new(:name<password>);
+  $question.description = 'Password for username';
+  $question.required = True;
+  $question.encode = True;
+  $question.invisible = True;
+  ok $set.add-question($question), '.add-question() password';
 
   # add set to category
   ok $category.add-set($set), '.add-set()';

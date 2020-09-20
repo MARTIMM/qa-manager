@@ -24,7 +24,7 @@ subtest 'Manipulations', {
   ok $x<required>, '.required()';
   is $x<default>, 'mickey', '.new()';
 
-#  note $q.kv-data;
+#  note $q.qa-data;
 }
 
 #-------------------------------------------------------------------------------

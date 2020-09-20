@@ -4,7 +4,7 @@ use Test;
 use QAManager::Sheet;
 use QAManager::Category;
 use QAManager::Set;
-use QAManager::KV;
+use QAManager::Question;
 use QAManager::QATypes;
 
 #-------------------------------------------------------------------------------
@@ -94,19 +94,19 @@ sub make-category ( ) {
   my QAManager::Set $set .= new(:name<credentials>);
   $set.description = 'Name and password for account';
 
-  # 1st kv and add to set
-  my QAManager::KV $kv .= new(:name<username>);
-  $kv.description = 'Username of account';
-  $kv.required = True;
-  $set.add-kv($kv);
+  # 1st question and add to set
+  my QAManager::Question $question .= new(:name<username>);
+  $question.description = 'Username of account';
+  $question.required = True;
+  $set.add-question($question);
 
-  # 2nd kv and add to set
-  $kv .= new(:name<password>);
-  $kv.description = 'Password for username';
-  $kv.required = True;
-  $kv.encode = True;
-  $kv.invisible = True;
-  $set.add-kv($kv);
+  # 2nd question and add to set
+  $question .= new(:name<password>);
+  $question.description = 'Password for username';
+  $question.required = True;
+  $question.encode = True;
+  $question.invisible = True;
+  $set.add-question($question);
 
   # add set to category
   $category.add-set($set);
@@ -115,11 +115,11 @@ sub make-category ( ) {
   $set .= new(:name<profile>);
   $set.description = 'Extra info for account';
 
-  # 1st kv and add to set
-  $kv .= new(:name<waddress>);
-  $kv.description = 'Work Address';
-  $kv.required = True;
-  $set.add-kv($kv);
+  # 1st question and add to set
+  $question .= new(:name<waddress>);
+  $question.description = 'Work Address';
+  $question.required = True;
+  $set.add-question($question);
 
   # add set to category
   $category.add-set($set);

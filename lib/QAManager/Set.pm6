@@ -51,6 +51,6 @@ method replace-question ( QAManager::Question:D $question ) {
 method set ( --> Hash ) {
 
   %( :$!name, :$!title, :$!description,
-     entries => [map {.questions}, @$!questions]
+     questions => [map {.qa-data}, @$!questions]
   )
 }

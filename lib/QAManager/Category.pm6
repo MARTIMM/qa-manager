@@ -4,7 +4,7 @@ use v6.d;
 unit class QAManager::Category:auth<github:MARTIMM>;
 
 use QAManager::Set;
-use QAManager::KV;
+use QAManager::Question;
 
 use QAManager::QATypes;
 
@@ -54,12 +54,12 @@ method !load ( ) {
         $set.title = $h-set<title> // $h-set<name>.tclc;
         $set.description = $h-set<description>;
 
-        # the rest are keys of this set
-        for @($h-set<entries>) -> Hash $h-kv {
-          my QAManager::KV $kv;
-          $kv .= new( :name($h-kv<name>), :kv($h-kv));
+        # the rest are keys of this set of questions
+        for @($h-set<questions>) -> Hash $question {
+          my QAManager::Question $q;
+          $q .= new( :name($question<name>), :kv($question));
 
-          $set.add-kv($kv);
+          $set.add-question($q);
         }
 
         $!sets{$h-set<name>} = $!set-data.elems;
