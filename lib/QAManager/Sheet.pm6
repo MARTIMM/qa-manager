@@ -103,7 +103,7 @@ method add-set (
 
   my Bool $set-ok = False;
 
-  $qa-path ~= "/$category";
+  $qa-path ~= "/$category" if ?$qa-path;
   my Hash $cat = $!qa-types.qa-load( $category, :$qa-path, :!sheet);
   if ?$cat {
     for @($cat<sets>) -> Hash $h-set {
