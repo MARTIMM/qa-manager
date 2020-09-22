@@ -173,17 +173,17 @@ method qa-path( Str:D $qa-filename, Bool :$sheet = False --> Str ) {
 Load a JSON QA based sheet or category file into a Hash. There is no use for it directly. To load data, use the modules B<QManager::Category> or B<QManager::Sheet>.
 
   method qa-load (
-    Str:D $qa-filename, Bool :$sheet, Str :$qa-path --> Hash
+    Str $qa-filename = '__zzz__', Bool :$sheet = False, Str :$qa-path --> Hash
   )
 
 =item Str $qa-filename; the filename for the category or sheet.
 =item Bool $sheet; switch between sheet or category.
-=item Str $qa-path; optional path to locate the file. $qa-filename and $sheet are then ignored.
+=item Str $qa-path; optional path to locate the file. The values of $qa-filename and $sheet are then ignored.
 =end pod
 
 #tm:1:qa-load
 method qa-load (
-  Str:D $qa-filename, Bool :$sheet = False, Str :$qa-path is copy
+  Str $qa-filename = '__zzz__', Bool :$sheet = False, Str :$qa-path is copy
   --> Hash
 ) {
   $qa-path //= self.qa-path( $qa-filename, :$sheet);
@@ -198,18 +198,19 @@ method qa-load (
 Save a Hash of QA type data into a file. There is no use for it directly. To save data, use the modules B<QManager::Category> or B<QManager::Sheet>.
 
   method qa-save (
-    Str:D $qa-filename, Hash:D $qa-data, Bool :$sheet, Str :$qa-path
+    Str $qa-filename = '__zzz__', Hash $qa-data = %(),
+    Bool :$sheet = False, Str :$qa-path
   )
 
 =item Str $qa-filename; the filename for the category or sheet.
 =item Hash $qa-data; sheet or category data.
 =item Bool $sheet; switch between sheet or category.
-=item Str $qa-path; optional path to locate the file. $qa-filename and $sheet are then ignored.
+=item Str $qa-path; optional path to locate the file. The values of $qa-filename and $sheet are then ignored.
 =end pod
 
 #tm:1:qa-save
 method qa-save (
-  Str:D $qa-filename, Hash:D $qa-data, Bool :$sheet = False,
+  Str $qa-filename = '__zzz__', Hash $qa-data = %(), Bool :$sheet = False,
   Str :$qa-path is copy
 ) {
   $qa-path //= self.qa-path( $qa-filename, :$sheet);
@@ -223,20 +224,48 @@ method qa-save (
 Remove a QA type data file. There is no use for it directly. To remove data, use the modules B<QManager::Category> or B<QManager::Sheet>.
 
   method qa-remove (
-    Str:D $qa-filename, Bool :$sheet, Str :$qa-path
+    Str $qa-filename = '__zzz__', Bool :$sheet = False,
+    Str :$qa-path
   )
 
 =item Str $qa-filename; the filename for the category or sheet.
 =item Bool $sheet; switch between sheet or category.
-=item Str $qa-path; optional path to locate the file. $qa-filename and $sheet are then ignored.
+=item Str $qa-path; optional path to locate the file. The values of $qa-filename and $sheet are then ignored.
 =end pod
 
 #tm:1:qa-remove
 method qa-remove (
-  Str:D $qa-filename, Bool :$sheet = False, Str :$qa-path is copy
+  Str $qa-filename = '__zzz__', Bool :$sheet = False, Str :$qa-path is copy
 ) {
   $qa-path //= self.qa-path( $qa-filename, :$sheet);
   unlink $qa-path;
+}
+
+#-------------------------------------------------------------------------------
+=begin pod
+=head2 qa-list
+
+Get the list of sheets or categories stored.
+
+  method qa-list ( Bool :$sheet = False, Str :$qa-path --> List )
+
+=item Bool $sheet; switch between sheet or category.
+=item Str $qa-path; optional path to locate the file. The value of $sheet is then ignored.
+=end pod
+
+#tm:1:qa-list
+method qa-list ( Bool :$sheet = False, Str :$qa-path is copy --> List ) {
+  $qa-path //= self.qa-path( '__', :$sheet);
+  $qa-path ~~ s/ '/__.cfg' //;
+
+  my @qa-list = ();
+  for (dir $qa-path)>>.Str -> $qa-filename is copy {
+    # only keep the name of the sheet or category without extensions
+    $qa-filename ~~ s/ ^ .*? (<-[/]>+ ) \. 'cfg' $ /$0/;
+    @qa-list.push($qa-filename);
+  }
+
+  @qa-list
 }
 
 #-------------------------------------------------------------------------------

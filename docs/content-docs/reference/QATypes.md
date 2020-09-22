@@ -83,14 +83,14 @@ qa-load
 Load a JSON QA based sheet or category file into a Hash. There is no use for it directly. To load data, use the modules **QManager::Category** or **QManager::Sheet**.
 
     method qa-load (
-      Str:D $qa-filename, Bool :$sheet, Str :$qa-path --> Hash
+      Str $qa-filename = '__zzz__', Bool :$sheet = False, Str :$qa-path --> Hash
     )
 
   * Str $qa-filename; the filename for the category or sheet.
 
   * Bool $sheet; switch between sheet or category.
 
-  * Str $qa-path; optional path to locate the file. $qa-filename and $sheet are then ignored.
+  * Str $qa-path; optional path to locate the file. The values of $qa-filename and $sheet are then ignored.
 
 qa-save
 -------
@@ -98,7 +98,8 @@ qa-save
 Save a Hash of QA type data into a file. There is no use for it directly. To save data, use the modules **QManager::Category** or **QManager::Sheet**.
 
     method qa-save (
-      Str:D $qa-filename, Hash:D $qa-data, Bool :$sheet, Str :$qa-path
+      Str $qa-filename = '__zzz__', Hash $qa-data = %(),
+      Bool :$sheet = False, Str :$qa-path
     )
 
   * Str $qa-filename; the filename for the category or sheet.
@@ -107,7 +108,7 @@ Save a Hash of QA type data into a file. There is no use for it directly. To sav
 
   * Bool $sheet; switch between sheet or category.
 
-  * Str $qa-path; optional path to locate the file. $qa-filename and $sheet are then ignored.
+  * Str $qa-path; optional path to locate the file. The values of $qa-filename and $sheet are then ignored.
 
 qa-remove
 ---------
@@ -115,12 +116,24 @@ qa-remove
 Remove a QA type data file. There is no use for it directly. To remove data, use the modules **QManager::Category** or **QManager::Sheet**.
 
     method qa-remove (
-      Str:D $qa-filename, Bool :$sheet, Str :$qa-path
+      Str $qa-filename = '__zzz__', Bool :$sheet = False,
+      Str :$qa-path
     )
 
   * Str $qa-filename; the filename for the category or sheet.
 
   * Bool $sheet; switch between sheet or category.
 
-  * Str $qa-path; optional path to locate the file. $qa-filename and $sheet are then ignored.
+  * Str $qa-path; optional path to locate the file. The values of $qa-filename and $sheet are then ignored.
+
+qa-list
+-------
+
+Get the list of sheets or categories stored.
+
+    method qa-list ( Bool :$sheet = False, Str :$qa-path --> List )
+
+  * Bool $sheet; switch between sheet or category.
+
+  * Str $qa-path; optional path to locate the file. The value of $sheet is then ignored.
 

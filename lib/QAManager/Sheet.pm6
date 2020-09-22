@@ -7,10 +7,6 @@ unit class QAManager::Sheet:auth<github:MARTIMM>;
 also does Iterable;
 
 #-------------------------------------------------------------------------------
-# directory to store sheets
-has Str $!sheet-lib-dir;
-has Str $!category-lib-dir; # for checks
-
 # sheets are filenames holding pages of sets
 has Str $!sheet is required;
 
@@ -211,7 +207,8 @@ method get-pages ( --> Array ) {
 
 #-------------------------------------------------------------------------------
 method get-sheet-list ( --> List ) {
-
+  $!qa-types.qa-list(:sheet)
+#`{{
   my @sl = ();
   for (dir $!sheet-lib-dir)>>.Str -> $sheet-path is copy {
     $sheet-path ~~ s/ ^ .*? (<-[/]>+ ) \. 'cfg' $ /$0/;
@@ -219,4 +216,5 @@ method get-sheet-list ( --> List ) {
   }
 
   @sl
+}}
 }

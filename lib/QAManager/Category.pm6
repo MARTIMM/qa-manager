@@ -1,6 +1,13 @@
+#tl:1:QAManager::Category
+
 use v6.d;
 
 #-------------------------------------------------------------------------------
+=begin pod
+Class B<QAManager::Category> is used to categorize sets. You can view the directory where the categories are stored as an archive where sheets can be created from. See also B<QAManager::Sheet> and B<QAManager::Set>.
+
+=end pod
+
 unit class QAManager::Category:auth<github:MARTIMM>;
 
 use QAManager::Set;
@@ -9,15 +16,34 @@ use QAManager::Question;
 use QAManager::QATypes;
 
 #-------------------------------------------------------------------------------
-# need to know if same category is opened elsewhere
+=begin pod
+=head1 Methods
+=end pod
 
-# catagories are filenames holding sets
+#-------------------------------------------------------------------------------
+=begin pod
+=head2 category
+
+Get catagory name. The name is also used for the filename with .cfg extension added.
+
+  method category ( --> Str )
+
+=end pod
+
 has Str $.category is required;
+
+#-------------------------------------------------------------------------------
+=begin pod
+=head2 description
+
+Get description of the category.
+
+  method description ( --> Str )
+
+=end pod
 has Str $.description is rw;
 
-# directory to store categories
-has Str $!category-lib-dir;
-
+#-------------------------------------------------------------------------------
 # this QAManager::Category's sets
 has Hash $!sets;
 has Array $!set-data;
@@ -108,15 +134,24 @@ method remove ( Bool :$ignore-changes = False --> Bool ) {
 }
 
 #-------------------------------------------------------------------------------
-method add-set ( QAManager::Set:D $set --> Bool ) {
+method add-set ( QAManager::Set:D $set, Bool :$replace = False --> Bool ) {
+
+  # check if we want replacement
+  if $replace {
+    self.replace-set($set);
+    True
+  }
 
   # check if set exists, don't overwrite
-  return False if $!sets{$set.name}:exists;
+  elsif $!sets{$set.name}:exists {
+    False
+  }
 
-  $!sets{$set.name} = $!set-data.elems;
-  $!set-data.push: $set;
-
-  True
+  else {
+    $!sets{$set.name} = $!set-data.elems;
+    $!set-data.push: $set;
+    True
+  }
 }
 
 #-------------------------------------------------------------------------------
@@ -127,7 +162,7 @@ method replace-set ( QAManager::Set:D $set ) {
   }
 
   else {
-    self.add-set($set);
+    self.add-set( $set, :!replace);
   }
 }
 
@@ -159,6 +194,8 @@ method get-set ( Str:D $setname --> QAManager::Set ) {
 #-------------------------------------------------------------------------------
 method get-category-list ( --> List ) {
 
+  $!qa-types.qa-list(:!sheet)
+#`{{
   my @cl = ();
   for (dir $!category-lib-dir)>>.Str -> $category-path is copy {
     $category-path ~~ s/ ^ .*? (<-[/]>+ ) \. 'cfg' $ /$0/;
@@ -166,4 +203,5 @@ method get-category-list ( --> List ) {
   }
 
   @cl
+}}
 }
