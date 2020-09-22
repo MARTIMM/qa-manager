@@ -71,6 +71,8 @@ qa-path
 
 Return a path where a QA based sheet or category should be found.
 
+    method qa-path( Str:D $qa-filename, Bool :$sheet --> Str )
+
   * Str $qa-filename; the filename for the category or sheet.
 
   * Bool $sheet; switch between sheet or category.
