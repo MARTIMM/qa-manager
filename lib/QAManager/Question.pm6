@@ -14,6 +14,7 @@ has Bool $.encode is rw;        # when value must be encoded with sha256
 has Str $.example is rw;        # optional example value for text
 has QAFieldType $.field is rw; # optional = QAEntry, QADialog or QACheckButton
 has Int $.height is rw;         # optional height in pixels
+has Bool $.hide is rw;          # optional hide question, default False
 has Bool $.invisible is rw;     # when value is displayed as dotted characters
 has Any $.minimum is rw;        # optional range for string or number type
 has Any $.maximum is rw;        # optional range for string or number type
@@ -62,6 +63,7 @@ submethod BUILD ( Str:D :$!name, Hash :$qa-data ) {
   $!callback = $qa-data<callback> if $qa-data<callback>.defined;
   $!cmpwith = $qa-data<cmpwith> if $qa-data<cmpwith>.defined;
   $!height = $qa-data<height> if $qa-data<height>.defined;
+  $!hide = $qa-data<hide> if $qa-data<hide>.defined;
   $!invisible = $qa-data<invisible> if $qa-data<invisible>.defined;# // False;
   $!minimum = $qa-data<minimum> if $qa-data<minimum>.defined;
   $!maximum = $qa-data<maximum> if $qa-data<maximum>.defined;
@@ -80,20 +82,20 @@ method qa-data ( --> Hash ) {
   my Hash $qa-data = %( :$!name, :$!field);
 
   $qa-data<callback> = $!callback if $!callback.defined;
+#  $qa-data<category> = $!category if $!category.defined;
   $qa-data<default> = $!default if $!default.defined;
   $qa-data<description> = $!description if $!description.defined;
   $qa-data<encode> = $!encode if $!encode.defined;
   $qa-data<example> = $!example if $!example.defined;
   $qa-data<height> = $!height if $!height.defined;
+  $qa-data<hide> = $!hide if $!hide.defined;
   $qa-data<invisible> = $!invisible if $!invisible.defined;
   $qa-data<minimum> = $!minimum if $!minimum.defined;
   $qa-data<maximum> = $!maximum if $!maximum.defined;
-
   $qa-data<required> = $!required if $!required.defined;
   $qa-data<repeatable> = $!repeatable if $!repeatable.defined;
-  $qa-data<step> = $!step if $!step.defined;
-#  $qa-data<category> = $!category if $!category.defined;
 #  $qa-data<set> = $!set if $!set.defined;
+  $qa-data<step> = $!step if $!step.defined;
   $qa-data<title> = $!title if $!title.defined;
   $qa-data<tooltip> = $!tooltip if $!tooltip.defined;
   $qa-data<values> = $!values if $!values.defined;

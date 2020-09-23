@@ -8,6 +8,7 @@ unit class QAManager::Set:auth<github:MARTIMM>;
 has Str $.name is required;
 has Str $.title is rw;
 has Str $.description is rw;
+has Str $.hide is rw;
 
 # this QAManager::KV's keys and values. $!keys is to check the names and index
 # into $!questions and $!questions is to keep order as it is input.
@@ -21,6 +22,7 @@ submethod BUILD ( Str:D :$!name, Str :$title, Str :$description ) {
   $!description = $description // $title;
   $!keys = %();
   $!questions = [];
+  $!hide = False;
 }
 
 #-------------------------------------------------------------------------------
@@ -50,7 +52,7 @@ method replace-question ( QAManager::Question:D $question ) {
 #-------------------------------------------------------------------------------
 method set ( --> Hash ) {
 
-  %( :$!name, :$!title, :$!description,
+  %( :$!name, :$!title, :$!description, :$!hide,
      questions => [map {.qa-data}, @$!questions]
   )
 }

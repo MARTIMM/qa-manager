@@ -21,7 +21,8 @@ has Iterator $!iterator;
 has Hash $!page;
 
 has QADisplayType $.display is rw;
-#TODO display properties
+has Hash $.display-properties is rw;
+has Int $.width is rw;
 
 has QAManager::QATypes $!qa-types;
 
@@ -72,7 +73,8 @@ method !load ( ) {
 
 #-------------------------------------------------------------------------------
 method new-page (
-  Str:D :$name where ?$name, Str :$title = '', Str :$description = ''
+  Str:D :$name where ?$name, Str :$title = '', Str :$description = '',
+  Bool :$hide = False
   --> Bool
 ) {
 
@@ -82,7 +84,7 @@ method new-page (
   $description //=$title;
 
   $!set-data = [];
-  $!page = %( :$name, :$title, :$description);
+  $!page = %( :$name, :$title, :$description, :$hide);
   $!page<sets> := $!set-data;
 
   $!pages{$name} = $!page-data.elems;
