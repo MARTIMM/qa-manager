@@ -29,7 +29,7 @@ use QAManager::Gui::Part::EntryFrame;
 Purpose of this part is to display a question in a row on a given grid. This line consists of several columns. The first column shows a text posing the question, the second shows an optional star to show that an input is required. Then the third column is used to show the input area which can be one of several types of input like text, combobox or checkbox groups.
 =end pod
 
-unit class QAManager::Gui::Part::KV;
+unit class QAManager::Gui::Part::KV:auth<github:MARTIMM>;
 
 #-------------------------------------------------------------------------------
 has Hash $!entry-objects = %( );
