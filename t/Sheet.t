@@ -71,6 +71,13 @@ subtest 'Manipulations', {
     ok $qa-path.IO.r, '.save-as() __login2';
   }
 
+  my $c := $sheet.clone;
+  my @sheets = <tstsheet3 tstsheet1>;
+  for $c -> Hash $page {
+#    note $page.keys;
+    is $page<name>, @sheets.shift, "page iterator $page<name>";
+  }
+
   $sheet .= new(:sheet<__login2>);
   ok $sheet.remove, '__login2 deleted';
 

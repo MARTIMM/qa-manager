@@ -5,6 +5,7 @@ use QAManager::QATypes;
 #-------------------------------------------------------------------------------
 unit class QAManager::Sheet:auth<github:MARTIMM>;
 also does Iterable;
+#also does Iterator;
 
 #-------------------------------------------------------------------------------
 # sheets are filenames holding pages of sets
@@ -20,14 +21,16 @@ has Iterator $!iterator;
 
 has Hash $!page;
 
+# sheet dialog properties
 has QADisplayType $.display is rw;
 has Hash $.display-properties is rw;
 has Int $.width is rw;
+has Hash $.button-map is rw;
 
 has QAManager::QATypes $!qa-types;
 
 #-------------------------------------------------------------------------------
-# TODO , Bool :$!ro
+# TODO make use of Bool $resource
 submethod BUILD ( Str:D :$!sheet, Bool :$resource = False ) {
 
   # initialize types
@@ -47,10 +50,15 @@ method !load ( ) {
 
     $!display =
       QADisplayType(QADisplayType.enums{$sheet<display>//''}) // QANoteBook;
+    $!display-properties = $sheet<display-properties> // %();
+    $!width = $sheet<width> // 300;
+    $!button-map = $sheet<button-map> // %();
 
     # the rest are pages
     for @($sheet<pages>) -> $h-page is copy {
       next unless ?$h-page;
+
+      # get and save page properties
       if $h-page<name>:exists and ?$h-page<name> {
 
         $h-page<title> //= $h-page<name>.tclc;
@@ -177,35 +185,34 @@ method remove ( Bool :$ignore-changes = False ) {
 
 #-------------------------------------------------------------------------------
 # Iterator to be used in for {} statements returning pages from this sheet
-method iterator ( --> Iterator ) {
+=begin pod
 
-note "iter";
+  my $c := $sheet.clone;
+  for $c -> Hash $page {
+    note $page.keys;
+    ...;
+  }
+
+=end pod
+method iterator ( ) {
+
   # Create anonymous class which does the Iterator role
-  my $c = class :: does Iterator {
+  class :: does Iterator {
     has $!count = 0;
     has Array $.pdata is rw;
 
-    method pull-one {
-note "\ncount: $!count, $!pdata[$!count].perl()";
+#    submethod BUILD (:$!pdata) { note $!pdata.elems; }
+
+    method pull-one ( --> Mu ) {
 
       return $!count < $!pdata.elems
         ?? $!pdata[$!count++]
         !! IterationEnd;
     }
 
-  # Create the object for this class and return it
-}.new(:pdata($!page-data));
-
-note "CI: ", $c.perl;
-$c
+    # Create the object for this class and return it
+  }.new(:pdata($!page-data))
 }
-
-method get-pages ( --> Array ) {
-
-  @$!page-data;
-}
-
-#`{{ TODO}}
 
 #-------------------------------------------------------------------------------
 method get-sheet-list ( --> List ) {
