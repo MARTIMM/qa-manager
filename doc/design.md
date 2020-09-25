@@ -400,25 +400,28 @@ fc -> up
 
 # API
 
-## Defining a set
+## Defining a question
 
-* Create an input specification
+* Create questions
 ```
-my QAManager::KV $un .= new(:name<username>, :kv(%(...)));
+my QAManager::Question $un .= new(:name<username>, :qa-data(%(...)));
 $un.required = True;
 
-my QAManager::KV $pw .= new(:name<password>, :kv(%(...)));
+my QAManager::Question $pw .= new(:name<password>, :qa-data(%(...)));
 $un.required = True;
 $un.encode = True;
 ```
-* Create a set and add input specs
+
+## Defining a set of questions
+
+* Add questions to a set
 ```
 my QAManager::Set $creds .= new(:name<credentials>);
-$creds.add-kv($un);
-$creds.add-kv($pw);
+$creds.add-question($un);
+$creds.add-question($pw);
 ```
 
-## Building a category
+## Building a category(or archive) of sets
 
 * Create a category, populate and save
 ```
@@ -428,7 +431,7 @@ $category.save;
 ```
 * Remove a category
 ```
-$category2.remove
+$category.remove
 ```
 
 ## Building a sheet
@@ -440,7 +443,7 @@ $sheet.add-page( :title<Login>, :description('MongoDB Server Login');
 $sheet.add-set( :category<accounting>, :set<credentials>);
 $sheet.save;
 ```
-
+<!--
 ## Run QA Dialog
 * Select a sheet and run invoice dialog
 ```
@@ -449,7 +452,9 @@ my QAManager $qam .= new;
 my Hash $data = $qam.run-invoice( :sheet<Login>, :$callback-handlers, :!save);
 if ?$data { ... }
 ```
+-->
 
+<!--
 # QA Manager
 Main display
 * [x] Title
@@ -509,48 +514,18 @@ Main display
   * [ ] Message dialog for several informational messages or warnings with close button.
   * [ ] Dialog to show help content with close button.
   * [ ] About dialog to show the program info and version with close button.
+-->
 
-# Uml
-```plantuml
-scale 0.85
-title "Application page uses '::Gui::SetDialog' for set demo"
+# Display of sheets
 
-class "::Gtk3::Dialog" as Gtk3dialog {
-  new()
-  N-GObject gtk_dialog_add_button()
-  gtk_dialog_set_default_response()
-  GtkResponseType gtk_dialog_run()
-  GObject gtk_dialog_get_content_area()
-}
-note right of Gtk3dialog: Module from Gnome. The\n rest is from QAManager"
+All sheets are displayed in a Dialog widget. In this widget there can be one of several possibilities to give a it a specific layout.
 
-class "::App::Page::Set" as APset
+* **Dialog**; This is the simplest of cases. There will be no extra layer. There will be no extra pages and if given a sheet with more than one page, it will only handle the first page and ignore the rest. Also it shows only two buttons. One to cancel and one to finish.
 
-class "::Gui::Part::Dialog" as GPdialog {
-  add-dialog-button()
-  GtkResponseType show-dialog()
-}
+* **Notebook**; A notebook can show more pages, all of them displayed using tabs. There are only two buttons still, cancel and finish. The pages in the notebook are scrollable if large enough.
 
-class "::Gui::Part::Set" as GPset {
-  Hash $!part-user-data
-}
+* **Stack**
 
-class "::Gui::Part::KV" as GPkv {
-  build-entry()
-  check-field()
-  set-value()
-  get-value()
-}
+* **Assistant**
 
-class "::Gui::SetDialog" as GSdialog
-
-Gtk3dialog <|-- GPdialog
-GPdialog <|-- GSdialog
-GSdialog *-> GPset
-GPset -> GPkv
-GPset *--> ::Set: $!set
-GPset --> ::KV
-GPkv --> ::KV
-
-APset *-> GSdialog
-```
+There is a possibility to name the buttons differently. This is done using a button map. Each key in this map has by default the same button label as its key but the first letter in uppercase and the rest lowercase. E.g. `:cancel<Cancel>` and `:finish<Finish>`.

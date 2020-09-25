@@ -42,6 +42,7 @@ template sets [
 pages [
   display type
   display properties
+  button-map
   page1
     page name
     title
