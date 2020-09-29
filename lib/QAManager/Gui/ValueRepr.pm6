@@ -7,6 +7,10 @@ use Gnome::Gtk3::StyleContext;
 use QAManager::QATypes;
 
 #-------------------------------------------------------------------------------
+=begin pod
+
+=end pod
+
 unit role QAManager::Gui::ValueRepr:auth<github:MARTIMM>;
 
 #-------------------------------------------------------------------------------
@@ -19,7 +23,7 @@ method set-values ( Array $data-array, Bool :$overwrite = True ) {
   my Int $row = 0;
   for @$data-array -> $t {
     my ( $data-key, $data-value) = $t.kv;
-note 'svs: ', $data-key//'--dk--', ', ', $data-value//'--dv--';
+#note 'svs: ', $data-key//'--dk--', ', ', $data-value//'--dv--';
     self.set-value(
       $data-key // 0, $data-value // '', $row, :$overwrite,
       :last-row( ($row + 1) == $data-array.elems )

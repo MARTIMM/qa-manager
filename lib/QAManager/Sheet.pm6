@@ -9,7 +9,7 @@ also does Iterable;
 
 #-------------------------------------------------------------------------------
 # sheets are filenames holding pages of sets
-has Str $!sheet is required;
+has Str $!sheet-name is required;
 
 # this QAManager::Sheet's pages
 has Hash $!pages;
@@ -25,13 +25,14 @@ has Hash $!page;
 has QADisplayType $.display is rw;
 has Hash $.display-properties is rw;
 has Int $.width is rw;
+has Int $.height is rw;
 has Hash $.button-map is rw;
 
 has QAManager::QATypes $!qa-types;
 
 #-------------------------------------------------------------------------------
 # TODO make use of Bool $resource
-submethod BUILD ( Str:D :$!sheet, Bool :$resource = False ) {
+submethod BUILD ( Str:D :$!sheet-name, Bool :$resource = False ) {
 
   # initialize types
   $!qa-types .= instance;
@@ -45,13 +46,14 @@ method !load ( ) {
   $!pages = %();
   $!page-data = [];
 
-  my Hash $sheet = $!qa-types.qa-load( $!sheet, :sheet);
+  my Hash $sheet = $!qa-types.qa-load( $!sheet-name, :sheet);
   if ?$sheet {
-
+note "sk: $sheet.keys()";
     $!display =
       QADisplayType(QADisplayType.enums{$sheet<display>//''}) // QANoteBook;
     $!display-properties = $sheet<display-properties> // %();
     $!width = $sheet<width> // 300;
+    $!height = $sheet<height> // 300;
     $!button-map = $sheet<button-map> // %();
 
     # the rest are pages
@@ -63,6 +65,7 @@ method !load ( ) {
 
         $h-page<title> //= $h-page<name>.tclc;
         $h-page<description> //= $h-page<title>;
+        $h-page<hide> //= False;
 
         $!pages{$h-page<name>} = $!page-data.elems;
         $!page-data.push: $h-page;
@@ -146,14 +149,14 @@ method remove-set ( Str:D :$category, Str:D :$set --> Bool ) {
 
 #-------------------------------------------------------------------------------
 method save ( ) {
-  $!qa-types.qa-save( $!sheet, %(:$!display, :pages($!page-data)), :sheet);
+  $!qa-types.qa-save( $!sheet-name, %(:$!display, :pages($!page-data)), :sheet);
 }
 
 #-------------------------------------------------------------------------------
 method save-as ( Str $new-sheet ) {
 
   $!qa-types.qa-save( $new-sheet, %(:$!display, :pages($!page-data)), :sheet);
-  $!sheet = $new-sheet;
+  $!sheet-name = $new-sheet;
 }
 
 #-------------------------------------------------------------------------------
@@ -180,7 +183,7 @@ method remove ( Bool :$ignore-changes = False ) {
 
   $!pages = Nil;
   $!page-data = [];
-  $!qa-types.qa-remove( $!sheet, :sheet);
+  $!qa-types.qa-remove( $!sheet-name, :sheet);
 }
 
 #-------------------------------------------------------------------------------

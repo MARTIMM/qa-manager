@@ -3,6 +3,7 @@
 use v6.d;
 
 use JSON::Fast;
+#use Config::TOML;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -36,6 +37,7 @@ QAFieldType is an enumeration of field types to provide an anwer. The types are 
 =item QAEntry; A single line of text.
 =comment item QAFileChooserDialog;
 =comment item QAImage; An image.
+=comment item QAList; An list.
 =item QARadioButton; A group of radiobuttons.
 =item QAScale; A scale for numeric input.
 =item QASwitch; On/Off, Yes/No kind of input.
@@ -47,7 +49,7 @@ QAFieldType is an enumeration of field types to provide an anwer. The types are 
 #tt:1:QAFieldType:
 enum QAFieldType is export <
   QAEntry QATextView QAComboBox QARadioButton QACheckButton
-  QAToggleButton QAScale QASwitch QAImage QAFileChooserDialog
+  QAToggleButton QAScale QASwitch QAImage QAList QAFileChooserDialog
   QAColorChooserDialog QADragAndDrop
 >;
 
@@ -215,6 +217,7 @@ method qa-save (
 ) {
   $qa-path //= self.qa-path( $qa-filename, :$sheet);
   $qa-path.IO.spurt(to-json($qa-data));
+#  $qa-path.IO.spurt(to-toml($qa-data));
 }
 
 #-------------------------------------------------------------------------------

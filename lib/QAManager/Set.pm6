@@ -4,6 +4,7 @@ use QAManager::Question;
 
 #-------------------------------------------------------------------------------
 unit class QAManager::Set:auth<github:MARTIMM>;
+also does Iterable;
 
 has Str $.name is required;
 has Str $.title is rw;
@@ -55,4 +56,34 @@ method set ( --> Hash ) {
   %( :$!name, :$!title, :$!description, :$!hide,
      questions => [map {.qa-data}, @$!questions]
   )
+}
+
+#-------------------------------------------------------------------------------
+# Iterator to be used in for {} statements returning questions from this set
+=begin pod
+
+  my $c := $set.clone;
+  for $c -> QAManager::Question $question {
+    ...;
+  }
+
+=end pod
+method iterator ( ) {
+
+  # Create anonymous class which does the Iterator role
+  class :: does Iterator {
+    has $!count = 0;
+    has Array $.qdata is rw;
+
+#    submethod BUILD (:$!pdata) { note $!pdata.elems; }
+
+    method pull-one ( --> Mu ) {
+
+      return $!count < $!qdata.elems
+        ?? $!qdata[$!count++]
+        !! IterationEnd;
+    }
+
+    # Create the object for this class and return it
+  }.new(:qdata($!questions))
 }

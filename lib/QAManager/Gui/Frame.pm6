@@ -5,7 +5,7 @@ use Gnome::Gtk3::Frame;
 #use Gnome::Gtk3::StyleContext;
 
 #-------------------------------------------------------------------------------
-unit class QAManager::Gui::Frame;
+unit role QAManager::Gui::Frame;
 also is Gnome::Gtk3::Frame;
 
 #-------------------------------------------------------------------------------
@@ -15,10 +15,10 @@ submethod new ( |c ) {
 }
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( ) {
+submethod BUILD ( Str :$label = '' ) {
 
   # modify frame and title
-  self.set-label-align( 4e-2, 5e-1);
+  self.set-label-align( 0.04, 0.5);
   self.widget-set-margin-bottom(3);
   #self.set-border-width(5);
   self.widget-set-hexpand(True);
@@ -26,4 +26,6 @@ submethod BUILD ( ) {
 #    :native-object(self.get-style-context)
 #  );
 #  $context.add-class('titleText');
+note "frame set label: $label";
+  self.set-label($label) if ?$label;
 }

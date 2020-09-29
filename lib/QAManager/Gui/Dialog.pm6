@@ -33,10 +33,11 @@ submethod new ( |c ) {
 #-------------------------------------------------------------------------------
 submethod BUILD ( ) {
 
+#  self.set-dialog-size( 300, 300);
   self.set-keep-above(True);
   self.set-position(GTK_WIN_POS_MOUSE);
-  self.set-size-request( 550, 1);
-  self.window-resize( 550, 1);
+#  self.set-size-request( $width, $height);
+#  self.window-resize( $width, $height);
 
   my Gnome::Gdk3::Pixbuf $win-icon .= new(
     :file(%?RESOURCES<icons8-invoice-100.png>.Str)
@@ -63,6 +64,13 @@ submethod BUILD ( ) {
   $content.container-add($!dialog-content);
 #CATCH{.note}}
 #Gnome::N::debug(:off);
+}
+
+#-------------------------------------------------------------------------------
+method set-dialog-size ( Int $width = 300, Int $height = 300 ) {
+note "sds: $width, $height";
+  self.set-size-request( $width, $height);
+  self.window-resize( $width, $height);
 }
 
 #-------------------------------------------------------------------------------
