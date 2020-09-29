@@ -30,7 +30,7 @@ Get catagory name. The name is also used for the filename with .cfg extension ad
 
 =end pod
 
-has Str $.category is required;
+has Str $.category-name is required;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -53,7 +53,7 @@ has QAManager::QATypes $!qa-types;
 #-------------------------------------------------------------------------------
 # TODO , Bool :$!ro
 # TODO , Bool :$!QAManager = False ??
-submethod BUILD ( Str:D :$!category, Bool :$resource = False ) {
+submethod BUILD ( Str:D :$!category-name, Bool :$resource = False ) {
 
   # initialize types
   $!qa-types .= instance;
@@ -68,7 +68,7 @@ method !load ( ) {
   $!sets = %();
   $!set-data = [];
 
-  my Hash $cat = $!qa-types.qa-load( $!category, :!sheet);
+  my Hash $cat = $!qa-types.qa-load( $!category-name, :!sheet);
   if ?$cat {
 
     # the rest are sets
@@ -101,14 +101,14 @@ method !load ( ) {
 
 #-------------------------------------------------------------------------------
 method save ( ) {
-  $!qa-types.qa-save( $!category, self.category, :!sheet);
+  $!qa-types.qa-save( $!category-name, self.category, :!sheet);
 }
 
 #-------------------------------------------------------------------------------
 method save-as ( Str $new-category --> Bool ) {
 
   $!qa-types.qa-save( $new-category, self.category, :!sheet);
-  $!category = $new-category;
+  $!category-name = $new-category;
   True
 }
 
@@ -128,7 +128,7 @@ method remove ( Bool :$ignore-changes = False --> Bool ) {
 
   $!sets = Nil;
   $!set-data = [];
-  $!qa-types.qa-remove($!category);
+  $!qa-types.qa-remove($!category-name);
 
   True
 }
