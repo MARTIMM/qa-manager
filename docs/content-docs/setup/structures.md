@@ -4,90 +4,239 @@ nav_menu: default-nav
 sidebar_menu: config-sidebar
 layout: sidebar
 ---
+
 # Structures
 
-Some raw structures are shown to have an idea how the files are defined;
+Structures are shown to have an idea how the files are defined. Categories and Sheets are stored on disk. The other structures are in categories, sets or sheets.
 
-* Category files. A category description is not needed because it is only for archiving sets.
 
-```
-sets [
-  set1
-    set name
-    title
-    description
-    entries [
-      entry1
-        question1
-        question2
-        ...
+## Category
 
-      entry2
-        ...
-    ]
+A category is used for archiving sets. It does not need a name, title or description. The name of the file, without its extension, is the name of the category. The data is stored in a JSON format.
 
-  set2
-    ...
-]
-
-template sets [
-  template1
-    ...
-]
-```
-
-* Sheet files.
+* **sets**; An array of hashes.
 
 ```
-pages [
-  display type
-  display properties
-  button-map
-  page1
-    page name
-    title
-    description
-    sets [
-      set1
-        qa location
-        category name
-        set name
+{ "sets": [ {
+      ... set ...
+    }, {
+      ... next set ...
+    }
+  ]
+}
+```
 
-      set2
-        ...
-    ]
 
-    template sets [
-      template1
-        ...
-]
+## Set
 
-  page2
-    ...
-]
+A set is not stored on disk on its own. A set is used to group a series of questions. A set has a name, a title and a description.
 
-template pages [
-  template1
-    ...
+* **name**; Name is used as a key to get or set the input fields. It is also used to refer to a set from a sheet.
+* **title**; Used as a label in a frame widget.
+* **description**; Shown in above mentioned frame to describe the questions in this set.
+* **hide**; Hide this set. A use for it to hide or view a set in an action handler.
+* **questions**; An array of hashes.
+
+```
+"name": used as a key to get and save values,
+"title": ... ,
+"description":  ... ,
+"hide": ... ,
+"questions": [ {
+      ... question ...
+  }, {
+    ... next question ...
+  }
 ]
 ```
 
-* Result configuration returned from presented sheet is a **Hash**.
+
+## Questions
+
+Questions are what it is all about. In short a piece of text to pose the question and a field where the answer can be given. However, more data is needed to fully display a question like what kind of input do we need, are there limits, is there a choice from a set of possibilities etc.
+
+* **callback**; A name of a method which can be called on a previously provided object. The handler must check for correctness of the input value for that question.
+* **default**; A default value when no input is provided.
+* **description**; A question. When empty, title is taken.
+* **encode**; Encode the result of the input before giving the answers back to the caller. Used with e.g. password input.
+* **example**; An example answer/format in light gray in an text field.
+* **field**; The widget type to use to provide the answer with. Current enumerated types are: `QAEntry` for text, `QATextView` for multiline text, `QAComboBox` a list of possibilities to chose from, `QARadioButton` a select of one of a set of possebilities, `QACheckButton`, one or more possebilities `QAToggleButton` boolean input, `QAScale` a slider, `QASwitch` also boolean input. Other types are `QADragAndDrop`, `QAColorChooserDialog`, `QAFileChooserDialog`, `QAList` and `QAImage`. These are not yet implemented.
+* **height**; Sometimes a height is needed for a widget.
+* **hide**; Hide this question. A use for it to hide or view a set in an action handler.
+* **invisible**; Make text input unreadable by showing stars (\*) e.g. password input.
+* **maximum**; Upper limit of the input or widget. E.g. Scale.
+* **minimum**; Lower limit of the input or widget. E.g. Scale.
+* **name**; Used in Gui to set and retrieve data. This name is also set on the input widget to be able to find it.
+* **repeatable**; A field can be extended with another input for the same question. E.g. email addresses or telephone numbers.
+* **required**; An input is required. It is shown with a star at the front of the input.
+* **step**; Step size for the slider.
+* **title**; unused if there is a description, otherwise it is used as the question text.
+* **tooltip**; Some helpful message shown on the input field.
+* **values**; Values are used to fill e.g. a combobox or a list. It can also be used with text entries where a combobox is placed in front of the text input. E.g. input of a telephone number can be for a home, work or mobile phone. The names 'home', 'work' or 'mobile' are then showed in a combobox. Other types might also have these possibilities.
+* **width**; sometimes a width is needed for a widget.
+
+
+#### Notes
+
+* Boolean values like required, encode and hide are `False` if not mentioned.
+* Default values are '' or 0 when absent. Min and Max are -Inf and Inf when absent.
+* Encoding is done using sha256.
+* Values in a question description are always arrays.
+* Defaults are always single valued.
+
+
+### Answer value format to questions
+
+Result returned from the QA dialog is a **Hash**. The keys to a questions answer is following a path through the sheet name, set name and questions name like shown below
 
 ```
-page1 => {
-  set1 => {
-    question1 => [value1, ...]        ??
-    question2 => [value2, ...]        ??
+page-name1 => {
+  set-name1 => {
+    question-name1 => value-spec,
+    question-name2 => ...
     ...
   },
-  set2 => {
+  set-name2 => {
     ...
   }
 },
 
-page2 => {
+page-name2 => {
   ...
 }
 ```
-Values of questions must be looked into. At least it must be the same for all type of questions I think.
+
+The structure of a value provided by the caller or returned by the program, can differ for each input type.
+
+The formats used are shown below for each input type.
+
+* QAEntry:
+  * `$value`                  This supports a single value. `:repeatable` is False and `:values` is ignored.
+  * `[ $value, ]`             This supports repeated values. `:repeatable` is True and `:values` is not defined or empty.
+  * `[ :$value($category), ]` This supports repeated values with a combobox to select categories. `:repeatable` is True and `:values` to fill a combobox must have values.
+
+* QACheckButton:
+  * `[ $value, ]`             A list of checked values. When nothing is checked, the array is empty. `:repeatable` and `:values` are ignored.
+
+* QAComboBox: In all cases `:repeatable` is ignored and `:values` hold the content of the box.
+  * `$value`                  Single selection.
+  * `[ $value, ]`             Multi selection.
+
+* QAImage:
+  * `$value`                  Path to image.
+
+* QAList: In all cases `:repeatable` is ignored and `:values` hold the content of the list.
+  * `$value`                  Single selection.
+  * `[ $value, ]`             Multi selection.
+
+* QARadioButton: In all cases `:repeatable` is ignored and `:values` hold the content of the radiobutton group.
+  * `$value`                  The one selected from the group.
+
+* QAScale: `:minimum`, `:maximum` and `:step` are used to define the scale widget.
+  * `$value`                  The value set in the scale.
+
+* QASwitch:
+  * `$value`                  True or False.
+
+* QATextView:
+  * `$value`                  Text.
+
+* QAToggleButton:
+  * `$value`                  True or False.
+
+#### A table where field specs are shown for each field type
+
+| Symbol | Explanation
+|--------|-------------------------------------------|
+|!       | Must be provided with used type
+|o       | Optional
+|        | Cannot be used and is ignored
+
+| Type          | Used letter in table header
+|---------------|------------------------------------|
+| Entry         | E
+| CheckButton   | h
+| ComboBox      | o
+| Image         | I
+| List          | L
+| RadioButton   | R
+| Scale         | c
+| Switch        | w
+| TextView      | x
+| ToggleButton  | g
+
+|             |E|h|o|I|L|R|c|w|x|g|
+|-------------|-|-|-|-|-|-|-|-|-|-|
+|callback     |o| | | | | | | | | |
+|default      |o|o|o|o|o|o|o|o|o|o|
+|description  |o|o|o|o|o|o|o|o|o|o|
+|encode       |o| | | | | | | | | |
+|example      |o| | | | | | | | | |
+|field        |o|!|!|!|!|!|!|!|!|!|
+|height       | | | |o| | | | |o| |
+|hide         |o|o|o|o|o|o|o|o|o|o|
+|invisible    |o| | | | | | | | | |
+|maximum      |o| | | | | |!| | | |
+|minimum      |o| | | | | |!| | | |
+|name         |!|!|!|!|!|!|!|!|!|!|
+|repeatable   |o| | |o| | | | |o| |
+|required     |o| |o|o|o|o| | |o| |
+|step         | | | | | | |!| | | |
+|title        |o|o|o|o|o|o|o|o|o|o|
+|tooltip      |o|o|o|o|o|o|o|o|o|o|
+|values       |o|!|!| |!|!| | | | |
+|width        | | | |o| | | | | | |
+
+## Sheet
+
+The sheet is is used to present questions to the user. In a sheet there are pages which hold sets of questions. When shown there is only one page visible and using tabs or buttons you can show another.
+
+* **display**; The type of dialog. One can choose from `QADialog`, `QANoteBook`, `QAStack` or `QAAssistant`.
+* **width**; The minimum width of the dialog.
+* **height**; The minimum height of the dialog.
+* **button-map**; A map of button names. For instance on a login one would not like to have a 'Finish' label on a button but 'Login'. So an entry could be `"finish": "login"`. First letter uppercase is done automatically.
+* **pages**; An array of hashes.
+
+```
+{ "display": dialog type
+  "width": ... ,
+  "height": ... ,
+  "button-map": {
+    default label: new label ,
+    ...
+  },
+  "pages": [ {
+      ... page ...
+    }, {
+      ... next page ...
+    },
+  ]
+}
+```
+
+
+## Page
+
+The questions are grouped in sets as explained above. Sets are referred to from a page to prevent duplication of structures. The problem which may arise is that sets in categories can be replaced or removed. The sheet display software will than issue a warning and skips the display of that particularly set.
+
+* **name**; Used in user interface to set and retrieve data.
+* **title**; A text used in a frame label at the top of the page
+* **description**; A text shown in this frame
+* **sets**; An array of hashes.
+
+The sets in the page are referred to by using names of the category and set.
+* **category**; A category name used as a reference to the categories in the archive directory
+* **set**; A Set name in this category.
+
+```
+"name": used as a key to get and save values,
+"title": ... ,
+"description": ... ,
+"sets": [ {
+    "category": ...,
+    "set": ...
+  }, {
+    ... next set ...
+  }
+]
+```

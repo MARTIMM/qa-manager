@@ -31,7 +31,7 @@ Directory where the set sheets are stored will be `$*HOME/.config/QAManager/Shee
 
 ## Sets
 
-A set describes input fields. Each input is defined in an entry. A set has also a name and a short and long description. All texts can be specified in other languages as long the program can access it using an extension on a key.
+A set groups a series of questions. A set has also a name and a short and long description. All texts can be specified in other languages as long the program can access it using an extension on a key.
 
 Summarized
 * Name
