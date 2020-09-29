@@ -19,19 +19,17 @@
     "QAManager::App::Page::Set": "lib/QAManager/App/Page/Set.pm6",
     "QAManager::App::Page::Sheet": "lib/QAManager/App/Page/Sheet.pm6",
 
-    "QAManager::Category": "lib/QAManager/Category.pm6",
-
     "QAManager::Gui::DeleteMsgDialog": "lib/QAManager/Gui/DeleteMsgDialog.pm6",
     "QAManager::Gui::Dialog": "lib/QAManager/Gui/Dialog.pm6",
+    "QAManager::Gui::Entry": "lib/QAManager/Gui/Entry.pm6",
+    "QAManager::Gui::EntryFrame": "lib/QAManager/Gui/EntryFrame.pm6",
     "QAManager::Gui::Frame": "lib/QAManager/Gui/Frame.pm6",
-
-    "QAManager::Gui::Part::Entry": "lib/QAManager/Gui/Part/Entry.pm6",
-    "QAManager::Gui::Part::EntryFrame": "lib/QAManager/Gui/Part/EntryFrame.pm6",
-    "QAManager::Gui::Part::GroupFrame": "lib/QAManager/Gui/Part/GroupFrame.pm6",
-    "QAManager::Gui::Part::KV": "lib/QAManager/Gui/Part/KV.pm6",
-    "QAManager::Gui::Part::Set": "lib/QAManager/Gui/Part/Set.pm6",
+    "QAManager::Gui::GroupFrame": "lib/QAManager/Gui/GroupFrame.pm6",
+    "QAManager::Gui::Question": "lib/QAManager/Gui/Question.pm6",
+    "QAManager::Gui::Set": "lib/QAManager/Gui/Set.pm6",
     "QAManager::Gui::ValueRepr": "lib/QAManager/Gui/ValueRepr.pm6",
 
+    "QAManager::Category": "lib/QAManager/Category.pm6",
     "QAManager::QATypes": "lib/QAManager/QATypes.pm6",
     "QAManager::Question": "lib/QAManager/Question.pm6",
     "QAManager::Set": "lib/QAManager/Set.pm6",
