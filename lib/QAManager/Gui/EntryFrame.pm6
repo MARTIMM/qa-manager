@@ -4,7 +4,7 @@ use Gnome::N::N-GObject;
 
 use Gnome::Gdk3::Events;
 
-use Gnome::Gtk3::Frame;
+#use Gnome::Gtk3::Frame;
 use Gnome::Gtk3::ComboBoxText;
 use Gnome::Gtk3::Grid;
 use Gnome::Gtk3::ToolButton;
@@ -12,18 +12,19 @@ use Gnome::Gtk3::Image;
 use Gnome::Gtk3::Enums;
 #use Gnome::Gtk3::StyleContext;
 
+use QAManager::Gui::Frame;
 use QAManager::QATypes;
-use QAManager::KV;
+use QAManager::Question;
 use QAManager::Gui::ValueRepr;
-use QAManager::Gui::Part::Entry;
+use QAManager::Gui::Entry;
 
 #-------------------------------------------------------------------------------
-unit class QAManager::Gui::Part::EntryFrame;
-also is Gnome::Gtk3::Frame;
+unit class QAManager::Gui::EntryFrame;
+also does QAManager::Gui::Frame;
 also does QAManager::Gui::ValueRepr;
 
 #-------------------------------------------------------------------------------
-has Array[QAManager::Gui::Part::Entry] $!entries;
+has Array[QAManager::Gui::Entry] $!entries;
 has Gnome::Gtk3::Grid $!grid;
 
 has Str $!widget-name;
@@ -32,7 +33,7 @@ has Str $!tooltip;
 has Bool $!repeatable;
 has Bool $!visibility;
 has Array $!entry-category;
-has QAManager::KV $!kv-object;
+has QAManager::Question $!question;
 
 #-------------------------------------------------------------------------------
 submethod new ( |c ) {
@@ -41,19 +42,19 @@ submethod new ( |c ) {
 }
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( QAManager::KV:D :$!kv-object ) {
+submethod BUILD ( QAManager::Question:D :$!question ) {
 
-  $!widget-name = $!kv-object.name;
-  $!example = $!kv-object.example // '';
-  $!tooltip = $!kv-object.tooltip // '';
-  $!repeatable = $!kv-object.repeatable // False;
-  $!visibility = !$!kv-object.invisible // True;
-  $!entry-category = $!kv-object.values // [];
+  $!widget-name = $!question.name;
+  $!example = $!question.example // '';
+  $!tooltip = $!question.tooltip // '';
+  $!repeatable = $!question.repeatable // False;
+  $!visibility = !$!question.invisible // True;
+  $!entry-category = $!question.values // [];
 
-#note "\nEF B: $!widget-name, $!example, $!tooltip, $!repeatable, $!visibility, {$!kv-object.required // False}";
+#note "\nEF B: $!widget-name, $!example, $!tooltip, $!repeatable, $!visibility, {$!question.required // False}";
 
   # clear values
-  $!entries = Array[QAManager::Gui::Part::Entry].new;
+  $!entries = Array[QAManager::Gui::Entry].new;
 
   # modify frame if not repeatable
   self.set-shadow-type(GTK_SHADOW_NONE) unless $!repeatable;
@@ -95,7 +96,7 @@ method set-value (
   # check if there is an input field defined. if not, create input field.
   # otherwise get object from grid
   my Bool $new-row;
-  my QAManager::Gui::Part::Entry $entry;
+  my QAManager::Gui::Entry $entry;
   if $!entries[$row].defined {
     $new-row = False;
     $entry .= new(:native-object($!grid.get-child-at( 0, $row)));
@@ -107,7 +108,7 @@ method set-value (
 
     $entry.register-signal(
       self, 'check-on-focus-change', 'focus-out-event',
-      :kv-data($!kv-object.kv-data)
+      :qa-data($!question.qa-data)
     );
     $!grid.grid-attach( $entry, 0, $row, 1, 1);
     $!entries.push($entry);
@@ -188,7 +189,7 @@ method add-entry (
   }
 
   # create new text entry to the left of the button
-  my QAManager::Gui::Part::Entry $entry .= new(:$!visibility);
+  my QAManager::Gui::Entry $entry .= new(:$!visibility);
   $!grid.attach-next-to(
     $entry, $tbcol == 2 ?? $cbt !! $tb, GTK_POS_LEFT, 1, 1
   );
@@ -272,11 +273,11 @@ method set-combobox-select( Gnome::Gtk3::ComboBoxText $cbt, Str $select = '' ) {
 
 #-------------------------------------------------------------------------------
 method check-on-focus-change (
-  N-GdkEventFocus $event, :widget($w), Hash :$kv-data
+  N-GdkEventFocus $event, :widget($w), Hash :$qa-data
   --> Int
 ) {
 #note 'focus change';
-  self.check-field( $w, $kv-data);
+  self.check-field( $w, $qa-data);
 
   # must propogate further to prevent messages when notebook page is switched
   # otherwise it would do ok to return 1.

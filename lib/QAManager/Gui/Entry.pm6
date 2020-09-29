@@ -3,7 +3,7 @@ use v6.d;
 use Gnome::Gtk3::Entry;
 
 #-------------------------------------------------------------------------------
-unit class QAManager::Gui::Part::Entry;
+unit class QAManager::Gui::Entry;
 also is Gnome::Gtk3::Entry;
 
 #-------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ submethod BUILD (
   # do not change settings if object comes from elsewhere
   return if %options<native-object>:exists;
 
-note "V: {$text//'-'}, {$visibility//'-'}";
+#note "V: {$text//'-'}, {$visibility//'-'}";
   self.set-name($widget-name) if ?$widget-name;
   self.set-margin-top(3);
   self.set-size-request( 200, 1);
