@@ -9,7 +9,7 @@ use QAManager::QATypes;
 
 #-------------------------------------------------------------------------------
 my QAManager::QATypes $qa-types .= instance;
-my QAManager::Sheet $sheet .= new(:sheet<__login>);
+my QAManager::Sheet $sheet .= new(:sheet-name<__login>);
 
 # create some category data with some sets
 make-category();
@@ -17,7 +17,7 @@ make-category();
 #-------------------------------------------------------------------------------
 subtest 'ISO-Test', {
 
-  isa-ok $sheet, QAManager::Sheet, '.new(:sheet)';
+  isa-ok $sheet, QAManager::Sheet, '.new(:sheet-name)';
 }
 
 #-------------------------------------------------------------------------------
@@ -78,16 +78,16 @@ subtest 'Manipulations', {
     is $page<name>, @sheets.shift, "page iterator $page<name>";
   }
 
-  $sheet .= new(:sheet<__login2>);
+  $sheet .= new(:sheet-name<__login2>);
   ok $sheet.remove, '__login2 deleted';
 
   # cannot remove unloaded sheets
-  $sheet .= new(:sheet<__login>);
+  $sheet .= new(:sheet-name<__login>);
   ok $sheet.remove, '__login removed';
 }
 
 #-------------------------------------------------------------------------------
-my QAManager::Category $category .= new(:category<__test-accounting>);
+my QAManager::Category $category .= new(:category-name<__test-accounting>);
 $category.remove;
 
 done-testing;
@@ -95,7 +95,7 @@ done-testing;
 #-------------------------------------------------------------------------------
 # create some category data with some sets
 sub make-category ( ) {
-  my QAManager::Category $category .= new(:category<__test-accounting>);
+  my QAManager::Category $category .= new(:category-name<__test-accounting>);
 
   # 1 set
   my QAManager::Set $set .= new(:name<credentials>);

@@ -14,14 +14,12 @@ use QAManager::Gui::SheetDialog;
 #-------------------------------------------------------------------------------
 class EH {
 
-  method show-dialog ( ) {
+  method show-dialog ( Hash :$user-data = %() ) {
     my QAManager::Gui::SheetDialog $sheet-dialog .= new(
-      :sheet<QAManagerSetDialog>
+      :sheet-name<QAManagerSetDialog>, :$user-data
     );
     my Int $response = $sheet-dialog.show-dialog;
-    if $response ~~ GTK_RESPONSE_CLOSE {
-      note 'dialog closed: ', $sheet-dialog.dialog-content;
-    }
+note 'dialog closed: ', GtkResponseType($response), ', ', $sheet-dialog.dialog-content, ', ', $sheet-dialog.user-data.perl;
 
     $sheet-dialog.widget-destroy;
   }
@@ -33,14 +31,33 @@ class EH {
 
 #-------------------------------------------------------------------------------
 my EH $eh .= new,
+my Hash $user-data = %(
+  page1 => %(
+    QAManagerDialogs => %(
+      set-spec => %(
+        :name('my key'),
+        :title('whatsemegaddy'),
+        :description('longer text')
+      ),
+    ),
+  ),
+  page2 => %(
+    QAManagerDialogs => %(
+      entry-spec => %(
+      ),
+    ),
+  ),
+);
 
 my Gnome::Gtk3::Window $top-window .= new;
 $top-window.set-title('Sheet Dialog Test');
 $top-window.register-signal( $eh, 'exit-app', 'destroy');
+$top-window.set-size-request( 300, 1);
+$top-window.window-resize( 300, 1);
 
 my Gnome::Gtk3::Button $dialog-button .= new(:label<Show>);
 $top-window.container-add($dialog-button);
-$dialog-button.register-signal( $eh, 'show-dialog', 'clicked');
+$dialog-button.register-signal( $eh, 'show-dialog', 'clicked', :$user-data);
 
 $top-window.show-all;
 

@@ -10,7 +10,7 @@ use QAManager::QATypes;
 subtest 'Manipulations', {
 
   # 1 category
-  my QAManager::Category $category .= new(:category('__category'));
+  my QAManager::Category $category .= new(:category-name('__category'));
   isa-ok $category, QAManager::Category, 'QA Manager category';
 
   # 1 set
@@ -38,7 +38,7 @@ subtest 'Manipulations', {
   # save category
   $category.save;
 
-  my QAManager::Category $category2 .= new(:category('__category'));
+  my QAManager::Category $category2 .= new(:category-name('__category'));
 
   like (|$category2.get-setnames).join(','), / credentials /, '.get-setnames()';
   $category2.delete-set('credentials');
@@ -61,7 +61,7 @@ subtest 'Save elsewhere', {
   $qa-types.cfgloc-sheet = 't/Data/Sheets';
 
   # 1 category
-  my QAManager::Category $category .= new(:category('__category'));
+  my QAManager::Category $category .= new(:category-name('__category'));
   $category.save;
 
   my Str $qa-path = $qa-types.qa-path( '__category', :!sheet);
