@@ -11,7 +11,7 @@ use QAManager::QATypes;
 
 =end pod
 
-unit role QAManager::Gui::ValueRepr:auth<github:MARTIMM>;
+unit role QAManager::Gui::Value:auth<github:MARTIMM>;
 
 #-------------------------------------------------------------------------------
 method get-values ( --> Array ) {

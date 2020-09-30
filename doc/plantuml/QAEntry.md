@@ -6,7 +6,7 @@ skinparam stereotypeCBackgroundColor #80ffff
 set namespaceSeparator ::
 hide members
 
-'class QAManager::Gui::ValueRepr <<(R,#80ffff)>>
+'class QAManager::Gui::Value <<(R,#80ffff)>>
 
 
 class QAManager::Gui::Value <<(R,#80ffff)>>
@@ -15,12 +15,12 @@ class QAManager::Gui::SubClass <<(R,#80ffff)>>
 class QAManager::Gui::Frame <<(R,#80ffff)>>
 
 Gnome::Gtk3::Frame <|-- QAManager::Gui::Frame
-QAManager::Gui::Frame <|.. QAManager::Gui::QAEntry
-QAManager::Gui::Repeat <|.. QAManager::Gui::QAEntry
-QAManager::Gui::Value <|.. QAManager::Gui::QAEntry
-QAManager::Gui::SubClass <|.. QAManager::Gui::QAEntry
+QAManager::Gui::Frame <|.. QAManager::Gui::QAType::QAEntry
+QAManager::Gui::Repeat <|.. QAManager::Gui::QAType::QAEntry
+QAManager::Gui::Value <|.. QAManager::Gui::QAType::QAEntry
+QAManager::Gui::SubClass <|.. QAManager::Gui::QAType::QAEntry
 
-QAManager::Gui::Question -> QAManager::Gui::QAEntry
+QAManager::Gui::Question -> QAManager::Gui::QAType::QAEntry
 
 
 
@@ -51,7 +51,7 @@ QAManager::Gui::Question -> QAManager::Gui::QAEntry
 'Gnome::Gtk3::Frame <|----- QAManager::Gui::Part::EntryFrame
 
 'hide <<Role>> circle
-'QAManager::Gui::Part::EntryFrame -|> QAManager::Gui::ValueRepr
+'QAManager::Gui::Part::EntryFrame -|> QAManager::Gui::Value
 
 'QAManager::Gui::Part::Entry <|-- QAManager::Gui::Part::EntryFrame
 
