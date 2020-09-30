@@ -19,7 +19,7 @@ use QAManager::Gui::Value;
 use QAManager::Gui::Entry;
 
 #-------------------------------------------------------------------------------
-unit class QAManager::Gui::EntryFrame;
+unit class QAManager::Gui::QAType::QAEntry;
 also does QAManager::Gui::Frame;
 also does QAManager::Gui::Value;
 
@@ -75,7 +75,7 @@ submethod BUILD ( QAManager::Question:D :$!question ) {
 }
 
 #-------------------------------------------------------------------------------
-# called from ValueRepr.set-values
+# called from Value.set-values
 method set-value (
   $data-key, $data-value, $row, Bool :$overwrite = True, Bool :$last-row
 ) {
@@ -89,7 +89,7 @@ method set-value (
   # if $data-key is a number then only text without a combobox is shown. Text
   # is found in $data-value. If a combobox is needed then text is in text-key
   # and combobox selection in text-value.
-  my Bool $need-combobox = $!entry-category.elems.Bool;
+  my Bool $need-combobox = ?$!entry-category;
   my Str $text = ($data-key ~~ m/^ \d+ $/).Bool ?? $data-value !! $data-key;
 #note "SV 1: $text";
 
@@ -159,8 +159,8 @@ method check-values ( ) {
 }
 
 #-------------------------------------------------------------------------------
-method !add-value ( Str $text ) {
-}
+#method !add-value ( Str $text ) {
+#}
 
 #-------------------------------------------------------------------------------
 method add-entry (
