@@ -15,13 +15,13 @@ use Gnome::Gtk3::Enums;
 use QAManager::Gui::Frame;
 use QAManager::QATypes;
 use QAManager::Question;
-use QAManager::Gui::ValueRepr;
+use QAManager::Gui::Value;
 use QAManager::Gui::Entry;
 
 #-------------------------------------------------------------------------------
 unit class QAManager::Gui::EntryFrame;
 also does QAManager::Gui::Frame;
-also does QAManager::Gui::ValueRepr;
+also does QAManager::Gui::Value;
 
 #-------------------------------------------------------------------------------
 has Array[QAManager::Gui::Entry] $!entries;

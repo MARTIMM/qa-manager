@@ -3,7 +3,7 @@ use v6.d;
 use Gnome::Gtk3::Frame;
 use Gnome::Gtk3::Enums;
 
-use QAManager::Gui::ValueRepr;
+use QAManager::Gui::Value;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -13,7 +13,7 @@ Purpose of this frame is to group a set of widgets.
 
 unit class QAManager::Gui::GroupFrame:auth<github:MARTIMM>;
 also is Gnome::Gtk3::Frame;
-also does QAManager::Gui::ValueRepr;
+also does QAManager::Gui::Value;
 
 #-------------------------------------------------------------------------------
 submethod new ( |c ) {
