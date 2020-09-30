@@ -83,7 +83,7 @@ method !load ( ) {
         # the rest are keys of this set of questions
         for @($h-set<questions>) -> Hash $question {
           my QAManager::Question $q;
-          $q .= new( :name($question<name>), :kv($question));
+          $q .= new( :name($question<name>), :qa-data($question));
 
           $set.add-question($q);
         }
