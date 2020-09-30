@@ -23,11 +23,21 @@ submethod BUILD (
 
 #note "V: {$text//'-'}, {$visibility//'-'}";
   self.set-name($widget-name) if ?$widget-name;
-  self.set-margin-top(3);
+#  self.set-margin-top(3);
   self.set-size-request( 200, 1);
   self.set-hexpand(True);
   self.set-text($text) if ?$text;
   self.set-tooltip-text($tooltip) if ?$tooltip;
   self.set-visibility(?$visibility);
   self.set-placeholder-text($example) if ?$example;
+}
+
+#-------------------------------------------------------------------------------
+method set-value ( $v ) {
+  self.set-text($v.Str);
+}
+
+#-------------------------------------------------------------------------------
+method get-value ( --> Any ) {
+  self.get-text
 }
