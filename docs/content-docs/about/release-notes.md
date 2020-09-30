@@ -9,7 +9,11 @@ layout: sidebar
 See [semantic versioning](http://semver.org/). Please note point 4. on that page: **_Major version zero (0.y.z) is for initial development. Anything may change at any time. The public API should not be considered stable._**
 
 #### 2020-09-15 0.7.1
-  * Renamed module KV into Question together with some of the methods.
+  * Renames
+    * KV into Question together with some of the methods.
+    * ValueRepr to Value
+    * EntryFrame to QAEntry
+  * removed part directory
 
 #### 2020-09-15 0.7.0
   * Reorganize modules and cleanup
