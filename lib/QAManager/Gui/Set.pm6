@@ -85,8 +85,10 @@ submethod BUILD (
   my Gnome::Gtk3::Separator $sep .= new(
     :orientation(GTK_ORIENTATION_HORIZONTAL)
   );
+  # Need next alignment because in a grid the grid has the proper size but the
+  # separator does not. By default it is a FILL  so it shows as a ectangle
+  # overlapping the next row. this must be a bug!
   $sep.set-valign(GTK_ALIGN_START);
-  #$sep.set-height(2);
   $question-grid.grid-attach( $sep, 0, $question-grid-row++, 3, 1);
 
   # show set with user data if any
