@@ -8,7 +8,7 @@ also is Gnome::Gtk3::Entry;
 
 #-------------------------------------------------------------------------------
 submethod new ( |c ) {
-  # let the Gnome::Gtk3::Frame class process the options
+  # let the Gnome::Gtk3::Entry class process the options
   self.bless( :GtkEntry, |c);
 }
 
@@ -31,17 +31,3 @@ submethod BUILD (
   self.set-visibility(?$visibility);
   self.set-placeholder-text($example) if ?$example;
 }
-
-#`{{
-#-------------------------------------------------------------------------------
-multi prefix:<?>( QAManager::Gui::Part::Entry $e --> Bool ) is export {
-note "Test text exist: $e.get-text()";
-  ? ($e.get-text);
-}
-
-#-------------------------------------------------------------------------------
-multi prefix:<!>( QAManager::Gui::Part::Entry $e --> Bool ) is export {
-note "Test text does not exist: $e.get-text()";
-  ! ($e.get-text);
-}
-}}
