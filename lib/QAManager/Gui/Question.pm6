@@ -22,7 +22,7 @@ use QAManager::QATypes;
 use QAManager::Set;
 use QAManager::Question;
 use QAManager::Gui::GroupFrame;
-use QAManager::Gui::EntryFrame;
+use QAManager::Gui::QAType::QAEntry;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -76,7 +76,8 @@ note "sv udsp: $user-data-set-part.perl()";
 
 #-------------------------------------------------------------------------------
 method build-entry (
-  Gnome::Gtk3::Grid :$question-grid, Int :$grid-row, QAManager::Question :$question
+  Gnome::Gtk3::Grid :$question-grid, Int :$grid-row,
+  QAManager::Question :$question
 ) {
 
   # place label on the left. the required star is in the middle column.
@@ -146,7 +147,7 @@ method set-value (
 ) {
   my $no = $question-grid.get-child-at( 2, $grid-row);
   my Gnome::Gtk3::Widget $w .= new(:native-object($no));
-note "set value, type: $question.field(), $grid-row, $w.get-name()";
+note "set value, type: $question.field(), $grid-row, $w.get-name(), {$values{$w.get-name()}//'-'}";
 
 #method set-value (
 #  $data-key, $data-value, $row, Bool :$overwrite = True, Bool :$last-row
@@ -210,7 +211,7 @@ method !entry-field (
 
   # A frame with one or more entries
 #note "KVO vals: $question.perl()";
-  my QAManager::Gui::EntryFrame $w .= new(:$question);
+  my QAManager::Gui::QAType::QAEntry $w .= new(:$question);
 
   # select default if any
   $w.set-default($question.default) if $question.default;
@@ -487,6 +488,7 @@ method !field-with-button (
   $fwb
 }
 
+#`{{
 #-------------------------------------------------------------------------------
 method !set-status-hint (
   Gnome::Gtk3::Widget $widget, inputStatusHint $status
@@ -516,3 +518,4 @@ method !set-status-hint (
   else {
   }
 }
+}}
