@@ -32,9 +32,9 @@ QAManager::Gui::Part::KV -> QAManager::Gui::Part::EntryFrame
 Gnome::Gtk3::Frame <|----- QAManager::Gui::Part::GroupFrame
 Gnome::Gtk3::Frame <|----- QAManager::Gui::Part::EntryFrame
 
-class QAManager::Gui::ValueRepr <<(R,White)>>
+class QAManager::Gui::Value <<(R,White)>>
 'hide <<Role>> circle
-QAManager::Gui::Part::EntryFrame -|> QAManager::Gui::ValueRepr
+QAManager::Gui::Part::EntryFrame -|> QAManager::Gui::Value
 
 QAManager::Gui::Part::Entry <|-- QAManager::Gui::Part::EntryFrame
 
