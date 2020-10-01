@@ -33,42 +33,45 @@ unit class QAManager::Gui::Question:auth<github:MARTIMM>;
 
 #-------------------------------------------------------------------------------
 has Hash $!entry-objects = %( );
+has QAManager::Set $!set;
+has Gnome::Gtk3::Grid $!question-grid;
+has Int $!starting-grid-row;
+has Hash $!user-data-set-part;
 
 #-------------------------------------------------------------------------------
-#submethod BUILD ( ) { }
+submethod BUILD (
+  QAManager::Set:D :$!set, Gnome::Gtk3::Grid:D :$!question-grid,
+  Int:D :$!starting-grid-row, Hash:D :$!user-data-set-part
+) { }
 
 #-------------------------------------------------------------------------------
-method build-set-fields (
-  QAManager::Set $set, Gnome::Gtk3::Grid $question-grid, Int $grid-row is copy
-) {
+method build-set-fields ( ) {
 #Gnome::N::debug(:on);
-
   self!clean-entries;
 
-  my $c := $set.clone;
+  my Int $grid-row = $!starting-grid-row;
+  my $c := $!set.clone;
   for $c -> QAManager::Question $question {
 
-#  for @($set.get-questions) -> QAManager::Question $question {
+#  for @($!set.get-questions) -> QAManager::Question $question {
 #note "kv: $question.name(), $question.field()";
-    self.build-entry( :$question-grid, :$grid-row, :$question);
-    self.check-field( :$question-grid, :$grid-row, :$question);
+    self.build-entry( :$grid-row, :$question);
+    self.check-field( :$grid-row, :$question);
 
     $grid-row++;
   }
 }
 
 #-------------------------------------------------------------------------------
-method set-field-values (
-  QAManager::Set $set, Gnome::Gtk3::Grid $question-grid, Int $grid-row is copy,
-  Hash $user-data-set-part
-) {
-note "sv udsp: $user-data-set-part.perl()";
+method set-field-values ( ) {
+note "sv udsp: $!user-data-set-part.perl()";
 
-  my $c := $set.clone;
+  my Int $grid-row = $!starting-grid-row;
+  my $c := $!set.clone;
   for $c -> QAManager::Question $question {
-#  for @($set.get-questions) -> QAManager::Question $question {
+#  for @($!set.get-questions) -> QAManager::Question $question {
     self.set-value(
-      :$question-grid, :$grid-row, :values($user-data-set-part), :$question
+      :$grid-row, :values($!user-data-set-part), :$question
     );
     $grid-row++;
   }
@@ -76,61 +79,59 @@ note "sv udsp: $user-data-set-part.perl()";
 
 #-------------------------------------------------------------------------------
 method build-entry (
-  Gnome::Gtk3::Grid :$question-grid, Int :$grid-row,
-  QAManager::Question :$question
+  Int :$grid-row, QAManager::Question :$question
 ) {
 
   # place label on the left. the required star is in the middle column.
   self!shape-label(
-    $question-grid, $grid-row, $question.title, $question.description,
-    $question.required
+    $grid-row, $question.title, $question.description, $question.required
   );
 
   # and input fields to the right
   given $question.field {
     when QAEntry {
-      self!entry-field( $question-grid, $grid-row, $question);
+      self!entry-field( $grid-row, $question);
     }
 
     when QATextView {
-      self!textview-field( $question-grid, $grid-row, $question);
+      self!textview-field( $grid-row, $question);
     }
 
     when QAComboBox {
-      self!combobox-field( $question-grid, $grid-row, $question);
+      self!combobox-field( $grid-row, $question);
     }
 
     when QARadioButton {
-      self!radiobutton-field( $question-grid, $grid-row, $question);
+      self!radiobutton-field( $grid-row, $question);
     }
 
     when QACheckButton {
-      self!checkbutton-field( $question-grid, $grid-row, $question);
+      self!checkbutton-field( $grid-row, $question);
     }
 
     when QAToggleButton {
-      self!togglebutton-field( $question-grid, $grid-row, $question);
+      self!togglebutton-field( $grid-row, $question);
     }
 
     when QAScale {
-      self!scale-field( $question-grid, $grid-row, $question);
+      self!scale-field( $grid-row, $question);
     }
 
     when QASwitch {
-      self!switch-field( $question-grid, $grid-row, $question);
+      self!switch-field( $grid-row, $question);
     }
 
     when QAImage {
-      self!image-field( $question-grid, $grid-row, $question);
+      self!image-field( $grid-row, $question);
     }
   }
 }
 
 #-------------------------------------------------------------------------------
 method check-field (
-  Gnome::Gtk3::Grid :$question-grid, Int :$grid-row, QAManager::Question :$question
+  Int :$grid-row, QAManager::Question :$question
 ) {
-  my $no = $question-grid.get-child-at( 2, $grid-row);
+  my $no = $!question-grid.get-child-at( 2, $grid-row);
   my Gnome::Gtk3::Widget $w .= new(:native-object($no));
 
 #note "check field, Type: $question.field(), $grid-row, $w.get-name()";
@@ -142,10 +143,9 @@ method check-field (
 
 #-------------------------------------------------------------------------------
 method set-value (
-  Gnome::Gtk3::Grid :$question-grid, Int :$grid-row, Hash :$values,
-  QAManager::Question :$question
+  Int :$grid-row, Hash :$values, QAManager::Question :$question
 ) {
-  my $no = $question-grid.get-child-at( 2, $grid-row);
+  my $no = $!question-grid.get-child-at( 2, $grid-row);
   my Gnome::Gtk3::Widget $w .= new(:native-object($no));
 note "set value, type: $question.field(), $grid-row, $w.get-name(), {$values{$w.get-name()}//'-'}";
 
@@ -169,8 +169,7 @@ method !clean-entries ( ) {
 # this label must take the available space pressing the input fields to the
 # right.
 method !shape-label (
-  Gnome::Gtk3::Grid $grid, Int $row,
-  Str $title, Str $description, Bool $required
+  Int $row, Str $title, Str $description, Bool $required
 ) {
 
   #my Str $label-text = [~] '<b>', $description // $title, '</b>:';
@@ -191,7 +190,7 @@ method !shape-label (
     :native-object($label.get-style-context)
   );
   $context.add-class('labelText');
-  $grid.grid-attach( $label, 0, $row, 1, 1);
+  $!question-grid.grid-attach( $label, 0, $row, 1, 1);
 
 
   # mark required fields with a bold star
@@ -201,12 +200,12 @@ method !shape-label (
     .set-valign(GTK_ALIGN_START);
     .set-margin-top(6);
   }
-  $grid.grid-attach( $label, 1, $row, 1, 1);
+  $!question-grid.grid-attach( $label, 1, $row, 1, 1);
 }
 
 #-------------------------------------------------------------------------------
 method !entry-field (
-  Gnome::Gtk3::Grid $question-grid, Int $grid-row, QAManager::Question $question
+  Int $grid-row, QAManager::Question $question
 ) {
 
   # A frame with one or more entries
@@ -215,18 +214,17 @@ method !entry-field (
 
   # select default if any
   $w.set-default($question.default) if $question.default;
-  $question-grid.grid-attach( $w, 2, $grid-row, 1, 1);
+  $!question-grid.grid-attach( $w, 2, $grid-row, 1, 1);
 
 }
 
 #-------------------------------------------------------------------------------
 method !textview-field (
-  #Gnome::Gtk3::Grid $question-grid, Int $grid-row, QAManager::Set $set, Hash $kv
-  Gnome::Gtk3::Grid $question-grid, Int $grid-row, QAManager::Question $question
+  Int $grid-row, QAManager::Question $question
 ) {
 
   my QAManager::Gui::GroupFrame $frame .= new;
-  $question-grid.grid-attach( $frame, 2, $grid-row, 1, 1);
+  $!question-grid.grid-attach( $frame, 2, $grid-row, 1, 1);
 
   my Gnome::Gtk3::TextView $w .= new;
   $frame.container-add($w);
@@ -238,16 +236,15 @@ method !textview-field (
   $w.set-wrap-mode(GTK_WRAP_WORD);
 
 #  my Gnome::Gtk3::TextBuffer $tb .= new(:native-object($w.get-buffer));
-#  my Str $text = $!user-data{$set.name}{$question.name} // '';
+#  my Str $text = $!user-data{$!set.name}{$question.name} // '';
 #  $tb.set-text( $text, $text.chars);
 
-#  $!main-handler.add-widget( $w, $!invoice-title, $set, $question);
+#  $!main-handler.add-widget( $w, $!invoice-title, $!set, $question);
 }
 
 #-------------------------------------------------------------------------------
 method !combobox-field (
-#  Gnome::Gtk3::Grid $question-grid, Int $grid-row, QAManager::Set $set, Hash $kv
-  Gnome::Gtk3::Grid $question-grid, Int $grid-row, QAManager::Question $question
+  Int $grid-row, QAManager::Question $question
 ) {
 
   my Gnome::Gtk3::ComboBoxText $w .= new;
@@ -260,7 +257,7 @@ method !combobox-field (
     if ?$question.default;
 
 
-#  my Str $v = $!user-data{$set.name}{$question.name} // Str;
+#  my Str $v = $!user-data{$!set.name}{$question.name} // Str;
 #  if ?$v {
 #    my Int $value-index = $question.values.first( $v, :k) // 0;
 #    $w.set-active($value-index);
@@ -270,17 +267,17 @@ method !combobox-field (
   $w.set-name($question.name);
   $w.set-tooltip-text($question.tooltip) if ?$question.tooltip;
 
-  $question-grid.grid-attach( $w, 2, $grid-row, 1, 1);
-#  $!main-handler.add-widget( $w, $!invoice-title, $set, $question);
+  $!question-grid.grid-attach( $w, 2, $grid-row, 1, 1);
+#  $!main-handler.add-widget( $w, $!invoice-title, $!set, $question);
 }
 
 #-------------------------------------------------------------------------------
 method !radiobutton-field (
-  Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::Question $question
+  Int $set-row, QAManager::Question $question
 ) {
 
   my QAManager::Gui::GroupFrame $frame .= new;
-  $set-grid.grid-attach( $frame, 2, $set-row, 1, 1);
+  $!question-grid.grid-attach( $frame, 2, $set-row, 1, 1);
 
   # A series of checkbuttons are stored in a grid
   my Gnome::Gtk3::Grid $g .= new;
@@ -312,11 +309,11 @@ note "RB: $question.default(), $vname, {($question.default // '') eq $vname}";
 
 #-------------------------------------------------------------------------------
 method !checkbutton-field (
-  Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::Question $question
+  Int $set-row, QAManager::Question $question
 ) {
 
   my QAManager::Gui::GroupFrame $frame .= new;
-  $set-grid.grid-attach( $frame, 2, $set-row, 1, 1);
+  $!question-grid.grid-attach( $frame, 2, $set-row, 1, 1);
 
   # A series of checkbuttons are stored in a grid
   my Gnome::Gtk3::Grid $g .= new;
@@ -343,7 +340,7 @@ method !checkbutton-field (
 
 #-------------------------------------------------------------------------------
 method !togglebutton-field (
-  Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::Question $question
+  Int $set-row, QAManager::Question $question
 ) {
 
   # user data is stored as a hash to make the check more easily
@@ -359,14 +356,14 @@ method !togglebutton-field (
   $w.set-margin-top(3);
   $w.set-active(?$question.default);
   $w.set-tooltip-text($question.tooltip) if ?$question.tooltip;
-  $set-grid.grid-attach( $w, 2, $set-row, 1, 1);
+  $!question-grid.grid-attach( $w, 2, $set-row, 1, 1);
 
 #  $!main-handler.add-widget( $g, $!invoice-title, $set, $question);
 }
 
 #-------------------------------------------------------------------------------
 method !scale-field (
-  Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::Question $question
+  Int $set-row, QAManager::Question $question
 ) {
 
   # user data is stored as a hash to make the check more easily
@@ -386,14 +383,14 @@ method !scale-field (
   $w.set-digits(2);
   $w.set-value($question.default // $question.minimum // 0e0);
   $w.set-tooltip-text($question.tooltip) if ?$question.tooltip;
-  $set-grid.grid-attach( $w, 2, $set-row, 1, 1);
+  $!question-grid.grid-attach( $w, 2, $set-row, 1, 1);
 
 #  $!main-handler.add-widget( $g, $!invoice-title, $set, $question);
 }
 
 #-------------------------------------------------------------------------------
 method !switch-field (
-  Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::Question $question
+  Int $set-row, QAManager::Question $question
 ) {
 
   # the switch is streched to the full width of the grid cell. this is ugly!
@@ -414,13 +411,13 @@ method !switch-field (
   $w.set-tooltip-text($question.tooltip) if ?$question.tooltip;
 
   $g.grid-attach( $w, 1, 0, 1, 1);
-  $set-grid.grid-attach( $g, 2, $set-row, 1, 1);
+  $!question-grid.grid-attach( $g, 2, $set-row, 1, 1);
 #  $!main-handler.add-widget( $w, $!invoice-title, $set, $question);
 }
 
 #-------------------------------------------------------------------------------
 method !image-field (
-  Gnome::Gtk3::Grid $set-grid, Int $set-row, QAManager::Question $question
+  Int $set-row, QAManager::Question $question
 ) {
 
   # user data is stored as a hash to make the check more easily
@@ -428,7 +425,7 @@ method !image-field (
 #  my Hash $reversed-v = $v.kv.reverse.hash;
 
   my QAManager::Gui::GroupFrame $frame .= new;
-  $set-grid.grid-attach( $frame, 2, $set-row, 1, 1);
+  $!question-grid.grid-attach( $frame, 2, $set-row, 1, 1);
 
   my Str $file = $question.default // '';
 #  $filename = %?RESOURCES{$filename}.Str unless $filename.IO.r;

@@ -92,9 +92,10 @@ submethod BUILD (
   $question-grid.grid-attach( $sep, 0, $question-grid-row++, 3, 1);
 
   # show set with user data if any
-  my QAManager::Gui::Question $question .= new;
-  $question.build-set-fields( $!set, $question-grid, $grid-row);
-  $question.set-field-values(
-    $!set, $question-grid, $grid-row, $!user-data-set-part
+  my QAManager::Gui::Question $question .= new(
+    :$!set, :$question-grid, :starting-grid-row($grid-row),
+    :$!user-data-set-part
   );
+  $question.build-set-fields;
+  $question.set-field-values;
 }
