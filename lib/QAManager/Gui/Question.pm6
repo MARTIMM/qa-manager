@@ -47,7 +47,7 @@ submethod BUILD (
 #-------------------------------------------------------------------------------
 method build-set-fields ( ) {
 #Gnome::N::debug(:on);
-  self!clean-entries;
+  $!entry-objects = %( );
 
   my Int $grid-row = $!starting-grid-row;
   my $c := $!set.clone;
@@ -70,9 +70,7 @@ note "sv udsp: $!user-data-set-part.perl()";
   my $c := $!set.clone;
   for $c -> QAManager::Question $question {
 #  for @($!set.get-questions) -> QAManager::Question $question {
-    self.set-value(
-      :$grid-row, :values($!user-data-set-part), :$question
-    );
+    self.set-value( :$grid-row, :$question);
     $grid-row++;
   }
 }
@@ -128,9 +126,7 @@ method build-entry (
 }
 
 #-------------------------------------------------------------------------------
-method check-field (
-  Int :$grid-row, QAManager::Question :$question
-) {
+method check-field ( Int :$grid-row, QAManager::Question :$question ) {
   my $no = $!question-grid.get-child-at( 2, $grid-row);
   my Gnome::Gtk3::Widget $w .= new(:native-object($no));
 
@@ -142,12 +138,10 @@ method check-field (
 }
 
 #-------------------------------------------------------------------------------
-method set-value (
-  Int :$grid-row, Hash :$values, QAManager::Question :$question
-) {
+method set-value ( Int :$grid-row, QAManager::Question :$question ) {
   my $no = $!question-grid.get-child-at( 2, $grid-row);
   my Gnome::Gtk3::Widget $w .= new(:native-object($no));
-note "set value, type: $question.field(), $grid-row, $w.get-name(), {$values{$w.get-name()}//'-'}";
+note "set value, type: $question.field(), $grid-row, $w.get-name(), {$!user-data-set-part{$w.get-name()}//'-'}";
 
 #method set-value (
 #  $data-key, $data-value, $row, Bool :$overwrite = True, Bool :$last-row
@@ -157,11 +151,6 @@ note "set value, type: $question.field(), $grid-row, $w.get-name(), {$values{$w.
 #-------------------------------------------------------------------------------
 method select-image ( ) {
 note "select image";
-}
-
-#-------------------------------------------------------------------------------
-method !clean-entries ( ) {
-  $!entry-objects = %( );
 }
 
 #-------------------------------------------------------------------------------
