@@ -56,7 +56,7 @@ submethod BUILD ( QAManager::Question:D :$!question ) {
   # clear values
   $!entries = Array[QAManager::Gui::Entry].new;
 
-  # modify frame if not repeatable
+  # make frame invisible if not repeatable
   self.set-shadow-type(GTK_SHADOW_NONE) unless $!repeatable;
 
   # fiddle a bit
@@ -168,14 +168,17 @@ method add-entry (
 ) {
 
   # modify this buttons icon and signal handler
-  my Gnome::Gtk3::Image $image .= new(:filename(%?RESOURCES<Delete.png>.Str));
+  my Gnome::Gtk3::Image $image .= new;
+  $image.set-from-icon-name( 'list-remove', GTK_ICON_SIZE_BUTTON);
+
   $toolbutton.set-icon-widget($image);
   $toolbutton.handler-disconnect($_handler-id);
   $toolbutton.register-signal( self, 'delete-entry', 'clicked');
 
   # create new tool button on row below the button triggering this handler
   my Gnome::Gtk3::ToolButton $tb;
-  $image .= new(:filename(%?RESOURCES<Add.png>.Str));
+  $image .= new;
+  $image.set-from-icon-name( 'list-add', GTK_ICON_SIZE_BUTTON);
   $tb .= new(:icon($image));
   $tb.register-signal( self, 'add-entry', 'clicked');
   $!grid.attach-next-to( $tb, $toolbutton, GTK_POS_BOTTOM, 1, 1);
@@ -240,8 +243,9 @@ method check-toolbutton-column ( --> Int ) {
 #-------------------------------------------------------------------------------
 method create-toolbutton ( Bool :$add --> Gnome::Gtk3::ToolButton ) {
 
-  my Gnome::Gtk3::Image $image .= new(
-    :filename($add ?? %?RESOURCES<Add.png>.Str !! %?RESOURCES<Delete.png>.Str)
+  my Gnome::Gtk3::Image $image .= new;
+  $image.set-from-icon-name(
+    $add ?? 'list-add' !! 'list-remove', GTK_ICON_SIZE_BUTTON
   );
 
   my Gnome::Gtk3::ToolButton $tb .= new(:icon($image));
