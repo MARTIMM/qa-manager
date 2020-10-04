@@ -1,5 +1,62 @@
 use v6;
 
+use QAManager::QATypes;
+use QAManager::Set;
+use QAManager::Question;
+use QAManager::Gui::QALabel;
+use Gnome::Gtk3::Enums;
+
+use Gnome::Gtk3::Grid;
+use Gnome::Gtk3::Label;
+
+#-------------------------------------------------------------------------------
+unit class QAManager::Gui::Question:auth<github:MARTIMM>;
+
+#-------------------------------------------------------------------------------
+has Gnome::Gtk3::Grid $!question-grid;
+has Int $!grid-row;
+has Hash $!user-data-set-part;
+has QAManager::Question $!question;
+
+#-------------------------------------------------------------------------------
+submethod BUILD (
+  QAManager::Question :$!question, Gnome::Gtk3::Grid:D :$!question-grid,
+  Int:D :row($!grid-row), Hash:D :$!user-data-set-part
+) {
+note 'Q: ', $!question.name, ' => ', ($!user-data-set-part{$!question.name} // '--x--');
+}
+
+#-------------------------------------------------------------------------------
+method display ( ) {
+
+  my Str $text = $!question.description // $!question.title ~ ':';
+  $!question-grid.grid-attach(
+    QAManager::Gui::QALabel.new(:$text), 0, $!grid-row, 1, 1
+  );
+
+  # mark required fields with a bold star
+  $text = $!question.required ?? ' <b>*</b> ' !! ' ';
+  given my $r-label = Gnome::Gtk3::Label.new(:$text) {
+    .set-use-markup(True);
+    .set-valign(GTK_ALIGN_START);
+    .set-margin-top(6);
+  }
+  $!question-grid.grid-attach( $r-label, 1, $!grid-row, 1, 1);
+}
+
+
+
+
+
+
+
+
+
+
+=finish
+
+use v6;
+
 use Gnome::Gdk3::Pixbuf;
 
 use Gnome::Gtk3::Grid;
@@ -22,7 +79,7 @@ use QAManager::QATypes;
 use QAManager::Set;
 use QAManager::Question;
 use QAManager::Gui::GroupFrame;
-use QAManager::Gui::QAType::QAEntry;
+use QAManager::Gui::QAEntry;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -199,7 +256,7 @@ method !entry-field (
 
   # A frame with one or more entries
 #note "KVO vals: $question.perl()";
-  my QAManager::Gui::QAType::QAEntry $w .= new(:$question);
+  my QAManager::Gui::QAEntry $w .= new(:$question);
 
   # select default if any
   $w.set-default($question.default) if $question.default;

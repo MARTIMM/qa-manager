@@ -91,12 +91,14 @@ note 'sheet: ', $!sheet.perl;
         # for each set in the page ...
         my Int $grid-row = $grid-data<page-row>;
         for @($page<sets>) -> Hash $set-data {
+          # set data consists of a category name and set name. Both are needed
+          # to get the set data we need.
           my Str $category-name = $set-data<category>;
           my Str $set-name = $set-data<set>;
 #note 'SD: ', $set-data<category>, ', ', $set-data<set>;
 
-note "ud: $!user-data.perl()";
-note "keys needed: $page<name>, $category-name, $set-name";
+#note "ud: $!user-data.perl()";
+#note "keys needed: $page<name>, $category-name, $set-name";
           # display the set
           my QAManager::Gui::Set $set .= new(
             :grid($grid-data<page-grid>), :$grid-row,

@@ -6,9 +6,11 @@ use Gnome::Gtk3::Frame;
 use Gnome::Gtk3::Enums;
 use Gnome::Gtk3::Separator;
 use Gnome::Gtk3::StyleContext;
+use Gnome::Gtk3::Label;
 
 use QAManager::Category;
 use QAManager::Set;
+use QAManager::Question;
 use QAManager::Gui::Question;
 use QAManager::Gui::Frame;
 use QAManager::Gui::Dialog;
@@ -37,6 +39,7 @@ unit class QAManager::Gui::Set:auth<github:MARTIMM>;
 #-------------------------------------------------------------------------------
 has Hash $!user-data-set-part;
 has QAManager::Set $!set;
+has Array[QAManager::Gui::Question] $!questions;
 
 #-------------------------------------------------------------------------------
 # must repeat this new call because it won't call the one of
@@ -48,7 +51,7 @@ has QAManager::Set $!set;
 #-------------------------------------------------------------------------------
 # Display a set on a given grid at given row
 submethod BUILD (
-  Gnome::Gtk3::Grid :$grid, Int:D :$grid-row = 0,
+  Gnome::Gtk3::Grid :$grid, Int:D :$grid-row is copy = 0,
   Str:D :$category-name, Str:D :$set-name, Hash :$!user-data-set-part = %()
 ) {
 
@@ -92,10 +95,25 @@ submethod BUILD (
   $question-grid.grid-attach( $sep, 0, $question-grid-row++, 3, 1);
 
   # show set with user data if any
-  my QAManager::Gui::Question $question .= new(
-    :$!set, :$question-grid, :starting-grid-row($grid-row),
-    :$!user-data-set-part
-  );
-  $question.build-set-fields;
-  $question.set-field-values;
+#  my QAManager::Gui::Question $question .= new(
+#    :$!set, :$question-grid, :starting-grid-row($grid-row),
+#    :$!user-data-set-part
+#  );
+  #$question.build-set-fields;
+  #$question.set-field-values;
+
+  my $c := $!set.clone;
+  for $c -> QAManager::Question $question {
+    my QAManager::Gui::Question $gui-q .= new(
+      :$question, :$question-grid, :row($grid-row), :$!user-data-set-part
+    );
+    $!questions.push: $gui-q;
+    $gui-q.display;
+
+    $grid-row++;
+
+    # set value from user data
+
+    # store in array
+  }
 }
