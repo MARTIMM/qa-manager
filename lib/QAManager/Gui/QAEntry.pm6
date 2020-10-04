@@ -19,7 +19,7 @@ use QAManager::Gui::Value;
 use QAManager::Gui::Entry;
 
 #-------------------------------------------------------------------------------
-unit class QAManager::Gui::QAType::QAEntry;
+unit class QAManager::Gui::QAEntry;
 also does QAManager::Gui::Frame;
 also does QAManager::Gui::Value;
 
