@@ -13,7 +13,7 @@ See [semantic versioning](http://semver.org/). Please note point 4. on that page
     * KV into Question together with some of the methods.
     * ValueRepr to Value
     * EntryFrame to QAEntry
-  * removed part directory
+  * Removed part directory
   * Make use of available icons using their name instead of downloaded images. These also match better with selected themes because they belong to a theme.
 
 #### 2020-09-15 0.7.0
