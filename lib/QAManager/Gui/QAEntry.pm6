@@ -11,20 +11,21 @@ use Gnome::Gtk3::ToolButton;
 use Gnome::Gtk3::Image;
 use Gnome::Gtk3::Enums;
 #use Gnome::Gtk3::StyleContext;
+use Gnome::Gtk3::Entry;
 
-use QAManager::Gui::Frame;
 use QAManager::QATypes;
+use QAManager::Gui::Frame;
 use QAManager::Question;
 use QAManager::Gui::Value;
-use QAManager::Gui::Entry;
+#use QAManager::Gui::Entry;
 
 #-------------------------------------------------------------------------------
 unit class QAManager::Gui::QAEntry;
-also does QAManager::Gui::Frame;
-also does QAManager::Gui::Value;
+also is QAManager::Gui::Frame;
+#also does QAManager::Gui::Value;
 
 #-------------------------------------------------------------------------------
-has Array[QAManager::Gui::Entry] $!entries;
+has Array[Gnome::Gtk3::Entry] $!entries;
 has Gnome::Gtk3::Grid $!grid;
 
 has Str $!widget-name;
@@ -54,7 +55,7 @@ submethod BUILD ( QAManager::Question:D :$!question ) {
 #note "\nEF B: $!widget-name, $!example, $!tooltip, $!repeatable, $!visibility, {$!question.required // False}";
 
   # clear values
-  $!entries = Array[QAManager::Gui::Entry].new;
+  $!entries = Array[Gnome::Gtk3::Entry].new;
 
   # make frame invisible if not repeatable
   self.set-shadow-type(GTK_SHADOW_NONE) unless $!repeatable;
@@ -66,17 +67,56 @@ submethod BUILD ( QAManager::Question:D :$!question ) {
   self.widget-set-hexpand(True);
 
   # add a grid to the frame. a grid is used to cope with repeatable values.
-  # they will be placed under each other in one column.
+  # they will be placed under each other in one column. furthermore, a pulldown
+  # can be shown when the input can be categorized.
   $!grid .= new;
   self.container-add($!grid);
 
+  # add one entry to the grid
+  self!create-entry(0);
+#  $!grid.show-all;
+
   # create one entry. call ValueRepr.set-values
-  self.set-values(['',]);
+#  self.set-values(['',]);
 }
 
 #-------------------------------------------------------------------------------
+method !create-entry ( Int $row ) {
+
+  # add one entry to the grid
+  given my Gnome::Gtk3::Entry $entry .= new {
+
+#note "V: {$text//'-'}, {$visibility//'-'}";
+    .set-name($!widget-name) if ?$!widget-name;
+  #  .set-margin-top(3);
+    .set-size-request( 200, 1);
+    .set-hexpand(True);
+  #  .set-text($text) if ?$text;
+    .set-tooltip-text($!tooltip) if ?$!tooltip;
+    .set-visibility(?$!visibility);
+    .set-placeholder-text($!example) if ?$!example;
+
+    .register-signal(
+      self, 'check-on-focus-change', 'focus-out-event',
+      :qa-data($!question.qa-data)
+    );
+  }
+
+  $!grid.grid-attach( $entry, QAInputColumn, $row, 1, 1);
+  $!entries.push: $entry;
 # called from Value.set-values
-method set-value (
+}
+
+#-------------------------------------------------------------------------------
+method set-value ( Any:D $values ) {
+  my Array $a = $values ~~ Array ?? $values !! [$values];
+  for @$a -> $v {
+    $!entries[$++].set-text($v);
+  }
+}
+
+#-------------------------------------------------------------------------------
+method Xset-value (
   $data-key, $data-value, $row, Bool :$overwrite = True, Bool :$last-row
 ) {
 
@@ -96,7 +136,7 @@ method set-value (
   # check if there is an input field defined. if not, create input field.
   # otherwise get object from grid
   my Bool $new-row;
-  my QAManager::Gui::Entry $entry;
+  my Gnome::Gtk3::Entry $entry;
   if $!entries[$row].defined {
     $new-row = False;
     $entry .= new(:native-object($!grid.get-child-at( 0, $row)));
@@ -192,7 +232,7 @@ method add-entry (
   }
 
   # create new text entry to the left of the button
-  my QAManager::Gui::Entry $entry .= new(:$!visibility);
+  my Gnome::Gtk3::Entry $entry .= new(:$!visibility);
   $!grid.attach-next-to(
     $entry, $tbcol == 2 ?? $cbt !! $tb, GTK_POS_LEFT, 1, 1
   );

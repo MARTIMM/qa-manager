@@ -17,21 +17,31 @@ has Gnome::Gtk3::Grid $!question-grid;
 has Int $!grid-row;
 has Hash $!user-data-set-part;
 has QAManager::Question $!question;
+has Array $!input-widgets;
 
 #-------------------------------------------------------------------------------
 submethod BUILD (
   QAManager::Question :$!question, Gnome::Gtk3::Grid:D :$!question-grid,
   Int:D :row($!grid-row), Hash:D :$!user-data-set-part
 ) {
+  $!input-widgets = [];
 note 'Q: ', $!question.name, ' => ', ($!user-data-set-part{$!question.name} // '--x--');
+
+  self.display;
+
+  self.set-values;
 }
 
 #-------------------------------------------------------------------------------
 method display ( ) {
 
+  # on each row in the provided grid, a label with the question comes on the
+  # left. Then, in the middle, an optional '*' when the it is required to
+  # provide an answer. And finally on the right, an input widget.
+
   my Str $text = $!question.description // $!question.title ~ ':';
   $!question-grid.grid-attach(
-    QAManager::Gui::QALabel.new(:$text), 0, $!grid-row, 1, 1
+    QAManager::Gui::QALabel.new(:$text), QAQuestion, $!grid-row, 1, 1
   );
 
   # mark required fields with a bold star
@@ -41,10 +51,32 @@ method display ( ) {
     .set-valign(GTK_ALIGN_START);
     .set-margin-top(6);
   }
-  $!question-grid.grid-attach( $r-label, 1, $!grid-row, 1, 1);
+  $!question-grid.grid-attach( $r-label, QARequired, $!grid-row, 1, 1);
+
+  # find and load the module for this input type. if found, initialize
+  # the module and store in array.
+  my Str $module-name = 'QAManager::Gui::' ~ $!question.field.Str;
+  try require ::($module-name);
+  if (my $m = ::($module-name)) ~~ Failure {
+    # handle failure, because of problems in DESTROY
+    $m.Bool;
+#    note 'failure handled: ', $m.handled;
+  }
+
+  else {
+    my $input-widget = ::($module-name).new(:$!question);
+    $!input-widgets.push: $input-widget;
+    $!question-grid.grid-attach( $input-widget, QAAnswer, $!grid-row, 1, 1);
+  }
 }
 
-
+#-------------------------------------------------------------------------------
+method set-values ( ) {
+  for @$!input-widgets -> $input-widget {
+    my Str $widget-name = $input-widget.get-name;
+    $input-widget.set-value($!user-data-set-part{$!question.name} // '');
+  }
+}
 
 
 
@@ -534,7 +566,7 @@ method !field-with-button (
 #`{{
 #-------------------------------------------------------------------------------
 method !set-status-hint (
-  Gnome::Gtk3::Widget $widget, inputStatusHint $status
+  Gnome::Gtk3::Widget $widget, InputStatusHint $status
 ) {
   my Gnome::Gtk3::StyleContext $context .= new(
     :native-object($widget.get-style-context)

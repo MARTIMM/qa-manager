@@ -5,7 +5,7 @@ use Gnome::Gtk3::Frame;
 #use Gnome::Gtk3::StyleContext;
 
 #-------------------------------------------------------------------------------
-unit role QAManager::Gui::Frame;
+unit class QAManager::Gui::Frame;
 also is Gnome::Gtk3::Frame;
 
 #-------------------------------------------------------------------------------
@@ -26,6 +26,6 @@ submethod BUILD ( Str :$label = '' ) {
 #    :native-object(self.get-style-context)
 #  );
 #  $context.add-class('titleText');
-note "frame set label: $label";
+#note "frame set label: $label";
   self.set-label($label) if ?$label;
 }

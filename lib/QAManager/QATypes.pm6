@@ -58,8 +58,34 @@ enum QAFieldType is export <
 enum QADisplayType is export <QADialog QANoteBook QAStack QAAssistant>;
 
 #-------------------------------------------------------------------------------
-#tt:1:inputStatusHint:
-enum inputStatusHint is export <QAStatusNormal QAStatusOk QAStatusFail>;
+#tt:1:InputStatusHint:
+enum InputStatusHint is export <QAStatusNormal QAStatusOk QAStatusFail>;
+
+#-------------------------------------------------------------------------------
+#tt:1::QAGridColSpec
+=begin pod
+=head2 QAGridColSpec
+
+Column numbers for the question-answer row in a grid
+
+=item
+=item
+=item
+=end pod
+enum QAGridColSpec is export <QAQuestion QARequired QAAnswer>;
+
+#-------------------------------------------------------------------------------
+=begin pod
+=head2 AGridColSpec
+
+Column numbers for the grid in the answer part of the QA
+
+=item QACatColumn
+=item QAInputColumn
+=item QAButtonColumn
+=end pod
+#tt:1::AGridColSpec
+enum AGridColSpec is export <QACatColumn QAInputColumn QAButtonColumn>;
 
 #-------------------------------------------------------------------------------
 #`{{
