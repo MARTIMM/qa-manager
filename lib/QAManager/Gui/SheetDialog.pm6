@@ -34,7 +34,9 @@ also is QAManager::Gui::Dialog;
 
 #-------------------------------------------------------------------------------
 has QAManager::Sheet $!sheet;
-has Hash $.user-data;
+has Hash $!user-data;
+has Hash $.result-user-data;
+has Array $!sets = [];
 
 #-------------------------------------------------------------------------------
 # must repeat this new call because it won't call the one of
@@ -107,6 +109,7 @@ note 'sheet: ', $!sheet.perl;
               $!user-data{$page<name>}{$category-name}{$set-name}
             )
           );
+          $!sets.push: $set;
           $grid-row++;
         }
 
@@ -203,5 +206,5 @@ method cancel-dialog ( ) {
 #-------------------------------------------------------------------------------
 method finish-dialog ( ) {
   note 'dialog finished';
-  $!user-data = %(:test<ok>);
+  $!result-user-data = $!user-data;
 }
