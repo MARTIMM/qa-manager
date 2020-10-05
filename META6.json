@@ -21,7 +21,6 @@
 
     "QAManager::Gui::DeleteMsgDialog": "lib/QAManager/Gui/DeleteMsgDialog.pm6",
     "QAManager::Gui::Dialog": "lib/QAManager/Gui/Dialog.pm6",
-    "QAManager::Gui::Entry": "lib/QAManager/Gui/Entry.pm6",
     "QAManager::Gui::Frame": "lib/QAManager/Gui/Frame.pm6",
     "QAManager::Gui::GroupFrame": "lib/QAManager/Gui/GroupFrame.pm6",
     "QAManager::Gui::Question": "lib/QAManager/Gui/Question.pm6",
