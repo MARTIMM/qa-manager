@@ -28,10 +28,10 @@ subtest 'Manipulations', {
   $pw.encode = True;
   $pw.invisible = True;
 
-  ok $creds.add-question($un), '.add-kv()';
+  ok $creds.add-question($un), '.add-question()';
   nok $creds.add-question($un), 'allready added';
-  ok $creds.add-question($pw), '.add-kv()';
-  ok $creds.replace-question($pw), '.replace-kv()';
+  ok $creds.add-question($pw), '.add-question()';
+  ok $creds.replace-question($pw), '.replace-question()';
 
 #  note $creds.set;
 }
