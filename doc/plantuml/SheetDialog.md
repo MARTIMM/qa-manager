@@ -10,25 +10,38 @@ hide empty members
 'class QAManager::Gui::Repeat <<(R,#80ffff)>>
 
 class QAManager::Gui::Value <<(R,#80ffff)>> {
+  +initialize()
+
+  -set-values()
+  -create-input-row()
+  -set-status-hint()
+  -check-on-focus-change()
+
   +{abstract} set-value()
   +{abstract} get-value()
-  +{abstract} check-value()
-  -Array $values
+'  +{abstract} check-value()
+  +{abstract} create-widget()
+
+  -Array $!values
+  -QAManager::Question $!question
+  -Hash $!user-data-set-part
+  -Array $!input-widgets
 }
 
 class "Some Gtk\nInput Widget" as QAManager::Gui::GtkIOWidget
 
 class "Some QA\nInput Widget" as QAManager::Gui::QAIOWidget {
-  -Array $io-widgets
   +set-value()
   +get-value()
-  +display()
+'  +check-value()
+  +create-widget()
 }
 
-note right of QAManager::Gui::QAIOWidget : QAEntry is one of the\npossible types and is\ncreated at runtime
+note right of QAManager::Gui::QAIOWidget : <b>QAEntry</b> is one of the possible types\nand is created at runtime. Also it is\nresponsible for creating the Gtk\nwidgets which are saved by <b>Value</b>.
 
 class QAManager::Gui::Set {
   -Array $questions
+  -QAManager::Set $!set
 }
 
 class QAManager::Gui::SheetDialog {
@@ -36,15 +49,16 @@ class QAManager::Gui::SheetDialog {
 }
 
 
+'QAManager::Gui::Set *--> QAManager::Set
+'QAManager::Gui::Repeat <|.. QAManager::Gui::QAIOWidget
+
 QAManager::Gui::Dialog <|-- QAManager::Gui::SheetDialog
 QAManager::Gui::Set "*" <-* QAManager::Gui::SheetDialog
-'QAManager::Gui::Set *--> QAManager::Set
 QAManager::Gui::SheetDialog <--* UserApp
 
 QAManager::Gui::Value <|.. QAManager::Gui::QAIOWidget
-QAManager::Gui::GtkIOWidget "*" <--* QAManager::Gui::QAIOWidget
-QAManager::Gui::Frame <|-- QAManager::Gui::QAIOWidget
-'QAManager::Gui::Repeat <|.. QAManager::Gui::QAIOWidget
+QAManager::Gui::Frame <|-- QAManager::Gui::Value
+QAManager::Gui::GtkIOWidget "*" <--* QAManager::Gui::Value
 
 QAManager::Gui::QAIOWidget <--* QAManager::Gui::Question
 QAManager::Gui::QALabel <--* QAManager::Gui::Question
