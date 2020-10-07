@@ -70,20 +70,20 @@ submethod BUILD ( *%options ) {
 }
 
 #-------------------------------------------------------------------------------
-method app-startup ( Gnome::Gtk3::Application :widget($app) ) {
+method app-startup ( Gnome::Gtk3::Application :_widget($app) ) {
   #TODO check for tasks which do not need a gui, if so, don't self.run
 
   self.run;
 }
 
 #-------------------------------------------------------------------------------
-method app-shutdown ( Gnome::Gtk3::Application :widget($app) ) {
+method app-shutdown ( Gnome::Gtk3::Application :_widget($app) ) {
   #TODO save and cleanup tasks
 }
 
 #-------------------------------------------------------------------------------
 # need gui then, build base
-method app-activate ( Gnome::Gtk3::Application :widget($app) ) {
+method app-activate ( Gnome::Gtk3::Application :_widget($app) ) {
 
   # read the menu xml into the builder
   my Gnome::Gtk3::Builder $builder .= new(:resource(

@@ -72,7 +72,7 @@ Questions are what it is all about. In short a piece of text to pose the questio
 * **step**; Step size for the slider.
 * **title**; unused if there is a description, otherwise it is used as the question text.
 * **tooltip**; Some helpful message shown on the input field.
-* **values**; Values are used to fill e.g. a combobox or a list. It can also be used with text entries where a combobox is placed in front of the text input. E.g. input of a telephone number can be for a home, work or mobile phone. The names 'home', 'work' or 'mobile' are then showed in a combobox. Other types might also have these possibilities.
+* **selectlist**; The selectlist is used to fill e.g. a combobox or a list. It can also be used with text entries where a combobox is placed in front of the text input. E.g. input of a telephone number can be for a home, work or mobile phone. The names 'home', 'work' or 'mobile' are then showed in a combobox. Other types might also have these possibilities.
 * **width**; sometimes a width is needed for a widget.
 
 
@@ -81,7 +81,7 @@ Questions are what it is all about. In short a piece of text to pose the questio
 * Boolean values like required, encode and hide are `False` if not mentioned.
 * Default values are '' or 0 when absent. Min and Max are -Inf and Inf when absent.
 * Encoding is done using sha256.
-* Values in a question description are always arrays.
+* select lists in a question descriptions are always arrays.
 * Defaults are always single valued.
 
 
@@ -111,25 +111,25 @@ The structure of a value provided by the caller or returned by the program, can 
 The formats used are shown below for each input type.
 
 * QAEntry:
-  * `$value`                  This supports a single value. `:repeatable` is False and `:values` is ignored.
-  * `[ $value, ]`             This supports repeated values. `:repeatable` is True and `:values` is not defined or empty.
-  * `[ :$value($category), ]` This supports repeated values with a combobox to select categories. `:repeatable` is True and `:values` to fill a combobox must have values.
+  * `$value`                  This supports a single value. `:repeatable` is False and `:selectlist` is ignored.
+  * `[ $value, ]`             This supports repeated values. `:repeatable` is True and `:selectlist` is not defined or empty.
+  * `[ :$value($category), ]` This supports repeated values with a combobox to select categories. `:repeatable` is True and `:selectlist` to fill a combobox must have values.
 
 * QACheckButton:
-  * `[ $value, ]`             A list of checked values. When nothing is checked, the array is empty. `:repeatable` and `:values` are ignored.
+  * `[ $value, ]`             A list of checked values. When nothing is checked, the array is empty. `:repeatable` and `:selectlist` are ignored.
 
-* QAComboBox: In all cases `:repeatable` is ignored and `:values` hold the content of the box.
+* QAComboBox: In all cases `:repeatable` is ignored and `:selectlist` hold the content of the box.
   * `$value`                  Single selection.
   * `[ $value, ]`             Multi selection.
 
 * QAImage:
   * `$value`                  Path to image.
 
-* QAList: In all cases `:repeatable` is ignored and `:values` hold the content of the list.
+* QAList: In all cases `:repeatable` is ignored and `:selectlist` hold the content of the list.
   * `$value`                  Single selection.
   * `[ $value, ]`             Multi selection.
 
-* QARadioButton: In all cases `:repeatable` is ignored and `:values` hold the content of the radiobutton group.
+* QARadioButton: In all cases `:repeatable` is ignored and `:selectlist` hold the content of the radiobutton group.
   * `$value`                  The one selected from the group.
 
 * QAScale: `:minimum`, `:maximum` and `:step` are used to define the scale widget.
@@ -184,7 +184,7 @@ The formats used are shown below for each input type.
 |step         | | | | | | |!| | | |
 |title        |o|o|o|o|o|o|o|o|o|o|
 |tooltip      |o|o|o|o|o|o|o|o|o|o|
-|values       |o|!|!| |!|!| | | | |
+|selectlist   |o|!|!| |!|!| | | | |
 |width        | | | |o| | | | | | |
 
 ## Sheet
