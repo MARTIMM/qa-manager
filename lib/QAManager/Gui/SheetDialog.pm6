@@ -1,6 +1,8 @@
 #tl:1:QAManager::Gui::SheetDialog
 use v6.d;
 
+use Gnome::Gio::Resource;
+
 use Gnome::Gtk3::Widget;
 use Gnome::Gtk3::Enums;
 use Gnome::Gtk3::ScrolledWindow;
@@ -11,6 +13,10 @@ use Gnome::Gtk3::Button;
 use Gnome::Gtk3::Notebook;
 use Gnome::Gtk3::Stack;
 use Gnome::Gtk3::Assistant;
+use Gnome::Gtk3::CssProvider;
+use Gnome::Gtk3::StyleContext;
+use Gnome::Gtk3::StyleProvider;
+use Gnome::Gtk3::Builder;
 
 use QAManager::Gui::Set;
 use QAManager::Gui::Question;
@@ -55,7 +61,8 @@ submethod BUILD ( Str :$sheet-name, Hash :$!user-data = %() ) {
 #-------------------------------------------------------------------------------
 method !init-dialog {
 
-note 'sheet: ', $!sheet.perl;
+#note 'sheet: ', $!sheet.perl;
+  self.set-style;
   self.set-dialog-size( $!sheet.width, $!sheet.height);
 
 #  my Int ( $total-width, $total-height) = ( 0, 0);
@@ -150,6 +157,27 @@ CATCH {.note;}
 #  $w = self.dialog-content.get-allocated-width;
 #  $h = self.dialog-content.get-allocated-height;
 #  self.set-dialog-size( $w, $h);
+}
+
+#-------------------------------------------------------------------------------
+method set-style ( ) {
+  # load the gtk resource file and register resource to make data global to app
+  my Gnome::Gio::Resource $r .= new(
+    :load(%?RESOURCES<g-resources/QAManager.gresource>.Str)
+  );
+  $r.register;
+
+  my Str $application-id = '/io/github/martimm/qa';
+
+  # read the style definitions into the css provider and style context
+  my Gnome::Gtk3::CssProvider $css-provider .= new;
+  $css-provider.load-from-resource(
+    $application-id ~ '/resources/g-resources/QAManager-style.css'
+  );
+  my Gnome::Gtk3::StyleContext $style-context .= new;
+  $style-context.add_provider_for_screen(
+    Gnome::Gdk3::Screen.new, $css-provider, GTK_STYLE_PROVIDER_PRIORITY_USER
+  );
 }
 
 #-------------------------------------------------------------------------------

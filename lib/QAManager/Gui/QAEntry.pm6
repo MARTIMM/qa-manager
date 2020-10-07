@@ -1,40 +1,15 @@
 use v6.d;
 
-use Gnome::N::N-GObject;
-
-use Gnome::Gdk3::Events;
-
-#use Gnome::Gtk3::Frame;
-use Gnome::Gtk3::ComboBoxText;
-use Gnome::Gtk3::Grid;
-use Gnome::Gtk3::ToolButton;
-use Gnome::Gtk3::Image;
-use Gnome::Gtk3::Enums;
-#use Gnome::Gtk3::StyleContext;
 use Gnome::Gtk3::Entry;
 
 use QAManager::QATypes;
 use QAManager::Gui::Frame;
 use QAManager::Question;
 use QAManager::Gui::Value;
-#use QAManager::Gui::Entry;
 
 #-------------------------------------------------------------------------------
 unit class QAManager::Gui::QAEntry;
-also is QAManager::Gui::Frame;
-#also does QAManager::Gui::Value;
-
-#-------------------------------------------------------------------------------
-has Array[Gnome::Gtk3::Entry] $!entries;
-has Gnome::Gtk3::Grid $!grid;
-
-has Str $!widget-name;
-has Str $!example;
-has Str $!tooltip;
-has Bool $!repeatable;
-has Bool $!visibility;
-has Array $!entry-category;
-has QAManager::Question $!question;
+also does QAManager::Gui::Value;
 
 #-------------------------------------------------------------------------------
 submethod new ( |c ) {
@@ -43,80 +18,67 @@ submethod new ( |c ) {
 }
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( QAManager::Question:D :$!question ) {
-
-  $!widget-name = $!question.name;
-  $!example = $!question.example // '';
-  $!tooltip = $!question.tooltip // '';
-  $!repeatable = $!question.repeatable // False;
-  $!visibility = !$!question.invisible // True;
-  $!entry-category = $!question.values // [];
-
-#note "\nEF B: $!widget-name, $!example, $!tooltip, $!repeatable, $!visibility, {$!question.required // False}";
-
-  # clear values
-  $!entries = Array[Gnome::Gtk3::Entry].new;
-
-  # make frame invisible if not repeatable
-  self.set-shadow-type(GTK_SHADOW_NONE) unless $!repeatable;
-
-  # fiddle a bit
-  self.widget-set-margin-top(3);
-#  self.set-size-request( 200, 1);
-  self.widget-set-name($!widget-name);
-  self.widget-set-hexpand(True);
-
-  # add a grid to the frame. a grid is used to cope with repeatable values.
-  # they will be placed under each other in one column. furthermore, a pulldown
-  # can be shown when the input can be categorized.
-  $!grid .= new;
-  self.container-add($!grid);
-
-  # add one entry to the grid
-  self!create-entry(0);
-#  $!grid.show-all;
-
-  # create one entry. call ValueRepr.set-values
-#  self.set-values(['',]);
+submethod BUILD (
+  QAManager::Question:D :$!question, Hash:D :$!user-data-set-part
+) {
+  self.initialize;
 }
 
 #-------------------------------------------------------------------------------
-method !create-entry ( Int $row ) {
+method create-widget ( Str $widget-name --> Any ) {
 
-  # add one entry to the grid
+  # create a text input widget
   given my Gnome::Gtk3::Entry $entry .= new {
 
-#note "V: {$text//'-'}, {$visibility//'-'}";
-    .set-name($!widget-name) if ?$!widget-name;
-  #  .set-margin-top(3);
+    .set-name($widget-name);
     .set-size-request( 200, 1);
     .set-hexpand(True);
-  #  .set-text($text) if ?$text;
-    .set-tooltip-text($!tooltip) if ?$!tooltip;
-    .set-visibility(?$!visibility);
-    .set-placeholder-text($!example) if ?$!example;
 
-    .register-signal(
-      self, 'check-on-focus-change', 'focus-out-event',
-      :qa-data($!question.qa-data)
-    );
+    my Bool $visibility = !$!question.invisible;
+    .set-visibility($visibility);
+
+    my Str $example = $!question.example;
+    .set-placeholder-text($example) if ?$example;
   }
 
-  $!grid.grid-attach( $entry, QAInputColumn, $row, 1, 1);
-  $!entries.push: $entry;
-# called from Value.set-values
+  $entry
 }
 
 #-------------------------------------------------------------------------------
-method set-value ( Any:D $values ) {
-  my Array $a = $values ~~ Array ?? $values !! [$values];
-  for @$a -> $v {
-    $!entries[$++].set-text($v);
-  }
+method get-value ( $widget --> Any ) {
+  $widget.get-text
 }
 
 #-------------------------------------------------------------------------------
-method Xset-value (
+method set-value ( Any:D $widget, $value ) {
+  $widget.set-text($value) if ?$value;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=finish
+
+#-------------------------------------------------------------------------------
+method check-value ( --> Any ) {
+}
+
+#-------------------------------------------------------------------------------
+method !add-value ( Str $text ) {
+}
+
+#-------------------------------------------------------------------------------
+method set-value (
   $data-key, $data-value, $row, Bool :$overwrite = True, Bool :$last-row
 ) {
 
@@ -129,7 +91,7 @@ method Xset-value (
   # if $data-key is a number then only text without a combobox is shown. Text
   # is found in $data-value. If a combobox is needed then text is in text-key
   # and combobox selection in text-value.
-  my Bool $need-combobox = ?$!entry-category;
+  my Bool $need-combobox = ?$!input-category;
   my Str $text = ($data-key ~~ m/^ \d+ $/).Bool ?? $data-value !! $data-key;
 #note "SV 1: $text";
 
@@ -137,7 +99,7 @@ method Xset-value (
   # otherwise get object from grid
   my Bool $new-row;
   my Gnome::Gtk3::Entry $entry;
-  if $!entries[$row].defined {
+  if $!input-widgets[$row].defined {
     $new-row = False;
     $entry .= new(:native-object($!grid.get-child-at( 0, $row)));
   }
@@ -146,16 +108,14 @@ method Xset-value (
     $new-row = True;
     $entry .= new( :$text, :$!example, :$!tooltip, :$!visibility);
 
-    $entry.register-signal(
-      self, 'check-on-focus-change', 'focus-out-event',
-      :qa-data($!question.qa-data)
-    );
+    $entry.register-signal( self, 'check-on-focus-change', 'focus-out-event');
     $!grid.grid-attach( $entry, 0, $row, 1, 1);
-    $!entries.push($entry);
+    $!input-widgets.push($entry);
   }
 
   # the text can be written only if field is empty or if overwrite is True
-  $!entries[$row].set-text($text) if ! $!entries[$row].get-text or $overwrite;
+  $!input-widgets[$row].set-text($text)
+    if ! $!input-widgets[$row].get-text or $overwrite;
 
   # insert and set value of a combobox
   my Gnome::Gtk3::ComboBoxText $cbt;
@@ -189,18 +149,6 @@ method Xset-value (
 
   self.rename-buttons;
 }
-
-#-------------------------------------------------------------------------------
-method get-values ( --> Array ) {
-}
-
-#-------------------------------------------------------------------------------
-method check-values ( ) {
-}
-
-#-------------------------------------------------------------------------------
-#method !add-value ( Str $text ) {
-#}
 
 #-------------------------------------------------------------------------------
 method add-entry (
@@ -300,7 +248,7 @@ method create-toolbutton ( Bool :$add --> Gnome::Gtk3::ToolButton ) {
 method create-combobox ( Str $select = '' --> Gnome::Gtk3::ComboBoxText ) {
 
   my Gnome::Gtk3::ComboBoxText $cbt .= new;
-  for @$!entry-category -> $v {
+  for @$!input-category -> $v {
     $cbt.append-text($v);
   }
 
@@ -311,53 +259,55 @@ method create-combobox ( Str $select = '' --> Gnome::Gtk3::ComboBoxText ) {
 #-------------------------------------------------------------------------------
 method set-combobox-select( Gnome::Gtk3::ComboBoxText $cbt, Str $select = '' ) {
 
-  my Int $value-index = $!entry-category.first( $select, :k) // 0;
+  my Int $value-index = $!input-category.first( $select, :k) // 0;
   $cbt.set-active($value-index);
 }
 
 #-------------------------------------------------------------------------------
-method check-on-focus-change (
-  N-GdkEventFocus $event, :widget($w), Hash :$qa-data
-  --> Int
-) {
+method check-on-focus-change ( N-GdkEventFocus $event, :_widget($w) --> Int ) {
+
 #note 'focus change';
-  self.check-field( $w, $qa-data);
+  my Gnome::Gtk3::Entry $entry = $w;
+  my Str $input = $entry.get-text;
+#    $input = $kv<default> // Str unless ?$input;
+
+  my Bool $faulty-state;
+#`{{
+  my Str $cb-name = ($!callback-name // '_') ~ '-sts';
+  if ?$*callback-object and $*callback-object.^can($cb-name) {
+    $faulty-state = $*callback-object."$cb-name"( :$input, :$kv);
+  }
+
+  else {
+    $faulty-state = (?$kv<required> and !$input);
+  }
+}}
+  $faulty-state = (?$!required and !$input);
+
+  if $faulty-state {
+    self.set-status-hint( $entry, QAStatusFail);
+  }
+
+  elsif ?$!required {
+    self.set-status-hint( $entry, QAStatusOk);
+    my Str ( $widget-name, $row) = $entry.get-name.split(':');
+    if $!repeatable {
+      #if $!... {
+      #}
+      $!user-data-set-part{$widget-name}[$row] = $input;
+    }
+
+    else {
+      $!user-data-set-part{$widget-name} = $input;
+    }
+  }
+
+  else {
+    self.set-status-hint( $entry, QAStatusNormal);
+  }
+
 
   # must propogate further to prevent messages when notebook page is switched
   # otherwise it would do ok to return 1.
   0
-}
-
-#-------------------------------------------------------------------------------
-method check-field ( $w, Hash $kv ) {
-
-#note "check $kv<name> field $w.^name(), cb: ", ($kv<callback>//'_') ~ '-sts';
-
-  if $w.get-class-name eq 'GtkEntry' {
-    my Gnome::Gtk3::Entry $entry .= new(:native-object($w));
-    my Str $input = $entry.get-text;
-#    $input = $kv<default> // Str unless ?$input;
-
-    my Bool $faulty-state;
-    my Str $cb-name = ($kv<callback> // '_') ~ '-sts';
-    if ?$*callback-object and $*callback-object.^can($cb-name) {
-      $faulty-state = $*callback-object."$cb-name"( :$input, :$kv);
-    }
-
-    else {
-      $faulty-state = (?$kv<required> and !$input);
-    }
-
-    if $faulty-state {
-      self.set-status-hint( $entry, QAStatusFail);
-    }
-
-    elsif ?$kv<required> {
-      self.set-status-hint( $entry, QAStatusOk);
-    }
-
-    else {
-      self.set-status-hint( $entry, QAStatusNormal);
-    }
-  }
 }

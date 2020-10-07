@@ -17,19 +17,19 @@ has Gnome::Gtk3::Grid $!question-grid;
 has Int $!grid-row;
 has Hash $!user-data-set-part;
 has QAManager::Question $!question;
-has Array $!input-widgets;
+#has Array $!input-widgets;
 
 #-------------------------------------------------------------------------------
 submethod BUILD (
   QAManager::Question :$!question, Gnome::Gtk3::Grid:D :$!question-grid,
   Int:D :row($!grid-row), Hash:D :$!user-data-set-part
 ) {
-  $!input-widgets = [];
-note 'Q: ', $!question.name, ' => ', ($!user-data-set-part{$!question.name} // '--x--');
+#  $!input-widgets = [];
+#note 'Q: ', $!question.name, ' => ', ($!user-data-set-part{$!question.name} // '--x--');
 
   self.display;
 
-  self.set-values;
+#  self.set-values;
 }
 
 #-------------------------------------------------------------------------------
@@ -58,18 +58,21 @@ method display ( ) {
   my Str $module-name = 'QAManager::Gui::' ~ $!question.field.Str;
   try require ::($module-name);
   if (my $m = ::($module-name)) ~~ Failure {
-    # handle failure, because of problems in DESTROY
+    # when not found, handle the failure, because one get problems
+    # with unhandled failures in DESTROY.
     $m.Bool;
-#    note 'failure handled: ', $m.handled;
   }
 
   else {
-    my $input-widget = ::($module-name).new(:$!question);
-    $!input-widgets.push: $input-widget;
+    my $input-widget = ::($module-name).new(
+      :$!question, :$!user-data-set-part
+    );
+#    $!input-widgets.push: $input-widget;
     $!question-grid.grid-attach( $input-widget, QAAnswer, $!grid-row, 1, 1);
   }
 }
 
+#`{{
 #-------------------------------------------------------------------------------
 method set-values ( ) {
   for @$!input-widgets -> $input-widget {
@@ -77,7 +80,7 @@ method set-values ( ) {
     $input-widget.set-value($!user-data-set-part{$!question.name} // '');
   }
 }
-
+}}
 
 
 
@@ -326,18 +329,18 @@ method !combobox-field (
 ) {
 
   my Gnome::Gtk3::ComboBoxText $w .= new;
-  for @($question.values) -> $cbv {
+  for @($question.selectlist) -> $cbv {
     $w.append-text($cbv);
   }
 
   # select default if any
-  $w.set-active($question.values.first( $question.default, :k))
+  $w.set-active($question.selectlist.first( $question.default, :k))
     if ?$question.default;
 
 
 #  my Str $v = $!user-data{$!set.name}{$question.name} // Str;
 #  if ?$v {
-#    my Int $value-index = $question.values.first( $v, :k) // 0;
+#    my Int $value-index = $question.selectlist.first( $v, :k) // 0;
 #    $w.set-active($value-index);
 #  }
 
@@ -368,7 +371,7 @@ method !radiobutton-field (
 
   my Int $rc = 0;
   my Gnome::Gtk3::RadioButton $w1st;
-  for @($question.values) -> $vname {
+  for @($question.selectlist) -> $vname {
     my Gnome::Gtk3::RadioButton $w .= new(:label($vname));
 #    $w.set-active($reversed-v{$vname}:exists);
     $w.set-name($question.name);
@@ -403,7 +406,7 @@ method !checkbutton-field (
 #  my Hash $reversed-v = $v.kv.reverse.hash;
 
   my Int $rc = 0;
-  for @($question.values) -> $vname {
+  for @($question.selectlist) -> $vname {
     my Gnome::Gtk3::CheckButton $w .= new(:label($vname));
 #    $w.set-active($reversed-v{$vname}:exists);
     $w.set-name($question.name);
@@ -426,7 +429,7 @@ method !togglebutton-field (
 #  my Hash $reversed-v = $v.kv.reverse.hash;
 
   my Gnome::Gtk3::ToggleButton $w .= new(
-    :label(($question.values // ['toggle']).join(':'))
+    :label(($question.selectlist // ['toggle']).join(':'))
   );
 
   #    $w.set-active($reversed-v{$vname}:exists);

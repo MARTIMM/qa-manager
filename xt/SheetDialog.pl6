@@ -19,7 +19,31 @@ class EH {
       :sheet-name<QAManagerSetDialog>, :$user-data
     );
     my Int $response = $sheet-dialog.show-dialog;
-note 'dialog closed: ', GtkResponseType($response), ', ', $sheet-dialog.dialog-content, ', ', $sheet-dialog.result-user-data.perl;
+
+    note 'dialog closed: ', GtkResponseType($response);
+
+    my $i = 0;
+    sub show-hash ( Hash $h ) {
+      $i++;
+      for $h.keys.sort -> $k {
+        if $h{$k} ~~ Hash {
+          note '  ' x $i, "$k => \{";
+          show-hash($h{$k});
+          note '  ' x $i, '}';
+        }
+
+        elsif $h{$k} ~~ Array {
+          note '  ' x $i, "$k => $h{$k}.perl()";
+        }
+
+        else {
+          note '  ' x $i, "$k => $h{$k}";
+        }
+      }
+      $i--;
+    }
+
+    show-hash($sheet-dialog.result-user-data);
 
     $sheet-dialog.widget-destroy;
   }

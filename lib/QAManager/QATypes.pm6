@@ -136,7 +136,7 @@ The following variables are used in this program;
 
 =item QADataFileType C<$!data-file-type>; You can choose from INI, JSON or TOML. By default it saves the answers in json formatted files.
 
-=item Hash C<$!callback-objects>; User defined callback handlers. The C<$!callback-objects> have two toplevel keys, `actions` to specify action like callbacks and `checks` to have callbacks for checking the input data. The next level is a name which is defined along a question/answer entry. The value of that name key is an array. The first value is the handler object, the second is the method name, the rest are obtional pairs of values which are also provided to the method. The manager will also add some parameters to the method.
+=item Hash C<$!callback-objects>; User defined callback handlers. The C<$!callback-objects> have two toplevel keys, `actions` to specify action like callbacks and `checks` to have callbacks for checking the input data. The next level is a name which is defined along a question/answer entry. The value of that name key is an array. The first value is the handler object, the second is the method name, the rest are optional pairs of values which are also provided to the method. The manager will also add some parameters to the method.
 
 Summarized
 

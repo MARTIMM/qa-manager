@@ -6,26 +6,24 @@ unit class QAManager::Question:auth<github:MARTIMM>;
 use QAManager::QATypes;
 
 has Str $.callback is rw;       # optional to check value
-#has Str $.category is rw;       # when referring to other set
 has Str $.cmpwith is rw;        # optional to check value against other field
 has Any $.default is rw;        # optional default value
 has Str $.description is rw;    # optional
 has Bool $.encode is rw;        # when value must be encoded with sha256
 has Str $.example is rw;        # optional example value for text
-has QAFieldType $.field is rw; # optional = QAEntry, QADialog or QACheckButton
+has QAFieldType $.field is rw;  # optional = QAEntry, QADialog or QACheckButton
 has Int $.height is rw;         # optional height in pixels
 has Bool $.hide is rw;          # optional hide question, default False
 has Bool $.invisible is rw;     # when value is displayed as dotted characters
 has Any $.minimum is rw;        # optional range for string or number type
 has Any $.maximum is rw;        # optional range for string or number type
-has Str $.name is required;
+has Str $.name is required;     # key to values and name in widgets
 has Bool $.repeatable is rw;    # when value is repeatable
 has Bool $.required is rw;      # when value is required
 has Any $.step is rw;           # optional step for scale
 has Str $.title is rw;          # optional = $!name.tclc
 has Str $.tooltip is rw;        # optional tooltip value for tooltip
-#has Str $.set is rw;            # when referring to other set
-has Array $.values is rw;       # when a list is displayed in e.g. combobox
+has Array $.selectlist is rw;   # when a list is displayed in e.g. combobox
 has Int $.width is rw;          # optional width in pixels
 
 #-------------------------------------------------------------------------------
@@ -67,7 +65,7 @@ submethod BUILD ( Str:D :$!name, Hash :$qa-data ) {
   $!invisible = $qa-data<invisible> if $qa-data<invisible>.defined;# // False;
   $!minimum = $qa-data<minimum> if $qa-data<minimum>.defined;
   $!maximum = $qa-data<maximum> if $qa-data<maximum>.defined;
-  $!values = $qa-data<values> if $qa-data<values>.defined;
+  $!selectlist = $qa-data<selectlist> if $qa-data<selectlist>.defined;
   $!required = $qa-data<required> if $qa-data<required>.defined;# // False;
   $!repeatable = $qa-data<repeatable> if $qa-data<repeatable>.defined;    # // False;
   $!step = $qa-data<step> if $qa-data<step>.defined;
@@ -98,7 +96,7 @@ method qa-data ( --> Hash ) {
   $qa-data<step> = $!step if $!step.defined;
   $qa-data<title> = $!title if $!title.defined;
   $qa-data<tooltip> = $!tooltip if $!tooltip.defined;
-  $qa-data<values> = $!values if $!values.defined;
+  $qa-data<selectlist> = $!selectlist if $!selectlist.defined;
   $qa-data<width> = $!width if $!width.defined;
 
   $qa-data
