@@ -82,7 +82,7 @@ note "W: $row, $input-widget.get-name()";
 
   # add a + button to the right when repeatable is set True
   if $!question.repeatable {
-    my Gnome::Gtk3::ToolButton $tb = self!create-toolbutton($input-widget);
+    my Gnome::Gtk3::ToolButton $tb = self!create-toolbutton($row);
     $!grid.grid-attach( $tb, QAButtonColumn, $row, 1, 1);
   }
 
@@ -100,20 +100,65 @@ method !set-values ( ) {
   my $v = $!user-data-set-part{$!question.name};
   my @values = $v ~~ Array ?? @$v !! ($v);
 
-  for @$!input-widgets -> $input-widget {
-    #my Str $widget-name = $input-widget.get-name;
-    self.set-value( $input-widget, @values.shift);
+  if $!question.repeatable {
+    loop ( my Int $i = 0; $i < @values.elems; $i++ ) {
+
+      # just set value if field exists
+      if $!input-widgets[$i].defined {
+        self.set-value( $!input-widgets[$i], @values[$i]);
+      }
+
+      # create a new input row and after that, set value
+      else {
+
+        # get the toolbutton from the previous row to adjust its settings.
+        # $i always > 0 because there is always one field created.
+        my Gnome::Gtk3::ToolButton $toolbutton .= new(
+          :native-object($!grid.get-child-at( QAButtonColumn, $i - 1))
+        );
+
+        # extend by emitting a signal which triggers the 'add-row' method.
+        $toolbutton.emit-by-name('clicked');
+        self.set-value( $!input-widgets[$i], @values[$i]);
+
+#`{{
+        # modify this buttons icon and signal handler
+        my Gnome::Gtk3::Image $image .= new;
+        $image.set-from-icon-name( 'list-remove', GTK_ICON_SIZE_BUTTON);
+        $toolbutton.set-icon-widget($image);
+
+Gnome::N::debug(:on);
+        $toolbutton.handler-disconnect($_handler-id);
+        $toolbutton.register-signal( self, 'delete-row', 'clicked', :row($i-1));
+Gnome::N::debug(:off);
+
+        # create a new row
+        self!create-input-row($i);
+
+        self.set-value( $!input-widgets[$i], @values[$i]);
+}}
+      }
+    }
   }
+
+  else {
+    self.set-value( $!input-widgets[0], @values[0]);
+  }
+
+#  for @$!input-widgets -> $input-widget {
+#    #my Str $widget-name = $input-widget.get-name;
+#    self.set-value( $input-widget, @values.shift);
+#  }
 }
 
 #-------------------------------------------------------------------------------
-method !create-toolbutton ( $input-widget --> Gnome::Gtk3::ToolButton ) {
+method !create-toolbutton ( $row --> Gnome::Gtk3::ToolButton ) {
 
   my Gnome::Gtk3::Image $image .= new;
   $image.set-from-icon-name( 'list-add', GTK_ICON_SIZE_BUTTON);
 
   my Gnome::Gtk3::ToolButton $tb .= new(:icon($image));
-  $tb.register-signal( self, 'add-row', 'clicked', :$input-widget);
+  $tb.register-signal( self, 'add-row', 'clicked', :$row);
 
   $tb
 }
@@ -189,17 +234,15 @@ method create-widget ( Str $widget-name --> Any ) {
 #--[ Signal Handlers ]----------------------------------------------------------
 #-------------------------------------------------------------------------------
 method add-row (
-  Gnome::Gtk3::ToolButton :_widget($toolbutton), Int :$_handler-id,
-  :$input-widget
+  Gnome::Gtk3::ToolButton :_widget($toolbutton), Int :$_handler-id, :$row
 ) {
-note "AR: ", $input-widget.perl;
 
   # modify this buttons icon and signal handler
   my Gnome::Gtk3::Image $image .= new;
   $image.set-from-icon-name( 'list-remove', GTK_ICON_SIZE_BUTTON);
   $toolbutton.set-icon-widget($image);
   $toolbutton.handler-disconnect($_handler-id);
-  $toolbutton.register-signal( self, 'delete-row', 'clicked', :$input-widget);
+  $toolbutton.register-signal( self, 'delete-row', 'clicked', :$row);
 
   # create a new row
   self!create-input-row($!input-widgets.elems);
@@ -207,16 +250,12 @@ note "AR: ", $input-widget.perl;
 
 #-------------------------------------------------------------------------------
 method delete-row (
-  Gnome::Gtk3::ToolButton :_widget($toolbutton), Int :$_handler-id,
-  :$input-widget
+  Gnome::Gtk3::ToolButton :_widget($toolbutton), Int :$_handler-id, :$row
 ) {
 
-note "DR: ", $input-widget.perl;
-
   # delete a row using the name of the toolbutton, see also rename-buttons().
-  my Str ( $n, $r) = $input-widget.get-name.split(':');
-  my Int $row;
-  $row = $r.Int;
+#  my Int $row;
+#  $row = $r.Int;
   $!grid.remove-row($row);
   $!input-widgets.splice( $row, 1);
 
