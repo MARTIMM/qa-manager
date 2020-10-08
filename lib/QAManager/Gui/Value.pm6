@@ -73,9 +73,7 @@ method !create-input-row ( Int $row ) {
     my Str $tooltip = $!question.tooltip;
     .set-tooltip-text($tooltip) if ?$tooltip;
 
-    .register-signal(
-      self, 'check-on-focus-change', 'focus-out-event', :iw($input-widget)
-    );
+    .register-signal( self, 'check-on-focus-change', 'focus-out-event');
   }
 
 note "W: $row, $input-widget.get-name()";
@@ -84,7 +82,7 @@ note "W: $row, $input-widget.get-name()";
 
   # add a + button to the right when repeatable is set True
   if $!question.repeatable {
-    my Gnome::Gtk3::ToolButton $tb = self!create-toolbutton;
+    my Gnome::Gtk3::ToolButton $tb = self!create-toolbutton($input-widget);
     $!grid.grid-attach( $tb, QAButtonColumn, $row, 1, 1);
   }
 
@@ -109,13 +107,13 @@ method !set-values ( ) {
 }
 
 #-------------------------------------------------------------------------------
-method !create-toolbutton ( --> Gnome::Gtk3::ToolButton ) {
+method !create-toolbutton ( $input-widget --> Gnome::Gtk3::ToolButton ) {
 
   my Gnome::Gtk3::Image $image .= new;
   $image.set-from-icon-name( 'list-add', GTK_ICON_SIZE_BUTTON);
 
   my Gnome::Gtk3::ToolButton $tb .= new(:icon($image));
-  $tb.register-signal( self, 'add-row', 'clicked');
+  $tb.register-signal( self, 'add-row', 'clicked', :$input-widget);
 
   $tb
 }
@@ -192,7 +190,7 @@ method create-widget ( Str $widget-name --> Any ) {
 #-------------------------------------------------------------------------------
 method add-row (
   Gnome::Gtk3::ToolButton :_widget($toolbutton), Int :$_handler-id,
-  :iw($input-widget)
+  :$input-widget
 ) {
 note "AR: ", $input-widget.perl;
 
@@ -201,9 +199,7 @@ note "AR: ", $input-widget.perl;
   $image.set-from-icon-name( 'list-remove', GTK_ICON_SIZE_BUTTON);
   $toolbutton.set-icon-widget($image);
   $toolbutton.handler-disconnect($_handler-id);
-  $toolbutton.register-signal(
-    self, 'delete-row', 'clicked', :iw($input-widget)
-  );
+  $toolbutton.register-signal( self, 'delete-row', 'clicked', :$input-widget);
 
   # create a new row
   self!create-input-row($!input-widgets.elems);
@@ -212,7 +208,7 @@ note "AR: ", $input-widget.perl;
 #-------------------------------------------------------------------------------
 method delete-row (
   Gnome::Gtk3::ToolButton :_widget($toolbutton), Int :$_handler-id,
-  :iw($input-widget)
+  :$input-widget
 ) {
 
 note "DR: ", $input-widget.perl;

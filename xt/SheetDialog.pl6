@@ -1,7 +1,7 @@
 #!/usr/bin/env raku
 
 use v6;
-#use lib 'lib';
+#use lib '../gnome-gobject/lib';
 
 use Gnome::Gtk3::Dialog;
 use Gnome::Gtk3::Main;
