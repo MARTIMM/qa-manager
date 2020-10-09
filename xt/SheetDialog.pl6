@@ -10,13 +10,14 @@ use Gnome::Gtk3::Window;
 use Gnome::Gtk3::Button;
 
 use QAManager::Gui::SheetDialog;
+use QAManager::QATypes;
 
 #-------------------------------------------------------------------------------
 class EH {
 
-  method show-dialog ( Hash :$user-data = %() ) {
+  method show-dialog ( ) {
     my QAManager::Gui::SheetDialog $sheet-dialog .= new(
-      :sheet-name<QAManagerSetDialog>, :$user-data
+      :sheet-name<QAManagerSetDialog>
     );
     my Int $response = $sheet-dialog.show-dialog;
 
@@ -54,7 +55,9 @@ class EH {
 }
 
 #-------------------------------------------------------------------------------
+# data structure
 my EH $eh .= new,
+#`{{
 my Hash $user-data = %(
   page1 => %(
     QAManagerDialogs => %(
@@ -73,6 +76,25 @@ my Hash $user-data = %(
   ),
 );
 
+my QAManager::QATypes $qa-types .= instance;
+$qa-types.data-file-type = QAJSON;
+$qa-types.cfgloc-userdata = 'xt/Data';
+$qa-types.qa-save( 'QAManagerSetDialog', $user-data, :userdata);
+#$qa-types.data-file-type = QATOML;
+#$qa-types.qa-save( 'QAManagerSetDialog', $user-data, :userdata);
+
+#note $qa-types.qa-load( 'QAManagerSetDialog', :userdata);
+
+#$qa-types.cfgloc-category;
+#$qa-types.cfgloc-sheet;
+#$qa-types.callback-objects;
+#exit(0);
+}}
+
+my QAManager::QATypes $qa-types .= instance;
+$qa-types.data-file-type = QAJSON;
+$qa-types.cfgloc-userdata = 'xt/Data';
+
 my Gnome::Gtk3::Window $top-window .= new;
 $top-window.set-title('Sheet Dialog Test');
 $top-window.register-signal( $eh, 'exit-app', 'destroy');
@@ -81,7 +103,7 @@ $top-window.window-resize( 300, 1);
 
 my Gnome::Gtk3::Button $dialog-button .= new(:label<Show>);
 $top-window.container-add($dialog-button);
-$dialog-button.register-signal( $eh, 'show-dialog', 'clicked', :$user-data);
+$dialog-button.register-signal( $eh, 'show-dialog', 'clicked');
 
 $top-window.show-all;
 

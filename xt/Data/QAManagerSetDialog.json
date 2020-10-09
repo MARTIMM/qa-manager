@@ -1,0 +1,35 @@
+{
+  "page2": {
+    "QAManagerDialogs": {
+      "entry-spec": {
+        "example": "fgh",
+        "tooltip": [
+          {
+            "tt2": "cvcb"
+          },
+          {
+            "tt1": "vbn"
+          },
+          {
+            "tt3": "vbnvbn"
+          }
+        ],
+        "title": "dsfg",
+        "maximum": "kjl",
+        "default": "ert",
+        "callback": "fghj",
+        "name": "zxcsdffgdsfg",
+        "minimum": "ghjk"
+      }
+    }
+  },
+  "page1": {
+    "QAManagerDialogs": {
+      "set-spec": {
+        "description": "longer text",
+        "name": "my key",
+        "title": "whatsemegaddy"
+      }
+    }
+  }
+}

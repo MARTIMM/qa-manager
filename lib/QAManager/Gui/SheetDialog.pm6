@@ -40,6 +40,7 @@ also is QAManager::Gui::Dialog;
 
 #-------------------------------------------------------------------------------
 has QAManager::Sheet $!sheet;
+has Str $!sheet-name;
 has Hash $!user-data;
 has Hash $.result-user-data;
 has Array $!sets = [];
@@ -52,14 +53,13 @@ submethod new ( |c ) {
 }
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( Str :$sheet-name, Hash :$!user-data = %() ) {
-  $!sheet .= new(:$sheet-name);
+submethod BUILD ( Str :$!sheet-name, Hash :$user-data? is copy ) {
 
-  self!init-dialog;
-}
+  my QAManager::QATypes $qa-types .= instance;
+  $!user-data = $user-data // $qa-types.qa-load( $!sheet-name, :userdata);
+note "\nUD: $!user-data";
 
-#-------------------------------------------------------------------------------
-method !init-dialog {
+  $!sheet .= new(:$!sheet-name);
 
 #note 'sheet: ', $!sheet.perl;
   self.set-style;
@@ -235,4 +235,7 @@ method cancel-dialog ( ) {
 method finish-dialog ( ) {
   note 'dialog finished';
   $!result-user-data = $!user-data;
+
+  my QAManager::QATypes $qa-types .= instance;
+  $qa-types.qa-save( $!sheet-name, $!result-user-data, :userdata);
 }
