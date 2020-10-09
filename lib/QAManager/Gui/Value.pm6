@@ -91,7 +91,7 @@ method !create-input-row ( Int $row ) {
   if $select-list.elems {
     my Gnome::Gtk3::ComboBoxText $cbt = self!create-combobox($select-list);
     $cbt.register-signal(
-      self, 'select-on-focus-change', 'changed', :$input-widget, :$row
+      self, 'combobox-change', 'changed', :$input-widget, :$row
     );
     $!grid.grid-attach( $cbt, QACatColumn, $row, 1, 1);
   }
@@ -131,7 +131,7 @@ method !set-values ( ) {
 
       # set value in field widget
       if $!question.selectlist.defined {
-        my Str ( $input, $select-item) = @values[$row].kv;
+        my Str ( $select-item, $input) = @values[$row].kv;
         self.set-value( $!input-widgets[$row], $input);
 
         my Int $value-index =
@@ -218,7 +218,7 @@ method !adjust-user-data ( $w, $input, Int $row ) {
 
       my Str $select-item = $cbt.get-active-text // $!question.selectlist[0];
 note "T: $cbt.get-active-text()";
-      $!user-data-set-part{$!widget-name}[$row] = $input => $select-item;
+      $!user-data-set-part{$!widget-name}[$row] = $select-item => $input;
     }
 
     else {
@@ -335,7 +335,7 @@ method check-on-focus-change (
 # called when focus changes from an entry in the $!question.selectlist
 # combobox. it must adjust the selection value. no check is needed because
 # input field is not changed.
-method select-on-focus-change (
+method combobox-change (
   :_widget($w), :$input-widget, Int :$row --> Int
 ) {
 
