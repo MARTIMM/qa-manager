@@ -68,7 +68,7 @@ method !load ( ) {
   $!sets = %();
   $!set-data = [];
 
-  my Hash $cat = $!qa-types.qa-load( $!category-name, :!sheet);
+  my Hash $cat = $!qa-types.qa-load($!category-name);
   if ?$cat {
 
     # the rest are sets
