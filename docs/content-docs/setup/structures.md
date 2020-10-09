@@ -111,15 +111,18 @@ The structure of a value provided by the caller or returned by the program, can 
 
 The formats used are shown below for each input type.
 
-* QAEntry:
-  * `$value`                  This supports a single value. `:repeatable` is False and `:selectlist` is ignored.
-  * `[ $value, ]`             This supports repeated values. `:repeatable` is True and `:selectlist` is not defined or empty.
-  * `[ :$value($category), ]` This supports repeated values with a combobox to select categories. `:repeatable` is True and `:selectlist` to fill a combobox must have values.
+|Input Type|Repeatable|Selectlist|Returned|
+|----------|----------|----------|--------|
+|**QAEntry**|⊭|ignored|`$value`
+||⊨|∅|`[ $value, ... ]`
+||⊨|`[ $item, ... ]`|`[ :$category($value), ... ]`
 
-* QACheckButton:
-  * `[ $value, ]`             A list of checked values. When nothing is checked, the array is empty. `:repeatable` and `:selectlist` are ignored.
+ This supports repeated values with a combobox to select categories. `:repeatable` is True and `:selectlist` to fill a combobox, must have values.
 
-* QAComboBox: In all cases `:repeatable` is ignored and `:selectlist` hold the content of the box.
+* QACheckButton: In all cases `:repeatable` and `:selectlist` are ignored.
+  * `[ $value, ]` A list of checked values. When nothing is checked, the array is empty.
+
+* QAComboBox: In all cases `:repeatable` and `:selectlist` are ignored and `:fieldlist` hold the content of the combobox.
   * `$value`                  Single selection.
   * `[ $value, ]`             Multi selection.
 
