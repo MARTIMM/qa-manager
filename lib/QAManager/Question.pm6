@@ -24,6 +24,7 @@ has Any $.step is rw;           # optional step for scale
 has Str $.title is rw;          # optional = $!name.tclc
 has Str $.tooltip is rw;        # optional tooltip value for tooltip
 has Array $.selectlist is rw;   # when a list is displayed in e.g. combobox
+has Array $.fieldlist is rw;    # when a list is displayed in e.g. combobox
 has Int $.width is rw;          # optional width in pixels
 
 #-------------------------------------------------------------------------------
@@ -66,6 +67,7 @@ submethod BUILD ( Str:D :$!name, Hash :$qa-data ) {
   $!minimum = $qa-data<minimum> if $qa-data<minimum>.defined;
   $!maximum = $qa-data<maximum> if $qa-data<maximum>.defined;
   $!selectlist = $qa-data<selectlist> if $qa-data<selectlist>.defined;
+  $!fieldlist = $qa-data<fieldlist> if $qa-data<fieldlist>.defined;
   $!required = $qa-data<required> if $qa-data<required>.defined;# // False;
   $!repeatable = $qa-data<repeatable> if $qa-data<repeatable>.defined;    # // False;
   $!step = $qa-data<step> if $qa-data<step>.defined;
@@ -97,6 +99,7 @@ method qa-data ( --> Hash ) {
   $qa-data<title> = $!title if $!title.defined;
   $qa-data<tooltip> = $!tooltip if $!tooltip.defined;
   $qa-data<selectlist> = $!selectlist if $!selectlist.defined;
+  $qa-data<fieldlist> = $!fieldlist if $!fieldlist.defined;
   $qa-data<width> = $!width if $!width.defined;
 
   $qa-data
