@@ -84,7 +84,10 @@ Questions are what it is all about. In short a piece of text to pose the questio
 * Encoding is done using sha256.
 * select lists in a question descriptions are always arrays.
 * Defaults are always single valued.
+* Callback names are method names in a user class. To provide these information there are several routines defined for this in **QAManager::QATypes**.
+  ```
 
+  ```
 
 ### Answer value format to questions
 
@@ -109,44 +112,22 @@ page-name2 => {
 
 The structure of a value provided by the caller or returned by the program, can differ for each input type.
 
-The formats used are shown below for each input type.
+The formats used are shown below for each input type with the variables which control this output format.
 
 |Input Type|Repeatable|Selectlist|Returned|
-|----------|----------|----------|--------|
-|**QAEntry**|⊭|ignored|`$value`
-||⊨|∅|`[ $value, ... ]`
-||⊨|`[ $item, ... ]`|`[ :$category($value), ... ]`
-
- This supports repeated values with a combobox to select categories. `:repeatable` is True and `:selectlist` to fill a combobox, must have values.
-
-* QACheckButton: In all cases `:repeatable` and `:selectlist` are ignored.
-  * `[ $value, ]` A list of checked values. When nothing is checked, the array is empty.
-
-* QAComboBox: In all cases `:repeatable` and `:selectlist` are ignored and `:fieldlist` hold the content of the combobox.
-  * `$value`                  Single selection.
-  * `[ $value, ]`             Multi selection.
-
-* QAImage:
-  * `$value`                  Path to image.
-
-* QAList: In all cases `:repeatable` is ignored and `:selectlist` hold the content of the list.
-  * `$value`                  Single selection.
-  * `[ $value, ]`             Multi selection.
-
-* QARadioButton: In all cases `:repeatable` is ignored and `:selectlist` hold the content of the radiobutton group.
-  * `$value`                  The one selected from the group.
-
-* QAScale: `:minimum`, `:maximum` and `:step` are used to define the scale widget.
-  * `$value`                  The value set in the scale.
-
-* QASwitch:
-  * `$value`                  True or False.
-
-* QATextView:
-  * `$value`                  Text.
-
-* QAToggleButton:
-  * `$value`                  True or False.
+|------------------|----------|----------|--------|
+|**QAEntry**       |⊭      |ignored|`$value`
+|                  |⊨      |∅|`[ $value, ... ]`
+|                  |⊨      |`[ $item, ... ]`|`[ :$category($value), ... ]`
+|**QACheckButton** |ignored|ignored|`[ $value, ... ]`
+|**QAComboBox**    |ignored|ignored|`$value`
+|**QAImage**       |ignored|ignored|`$value`
+|**QAList**        |ignored|ignored|`[ $value, ... ]`
+|**QARadioButton** |ignored|ignored|`$value`
+|**QAScale**       |ignored|ignored|`$value`
+|**QASwitch**      |ignored|ignored|`$value`
+|**QATextView**    |ignored|ignored|`$value`
+|**QAToggleButton**|ignored|ignored|`$value`
 
 #### A table where field specs are shown for each field type
 
