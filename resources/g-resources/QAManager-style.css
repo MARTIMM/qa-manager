@@ -27,18 +27,20 @@ window {
 */
 
 .fieldNormal {
+/*
   border-color: @field-normal-color;
-  border-width: 1px;
+  border-width: 2px;
+*/
 }
 
 .fieldFail {
   border-color: @field-fail-color;
-  border-width: 1px;
+  border-width: 2px;
 }
 
 .fieldOk {
   border-color: @field-ok-color;
-  border-width: 1px;
+  border-width: 2px;
 }
 
 grid {
