@@ -37,6 +37,9 @@ has Array $!values;
 has Hash $!user-data-set-part;
 has Array $!input-widgets;
 
+# state of current variable. value is True when answer is incorrect
+has Bool $.faulty-state;
+
 #-------------------------------------------------------------------------------
 method initialize ( ) {
 
@@ -112,13 +115,6 @@ method !set-values ( ) {
       # create a new input row if widget didn't exist
       if ! $!input-widgets[$row].defined {
 
-#      if $!input-widgets[$row].defined {
-          # just set value if field widget exists
-#        self.set-value( $!input-widgets[$row], @values[$row]);
-#      }
-
-#      else {
-
         # get the toolbutton from the previous row to adjust its settings.
         # $row always > 0 because there is always one field created.
         my Gnome::Gtk3::ToolButton $toolbutton .= new(
@@ -133,6 +129,7 @@ method !set-values ( ) {
       if $!question.selectlist.defined {
         my Str ( $select-item, $input) = @values[$row].kv;
         self.set-value( $!input-widgets[$row], $input);
+        self!check-value( $!input-widgets[$row], $row);
 
         my Int $value-index =
           $!question.selectlist.first( $select-item, :k) // 0;
@@ -144,12 +141,14 @@ method !set-values ( ) {
 
       else {
         self.set-value( $!input-widgets[$row], @values[$row]);
+        self!check-value( $!input-widgets[$row], $row);
       }
     }
   }
 
   else {
     self.set-value( $!input-widgets[0], @values[0]);
+    self!check-value( $!input-widgets[0], 0);
   }
 }
 
@@ -178,6 +177,68 @@ method !create-combobox ( Array $select-list --> Gnome::Gtk3::ComboBoxText ) {
 }
 
 #-------------------------------------------------------------------------------
+method !adjust-user-data ( $w, $input, Int $row ) {
+
+#  my Str ( $widget-name, $row) = $w.get-name.split(':');
+  if ? $!question.repeatable {
+    if $!question.selectlist.defined {
+      my Gnome::Gtk3::ComboBoxText $cbt .= new(
+        :native-object($!grid.get-child-at( QACatColumn, $row))
+      );
+
+      my Str $select-item = $cbt.get-active-text // $!question.selectlist[0];
+#note "T: $cbt.get-active-text()";
+      $!user-data-set-part{$!widget-name}[$row] = $select-item => $input;
+    }
+
+    else {
+      $!user-data-set-part{$!widget-name}[$row] = $input;
+    }
+  }
+
+  else {
+    $!user-data-set-part{$!widget-name} = $input;
+  }
+}
+
+#-------------------------------------------------------------------------------
+method !check-value ( $w, Int $row ) {
+
+  $!faulty-state = False;
+
+  my $input = self.get-value($w);
+
+  if $!question.callback {
+    my QAManager::QATypes $qa-types .= instance;
+    my Array $cb-spec = $qa-types.get-check-handler($!question.callback);
+    my ( $handler-object, $method-name, $options) = @$cb-spec;
+    my $message = $handler-object."$method-name"( $input, |%$options);
+    if ?$message {
+#TODO show message dialog
+note $message;
+      $!faulty-state = True;
+    }
+  }
+
+  # overrule other states if required and still empty
+  $!faulty-state = ($!faulty-state or (?$!question.required and !$input));
+
+  if $!faulty-state {
+    self!set-status-hint( $w, QAStatusFail);
+  }
+
+  elsif ? $!question.required {
+    self!set-status-hint( $w, QAStatusOk);
+    self!adjust-user-data( $w, $input, $row);
+  }
+
+  else {
+    self!set-status-hint( $w, QAStatusNormal);
+    self!adjust-user-data( $w, $input, $row);
+  }
+}
+
+#-------------------------------------------------------------------------------
 method !set-status-hint ( $widget, InputStatusHint $status ) {
   my Gnome::Gtk3::StyleContext $context .= new(
     :native-object($widget.get-style-context)
@@ -203,31 +264,6 @@ method !set-status-hint ( $widget, InputStatusHint $status ) {
   }
 
   else {
-  }
-}
-
-#-------------------------------------------------------------------------------
-method !adjust-user-data ( $w, $input, Int $row ) {
-
-#  my Str ( $widget-name, $row) = $w.get-name.split(':');
-  if ? $!question.repeatable {
-    if $!question.selectlist.defined {
-      my Gnome::Gtk3::ComboBoxText $cbt .= new(
-        :native-object($!grid.get-child-at( QACatColumn, $row))
-      );
-
-      my Str $select-item = $cbt.get-active-text // $!question.selectlist[0];
-note "T: $cbt.get-active-text()";
-      $!user-data-set-part{$!widget-name}[$row] = $select-item => $input;
-    }
-
-    else {
-      $!user-data-set-part{$!widget-name}[$row] = $input;
-    }
-  }
-
-  else {
-    $!user-data-set-part{$!widget-name} = $input;
   }
 }
 
@@ -292,39 +328,10 @@ method delete-row (
 
 #-------------------------------------------------------------------------------
 method check-on-focus-change (
-  N-GdkEventFocus $event, :_widget($w), Int :$row --> Int
+  N-GdkEventFocus $, :_widget($w), Int :$row --> Int
 ) {
 
-#note 'focus change';
-  my $input = self.get-value($w);
-
-  my Bool $faulty-state;
-#`{{
-  my Str $cb-name = ($!callback-name // '_') ~ '-sts';
-  if ?$*callback-object and $*callback-object.^can($cb-name) {
-    $faulty-state = $*callback-object."$cb-name"( :$input, :$kv);
-  }
-
-  else {
-    $faulty-state = (?$kv<required> and !$input);
-  }
-}}
-  $faulty-state = (?$!question.required and !$input);
-
-  if $faulty-state {
-    self!set-status-hint( $w, QAStatusFail);
-  }
-
-  elsif ? $!question.required {
-    self!set-status-hint( $w, QAStatusOk);
-    self!adjust-user-data( $w, $input, $row);
-  }
-
-  else {
-    self!set-status-hint( $w, QAStatusNormal);
-    self!adjust-user-data( $w, $input, $row);
-  }
-
+  self!check-value( $w, $row);
 
   # must propogate further to prevent messages when notebook page is switched
   # otherwise it would do ok to return 1.
@@ -332,14 +339,13 @@ method check-on-focus-change (
 }
 
 #-------------------------------------------------------------------------------
-# called when focus changes from an entry in the $!question.selectlist
-# combobox. it must adjust the selection value. no check is needed because
+# called when a selection changes in the $!question.selectlist combobox.
+# it must adjust the selection value. no check is needed because
 # input field is not changed.
 method combobox-change (
   :_widget($w), :$input-widget, Int :$row --> Int
 ) {
 
-note 'select focus change';
   my $input = self.get-value($input-widget);
   self!adjust-user-data( $input-widget, $input, $row);
 
@@ -354,11 +360,6 @@ note 'select focus change';
 
 
 =finish
-
-#-------------------------------------------------------------------------------
-method check-value ( ) {
-  ...
-}
 
 #-------------------------------------------------------------------------------
 method get-values ( --> Array ) {

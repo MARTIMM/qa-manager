@@ -108,12 +108,22 @@ submethod BUILD (
       :$question, :$question-grid, :row($grid-row), :$!user-data-set-part
     );
     $!questions.push: $gui-q;
-#    $gui-q.display;
-
     $grid-row++;
-
-    # set value from user data
-
-    # store in array
   }
+}
+
+#-------------------------------------------------------------------------------
+method query-state ( --> Bool ) {
+
+  my Bool $faulty-state = False;
+  for @$!questions -> $question {
+
+    # this question is not ok when True
+    if $question.query-state {
+      $faulty-state = True;
+      last;
+    }
+  }
+
+  $faulty-state
 }

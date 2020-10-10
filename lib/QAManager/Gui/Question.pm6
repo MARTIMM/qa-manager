@@ -18,6 +18,7 @@ has Int $!grid-row;
 has Hash $!user-data-set-part;
 has QAManager::Question $!question;
 #has Array $!input-widgets;
+has $!input-widget;
 
 #-------------------------------------------------------------------------------
 submethod BUILD (
@@ -64,23 +65,25 @@ method display ( ) {
   }
 
   else {
-    my $input-widget = ::($module-name).new(
+    $!input-widget = ::($module-name).new(
       :$!question, :$!user-data-set-part
     );
-#    $!input-widgets.push: $input-widget;
-    $!question-grid.grid-attach( $input-widget, QAAnswer, $!grid-row, 1, 1);
+    $!question-grid.grid-attach( $!input-widget, QAAnswer, $!grid-row, 1, 1);
   }
 }
 
-#`{{
 #-------------------------------------------------------------------------------
-method set-values ( ) {
-  for @$!input-widgets -> $input-widget {
-    my Str $widget-name = $input-widget.get-name;
-    $input-widget.set-value($!user-data-set-part{$!question.name} // '');
+method query-state ( --> Bool ) {
+
+  # not all widgets are implemented
+  if $!input-widget.defined {
+    $!input-widget.faulty-state
+  }
+
+  else {
+    False
   }
 }
-}}
 
 
 
@@ -89,6 +92,16 @@ method set-values ( ) {
 
 
 =finish
+
+#`{{
+#-------------------------------------------------------------------------------
+method set-values ( ) {
+for @$!input-widgets -> $input-widget {
+my Str $widget-name = $input-widget.get-name;
+$input-widget.set-value($!user-data-set-part{$!question.name} // '');
+}
+}
+}}
 
 use v6;
 

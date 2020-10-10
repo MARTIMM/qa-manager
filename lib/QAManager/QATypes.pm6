@@ -92,9 +92,9 @@ my QAManager::QATypes $instance;
 
 has QADataFileType $.data-file-type is rw;
 has Str $.cfgloc-userdata is rw;
-has Hash $.callback-objects is rw;
 has Str $.cfgloc-category is rw;
 has Str $.cfgloc-sheet is rw;
+has Hash $!callback-objects;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -124,26 +124,10 @@ The users application can modify the variables before opening any query sheets. 
 
 =item QADataFileType C<$!data-file-type>; You can choose from QAJSON or QATOML. By default it loads and saves the answers to questions in json formatted files.
 
-=item Hash C<$!callback-objects>; User defined callback handlers. The C<$!callback-objects> have two toplevel keys, `actions` to specify action like callbacks and `checks` to have callbacks for checking the input data. The next level is a name which is defined along a question/answer entry. The value of that name key is an array. The first value is the handler object, the second is the method name, the rest are optional pairs of values which are also provided to the method. The manager will also add some parameters to the method.
-
-Summarized
-
-  $!callback-objects = %(
-      actions => %(
-        user-key => [ $handler-object, $method-name, :myval1($val1), ...],
-        ...
-      ),
-      checks => %(
-        user-key => [ $handler-object, $method-name, :myval1($val1), ...],
-        ...
-      ),
-    );
-
-See also subroutine C<set-handler()>.
 
 =item Str C<$!cfgloc-category>; Location where categories are stored. Default is C<$!HOME/.config/QAManager/Categories.d> on *nix systems.
 =item Str C<$!cfgloc-sheet>; Location where sheets are stored. Default is C<$!HOME/.config/QAManager/Sheets.d> on *nix systems.
-=item Str C<$!cfgloc-userdata>; Location where userdata is stored. Default is C<$!HOME/.config/$*PROGRAM-NAME> on *nix systems.
+=item Str C<$!cfgloc-userdata>; Location where userdata is stored. Default is C<$!HOME/.config/<modified $*PROGRAM-NAME>> on *nix systems.
 
 If any of C<$!cfgloc-category>, C<$!cfgloc-sheet> or C<$!cfgloc-userdata> is changed, make sure that the directories exists!
 
@@ -160,7 +144,7 @@ method instance ( --> QAManager::QATypes ) {
 =begin pod
 =head2 qa-path
 
-Return a path where a QA based sheet or category should be found.
+Return a path where a QA based sheet or category should be found. When C<:userdata> is used, the user info for the sheet is searched for.
 
   multi method qa-path( Str:D $qa-filename, :sheet --> Str )
   multi method qa-path( Str:D $qa-filename, :userdata --> Str )
@@ -189,7 +173,7 @@ multi method qa-path( Str:D $qa-filename --> Str ) {
 =begin pod
 =head2 qa-load
 
-Load a JSON QA based sheet or category file into a Hash. There is no use for it directly. To load data, use the modules B<QManager::Category> or B<QManager::Sheet>.
+Load a JSON QA based sheet or category file into a Hash. There is no use for it directly. To load data, use the modules B<QManager::Category> or B<QManager::Sheet>. C<:userdata> is used to load fill the forms.
 
   multi method qa-load (
     Str:D $qa-filename, :sheet, Str :$qa-path? --> Hash
@@ -214,7 +198,6 @@ multi method qa-load (
   --> Hash
 ) {
   $qa-path //= self.qa-path( $qa-filename, :sheet);
-note "load sheet from $qa-path";
 
   my Hash $data = from-json($qa-path.IO.slurp) if $qa-path.IO.r;
   $data // Hash
@@ -231,18 +214,15 @@ multi method qa-load (
   given $!data-file-type {
     when QAJSON {
       $qa-path ~~ s/ \.cfg $/.json/;
-note $qa-path;
       $data = from-json($qa-path.IO.slurp) if $qa-path.IO.r;
     }
 
     when QATOML {
       $qa-path ~~ s/ \.cfg $/.toml/;
-note $qa-path;
       $data = from-toml($qa-path.IO.slurp) if $qa-path.IO.r;
     }
   }
 
-note $qa-path;
   $data // Hash
 }
 
@@ -257,7 +237,7 @@ multi method qa-load ( Str:D $qa-filename, Str :$qa-path? is copy --> Hash ) {
 =begin pod
 =head2 qa-save
 
-Save a Hash of QA type data into a file. There is no use for it directly. To save data, use the modules B<QManager::Category> or B<QManager::Sheet>.
+Save a Hash of QA type data into a file. There is no use for it directly. To save data, use the modules B<QManager::Category> or B<QManager::Sheet>. C<:userdata> is used to save data read from the forms.
 
   multi method qa-save (
     Str:D $qa-filename, Hash:D $qa-data, :sheet!, Str :$qa-path?
@@ -320,8 +300,7 @@ multi method qa-save (
 Remove a QA type data file. There is no use for it directly. To remove data, use the modules B<QManager::Category> or B<QManager::Sheet>.
 
   method qa-remove (
-    Str $qa-filename = '__zzz__', Bool :$sheet = False,
-    Str :$qa-path
+    Str:D $qa-filename, Bool :$sheet = False, Str :$qa-path
   )
 
 =item Str $qa-filename; the filename for the category or sheet.
@@ -331,7 +310,7 @@ Remove a QA type data file. There is no use for it directly. To remove data, use
 
 #tm:1:qa-remove
 method qa-remove (
-  Str $qa-filename = '__zzz__', Bool :$sheet = False, Str :$qa-path is copy
+  Str:D $qa-filename, Bool :$sheet = False, Str :$qa-path is copy
 ) {
   $qa-path //= self.qa-path( $qa-filename, :$sheet);
   unlink $qa-path;
@@ -365,7 +344,56 @@ method qa-list ( Bool :$sheet = False, Str :$qa-path is copy --> List ) {
 }
 
 #-------------------------------------------------------------------------------
-#tm:0:init:
+=begin pod
+=head2 set-handler
+
+set-handler is used to set a user defined callback handler. When in a question the callback specification is used, the value of it is used to find the callback. Callbacks can have one of two purposes. First is to check an input from the sheet. Second is to perform some action (this is not implemented yet).
+
+  method set-action-handler (
+    Str:D $callback-key, Mu:D $handler-object, Str:D $method-name,
+    *%options
+  )
+
+  method set-check-handler (
+    Str:D $callback-key, Mu:D $handler-object, Str:D $method-name,
+    *%options
+  )
+
+=end pod
+
+#tm:0:set-action-handler
+method set-action-handler (
+  Str:D $callback-key, Mu:D $handler-object, Str:D $method-name, *%options
+) {
+  $!callback-objects<actions>{$callback-key} = [
+    $handler-object, $method-name, %options
+  ];
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#tm:1:
+method set-check-handler (
+  Str:D $callback-key, Mu:D $handler-object, Str:D $method-name, *%options
+) {
+  $!callback-objects<checks>{$callback-key} = [
+    $handler-object, $method-name, %options
+  ];
+}
+
+#-------------------------------------------------------------------------------
+#tm:0:get-handler(:action)
+method get-action-handler ( Str:D $callback-key --> Array ) {
+  $!callback-objects<actions>{$callback-key}
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#tm:1:get-handler(:check)
+method get-check-handler ( Str:D $callback-key --> Array ) {
+  $!callback-objects<checks>{$callback-key}
+}
+
+#-------------------------------------------------------------------------------
+#tm:1:!init:
 method !init ( ) {
 
   $!data-file-type = QAJSON;
@@ -373,7 +401,6 @@ method !init ( ) {
     actions => %(),
     checks => %(),
   );
-
 
   if $*DISTRO.is-win {
   }

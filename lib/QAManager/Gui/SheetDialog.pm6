@@ -57,7 +57,6 @@ submethod BUILD ( Str :$!sheet-name, Hash :$user-data? is copy ) {
 
   my QAManager::QATypes $qa-types .= instance;
   $!user-data = $user-data // $qa-types.qa-load( $!sheet-name, :userdata);
-note "\nUD: $!user-data";
 
   $!sheet .= new(:$!sheet-name);
 
@@ -184,11 +183,14 @@ method set-style ( ) {
 method !create-button (
   Str $widget-name, Str $method-name, GtkResponseType $response-type
 ) {
+
+  # change text of label on button when defined in the button map structure
   my Hash $button-map = $!sheet.button-map // %();
   my Gnome::Gtk3::Button $button .= new;
   my Str $button-text = $widget-name;
   $button-text = $button-map{$widget-name} if ?$button-map{$widget-name};
 
+  # change some other parameters and register a signal
   $button.set-name($widget-name);
   $button.set-label($button-text.tc);
   $button.register-signal( self, $method-name, 'clicked');
@@ -228,14 +230,41 @@ method !create-page( Str $title, Str $description --> Hash ) {
 
 #-------------------------------------------------------------------------------
 method cancel-dialog ( ) {
-  note 'dialog cancelled';
+
+note 'dialog cancelled';
+#TODO show optional 'are you sure' message dialog
 }
 
 #-------------------------------------------------------------------------------
 method finish-dialog ( ) {
-  note 'dialog finished';
-  $!result-user-data = $!user-data;
 
-  my QAManager::QATypes $qa-types .= instance;
-  $qa-types.qa-save( $!sheet-name, $!result-user-data, :userdata);
+note 'dialog finished';
+
+  if self.query-state {
+note "There are still missing or wrong answers, cannot save data";
+#TODO show message dialog
+#TODO keep dialog open
+  }
+
+  else {
+    $!result-user-data = $!user-data;
+    my QAManager::QATypes $qa-types .= instance;
+    $qa-types.qa-save( $!sheet-name, $!result-user-data, :userdata);
+  }
+}
+
+#-------------------------------------------------------------------------------
+method query-state ( --> Bool ) {
+
+  my Bool $faulty-state = False;
+  for @$!sets -> $set {
+
+    # this question is not ok when True
+    if $set.query-state {
+      $faulty-state = True;
+      last;
+    }
+  }
+
+  $faulty-state
 }
