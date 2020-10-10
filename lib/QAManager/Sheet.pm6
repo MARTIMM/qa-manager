@@ -48,7 +48,6 @@ method !load ( ) {
 
   my Hash $sheet = $!qa-types.qa-load( $!sheet-name, :sheet);
   if ?$sheet {
-note "sk: $sheet.keys()";
     $!display =
       QADisplayType(QADisplayType.enums{$sheet<display>//''}) // QANoteBook;
     $!display-properties = $sheet<display-properties> // %();

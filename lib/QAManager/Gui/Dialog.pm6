@@ -68,7 +68,6 @@ submethod BUILD ( ) {
 
 #-------------------------------------------------------------------------------
 method set-dialog-size ( Int $width = 300, Int $height = 300 ) {
-note "sds: $width, $height";
   self.set-size-request( $width, $height);
   self.window-resize( $width, $height);
 }
