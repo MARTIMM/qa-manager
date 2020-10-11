@@ -8,6 +8,10 @@ layout: sidebar
 
 See [semantic versioning](http://semver.org/). Please note point 4. on that page: **_Major version zero (0.y.z) is for initial development. Anything may change at any time. The public API should not be considered stable._**
 
+#### 2020-10-11 0.8.1
+  * Dialog is kept visible when errors are still there. Also a message dialog is shown telling about the error.
+  * An optional 'are you sure' message is shown on Cancel. When yes is clicked, the dialog is closed.
+
 #### 2020-10-10 0.8.0
 * Sheet dialog is getting its form
   * QANotebook representation implemented
