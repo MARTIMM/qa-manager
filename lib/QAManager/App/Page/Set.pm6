@@ -26,7 +26,7 @@ use Gnome::Gtk3::Dialog;
 use QAManager::Category;
 use QAManager::Set;
 use QAManager::KV;
-use QAManager::Gui::DeleteMsgDialog;
+use QAManager::Gui::YNMsgDialog;
 use QAManager::Gui::Part::Set;
 
 #Gnome::N::debug(:on);
@@ -303,8 +303,8 @@ method set-delete ( ) {
   my Str ( $cat-name, $set-name) = self!get-path-values;
 
   #
-  my QAManager::Gui::DeleteMsgDialog $dm .= new(
-    :info("set <b>$set-name\</b> from <b>$cat-name\</b>")
+  my QAManager::Gui::YNMsgDialog $dm .= new(
+    :message("set <b>$set-name\</b> from <b>$cat-name\</b>")
   );
 
   if GtkResponseType($dm.gtk-dialog-run) ~~ GTK_RESPONSE_YES {
@@ -360,8 +360,8 @@ method qa-delete ( ) {
   my Str $qa-name = $va[0].get-string;
   $va[0].clear-object;
 
-  my QAManager::Gui::DeleteMsgDialog $dm .= new(
-    :info("question entry <b>$qa-name\</b>")
+  my QAManager::Gui::YNMsgDialog $dm .= new(
+    :message("question entry <b>$qa-name\</b>")
   );
 
   if GtkResponseType($dm.gtk-dialog-run) ~~ GTK_RESPONSE_YES {

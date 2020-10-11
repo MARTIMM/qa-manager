@@ -11,18 +11,18 @@ use Gnome::Gtk3::MessageDialog;
 use Gnome::Gtk3::Window;
 
 #-------------------------------------------------------------------------------
-unit class QAManager::Gui::DeleteMsgDialog;
+unit class QAManager::Gui::YNMsgDialog;
 also is Gnome::Gtk3::MessageDialog;
 
 #-------------------------------------------------------------------------------
-submethod new ( Str :$info, |c ) {
+submethod new ( Str :$message, |c ) {
 
   # let the Gnome::Gtk3::MessageDialog class process the options
   self.bless(
     :GtkMessageDialog, :flags(GTK_DIALOG_MODAL), :type(GTK_MESSAGE_WARNING),
-    :buttons(GTK_BUTTONS_YES_NO),
-    :markup-message('Are you realy sure to delete ' ~ $info ~ '?'),
-    |c);
+    :buttons(GTK_BUTTONS_YES_NO), :markup-message($message),
+    |c
+  );
 }
 
 #-------------------------------------------------------------------------------
@@ -35,6 +35,7 @@ submethod BUILD ( *%options ) {
   my Gnome::Gdk3::Pixbuf $win-icon .= new(
     :file(%?RESOURCES<icons8-invoice-100.png>.Str)
   );
+
   my Gnome::Glib::Error $e = $win-icon.last-error;
   if $e.is-valid {
     note "Error icon file: $e.message()";

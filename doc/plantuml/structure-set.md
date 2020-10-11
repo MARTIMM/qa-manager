@@ -26,7 +26,7 @@ QAManager::App::Application --> QAManager::App::Page::Set
 QAManager::App::Page::Set --> QAManager::Category
 QAManager::App::Page::Set --> QAManager::Set
 QAManager::App::Page::Set --> QAManager::KV
-QAManager::App::Page::Set -> QAManager::Gui::DeleteMsgDialog
+QAManager::App::Page::Set -> QAManager::Gui::YNMsgDialog
 QAManager::App::Page::Set --> QAManager::Gui::Part::Set
 note "See structure for\n 'the set demo dialog'" as N1
 QAManager::Gui::Part::Set .. N1
@@ -51,7 +51,7 @@ QAManager::KV --> QAManager::QATypes
 'QAManager::Gui::Main --> QAManager::QATypes
 'QAManager::Gui::Main --> QAManager::Set
 
-Gnome::Gtk3::MessageDialog <|-- QAManager::Gui::DeleteMsgDialog
+Gnome::Gtk3::MessageDialog <|-- QAManager::Gui::YNMsgDialog
 
 'QAManager::Gui::SetDemoDialog --> QAManager::QATypes
 'QAManager::Gui::SetDemoDialog --> QAManager::Category
