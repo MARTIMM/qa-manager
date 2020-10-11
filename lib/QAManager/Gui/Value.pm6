@@ -227,7 +227,7 @@ note $message;
     self!set-status-hint( $w, QAStatusFail);
   }
 
-  elsif ? $!question.required {
+  elsif ? $!question.required or $!question.callback.defined {
     self!set-status-hint( $w, QAStatusOk);
     self!adjust-user-data( $w, $input, $row);
   }
