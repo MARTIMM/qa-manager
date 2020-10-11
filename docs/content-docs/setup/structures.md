@@ -85,9 +85,6 @@ Questions are what it is all about. In short a piece of text to pose the questio
 * select lists in a question descriptions are always arrays.
 * Defaults are always single valued.
 * Callback names are method names in a user class. To provide these information there are several routines defined for this in **QAManager::QATypes**.
-  ```
-
-  ```
 
 ### Answer value format to questions
 
