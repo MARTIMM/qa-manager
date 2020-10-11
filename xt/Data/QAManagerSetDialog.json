@@ -2,22 +2,17 @@
   "page1": {
     "QAManagerDialogs": {
       "set-spec": {
+        "title": "whatsemegaddy",
         "name": "dsf",
-        "description": "longer text",
-        "title": "whatsemegaddy"
+        "description": "longer text"
       }
     }
   },
   "page2": {
     "QAManagerDialogs": {
       "entry-spec": {
-        "title": "dsfg",
-        "default": "ert",
-        "example": "fgh",
-        "maximum": "kjl",
-        "name": "zxcsdffgdsfg",
-        "callback": "fghj",
         "minimum": "ghjk",
+        "example": "fgh",
         "tooltip": [
           {
             "tt2": "cvcb"
@@ -28,7 +23,12 @@
           {
             "tt3": "vbnvbn"
           }
-        ]
+        ],
+        "default": "ert",
+        "name": "zxcsdffgdsfg",
+        "maximum": "kjl",
+        "callback": "fghj",
+        "title": "dsfg"
       }
     }
   }
