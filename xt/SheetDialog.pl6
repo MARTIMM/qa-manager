@@ -17,7 +17,7 @@ class EH {
 
   method show-dialog ( ) {
     my QAManager::Gui::SheetDialog $sheet-dialog .= new(
-      :sheet-name<QAManagerSetDialog>
+      :sheet-name<QAManagerSetDialog> #, :close-message
     );
     my Int $response = $sheet-dialog.show-dialog;
 
@@ -45,8 +45,6 @@ class EH {
     }
 
     show-hash($sheet-dialog.result-user-data);
-
-    $sheet-dialog.widget-destroy;
   }
 
   method exit-app ( ) {

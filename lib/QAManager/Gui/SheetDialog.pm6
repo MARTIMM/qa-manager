@@ -22,6 +22,8 @@ use QAManager::Gui::Set;
 use QAManager::Gui::Question;
 use QAManager::Gui::Dialog;
 use QAManager::Gui::Frame;
+use QAManager::Gui::YNMsgDialog;
+use QAManager::Gui::OkMsgDialog;
 use QAManager::Set;
 #use QAManager::Category;
 #use QAManager::Question;
@@ -231,8 +233,17 @@ method !create-page( Str $title, Str $description --> Hash ) {
 #-------------------------------------------------------------------------------
 method cancel-dialog ( ) {
 
-note 'dialog cancelled';
-#TODO show optional 'are you sure' message dialog
+#note 'dialog cancelled';
+  my QAManager::Gui::YNMsgDialog $yn .= new(
+    :message("Are you sure to cancel?\nAll changes will be lost!")
+  );
+
+  my $r = GtkResponseType($yn.dialog-run);
+  note "R: $r";
+  $yn.widget-destroy;
+
+  my Bool $done = ( $r ~~ GTK_RESPONSE_YES );
+  self.widget-destroy if $done;
 }
 
 #-------------------------------------------------------------------------------
@@ -244,12 +255,19 @@ note 'dialog finished';
 note "There are still missing or wrong answers, cannot save data";
 #TODO show message dialog
 #TODO keep dialog open
+    my QAManager::Gui::OkMsgDialog $yn .= new(
+      :message("There are still missing or wrong answers, cannot save data")
+    );
+
+    GtkResponseType($yn.dialog-run);
+    $yn.widget-destroy;
   }
 
   else {
     $!result-user-data = $!user-data;
     my QAManager::QATypes $qa-types .= instance;
     $qa-types.qa-save( $!sheet-name, $!result-user-data, :userdata);
+    self.widget-destroy;
   }
 }
 
