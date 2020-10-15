@@ -22,6 +22,7 @@ use QAManager::Gui::Set;
 use QAManager::Gui::Question;
 use QAManager::Gui::Dialog;
 use QAManager::Gui::Frame;
+use QAManager::Gui::Statusbar;
 use QAManager::Gui::YNMsgDialog;
 use QAManager::Gui::OkMsgDialog;
 use QAManager::Set;
