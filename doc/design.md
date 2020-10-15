@@ -98,6 +98,7 @@ Summarized
   * [ ] Dialog
 
 ## Category
+* Rethink the way that categories are made. Now several Sets are stored in a Category file. Why not store the sets in separate files placed in separate category directories. The Category did not held other information than the set data so that does not not need to account for. Checking for files in a directory might be easier.
 * [x] create/load a category
 * [x] save a category
 * [x] delete a category
