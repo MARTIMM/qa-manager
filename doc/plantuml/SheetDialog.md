@@ -55,6 +55,7 @@ class QAManager::Gui::SheetDialog {
 QAManager::Gui::Dialog <|-- QAManager::Gui::SheetDialog
 QAManager::Gui::Set "*" <-* QAManager::Gui::SheetDialog
 QAManager::Gui::SheetDialog <--* UserApp
+QAManager::Gui::StatusBar <--* QAManager::Gui::SheetDialog
 
 QAManager::Gui::Value <|.. QAManager::Gui::QAIOWidget
 QAManager::Gui::Frame <|-- QAManager::Gui::Value
