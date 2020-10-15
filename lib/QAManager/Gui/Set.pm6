@@ -85,13 +85,14 @@ submethod BUILD (
   my Int $question-grid-row = 0;
   $question-grid.grid-attach( $description, 0, $question-grid-row++, 3, 1);
 
+  # a separator made a bit shorter on the sides
   my Gnome::Gtk3::Separator $sep .= new(
     :orientation(GTK_ORIENTATION_HORIZONTAL)
   );
-  # Need next alignment because in a grid the grid has the proper size but the
-  # separator does not. By default it is a FILL  so it shows as a ectangle
-  # overlapping the next row. this must be a bug!
-  $sep.set-valign(GTK_ALIGN_START);
+  $sep.widget-set-margin-bottom(3);
+  $sep.set-sensitive(False);
+  $sep.set-margin-start(10);
+  $sep.set-margin-end(10);
   $question-grid.grid-attach( $sep, 0, $question-grid-row++, 3, 1);
 
   # show set with user data if any
@@ -105,7 +106,7 @@ submethod BUILD (
   my $c := $!set.clone;
   for $c -> QAManager::Question $question {
     my QAManager::Gui::Question $gui-q .= new(
-      :$question, :$question-grid, :row($grid-row), :$!user-data-set-part
+      :$question, :$question-grid, :row($question-grid-row++), :$!user-data-set-part
     );
     $!questions.push: $gui-q;
     $grid-row++;
