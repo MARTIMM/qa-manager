@@ -51,7 +51,7 @@ has Array[QAManager::Gui::Question] $!questions;
 #-------------------------------------------------------------------------------
 # Display a set on a given grid at given row
 submethod BUILD (
-  Gnome::Gtk3::Grid :$grid, Int:D :$grid-row is copy = 0,
+  Gnome::Gtk3::Grid :$grid, Int:D :$grid-row,
   Str:D :$category-name, Str:D :$set-name, Hash:D :$!user-data-set-part
 ) {
 
@@ -97,7 +97,7 @@ submethod BUILD (
 
   # show set with user data if any
 #  my QAManager::Gui::Question $question .= new(
-#    :$!set, :$question-grid, :starting-grid-row($grid-row),
+#    :$!set, :$question-grid, :starting-grid-row($question-grid-row),
 #    :$!user-data-set-part
 #  );
   #$question.build-set-fields;
@@ -109,7 +109,7 @@ submethod BUILD (
       :$question, :$question-grid, :row($question-grid-row++), :$!user-data-set-part
     );
     $!questions.push: $gui-q;
-    $grid-row++;
+    $question-grid-row++;
   }
 }
 
