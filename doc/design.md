@@ -91,11 +91,30 @@ Summarized
 * [x] remove a set
 * [x] specify representation
 
-* Representation of the sheet
-  * [ ] Assistant
-  * [x] NoteBook
-  * [ ] Stack
-  * [ ] Dialog
+* Representation of the sheet. The labels of the mentioned buttons can be changed using mappings in the sheet data but not their actions.
+  * [ ] Assistant.
+    * Complete input form with several pages.
+    * Each page is viewable in a sidebar.
+    * It can show more than one set of questions on each page.
+    * It will show _Cancel_, _Next_, _Back_ or _Apply_ buttons.
+    * The title of the page is shown in the sidebar.
+    * The order through the pages is only from the first to the last page.
+    * Buttons can select next or previous page.
+    * Status of input fields can block the progress to the next page.
+  * [x] NoteBook.
+    * Complete input form with several pages.
+    * Each page is selectable using tabs at the top.
+    * It can show more than one set of questions on each page.
+    * It will  how _Cancel_ or _Finish_ buttons.
+    * The title of the page is shown in the tab.
+    * Dialog has a status field at the bottom.
+  * [ ] Stack.
+  * [ ] Dialog.
+    * Simple input form with only one page (the first if more in the sheet data).
+    * It can show more than one set of questions on that page.
+    * It will show _Cancel_ or _Finish_ buttons.
+    * The description and title of the page is ignored.
+    * Dialog has a status field at the bottom.
 
 ## Category
 * Rethink the way that categories are made. Now several Sets are stored in a Category file. Why not store the sets in separate files placed in separate category directories. The Category did not held other information than the set data so that does not not need to account for. Checking for files in a directory might be easier.
