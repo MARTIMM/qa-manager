@@ -22,6 +22,10 @@ class EH {
     my Int $response = $sheet-dialog.show-dialog;
 
     note 'dialog closed: ', GtkResponseType($response);
+    if GtkResponseType($response) ~~ GTK_RESPONSE_DELETE_EVENT {
+      note 'Closing dialog, ignoring all tests!';
+      $sheet-dialog.widget-destroy;
+    }
 
     my $i = 0;
     sub show-hash ( Hash $h ) {

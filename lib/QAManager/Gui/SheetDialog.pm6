@@ -49,8 +49,7 @@ has Hash $.result-user-data;
 has Array $!sets = [];
 
 #-------------------------------------------------------------------------------
-# must repeat this new call because it won't call the one of
-# QAManager::Gui::SetDemoDialog
+# initialize the Gtk Dialog
 submethod new ( |c ) {
   self.bless( :GtkDialog, |c);
 }
@@ -63,74 +62,40 @@ submethod BUILD ( Str :$!sheet-name, Hash :$user-data? is copy ) {
 
   $!sheet .= new(:$!sheet-name);
 
-#note 'sheet: ', $!sheet.perl;
-  self.set-style;
+  self!set-style;
   self.set-dialog-size( $!sheet.width, $!sheet.height);
 
-#  my Int ( $total-width, $total-height) = ( 0, 0);
-#  my N-GtkAllocation $alloc;
+  my Gnome::Gtk3::Grid $grid = self.dialog-content;
 
   given $!sheet.display {
     when QADialog {
     }
 
     when QANoteBook {
-      my Gnome::Gtk3::Grid $grid = self.dialog-content;
-
+      # create a notebook and place on the grid of the dialog
       my Gnome::Gtk3::Notebook $notebook .= new;
       $notebook.widget-set-hexpand(True);
       $notebook.widget-set-vexpand(True);
-#      $notebook.set-name();
       $grid.grid-attach( $notebook, 0, 0, 1, 1);
 
+      # add some buttons specific for this notebook
       self!create-button( 'cancel', 'cancel-dialog', GTK_RESPONSE_CANCEL);
       self!create-button( 'finish', 'finish-dialog', GTK_RESPONSE_OK);
 
       # for each page ...
-#      my Int ( $max-width, $max-height) = ( 0, 0);
       my $pages := $!sheet.clone;
       for $pages -> Hash $page {
 
-#note 'PD: ', $page.keys;
-        my Hash $grid-data = self!create-page( '', $page<description>);
+        # create page
+        my Gnome::Gtk3::ScrolledWindow $page-window = self!create-page(
+          $page, :!title, :description
+        );
 
         # add the created page to the notebook
         $notebook.append-page(
-          $grid-data<page>, Gnome::Gtk3::Label.new(:text($page<title>))
+          $page-window, Gnome::Gtk3::Label.new(:text($page<title>))
         );
-
-        # for each set in the page ...
-        my Int $grid-row = $grid-data<page-row>;
-        for @($page<sets>) -> Hash $set-data {
-          # set data consists of a category name and set name. Both are needed
-          # to get the set data we need.
-          my Str $category-name = $set-data<category>;
-          my Str $set-name = $set-data<set>;
-#note 'SD: ', $set-data<category>, ', ', $set-data<set>;
-
-#note "ud: $!user-data.perl()";
-#note "keys needed: $page<name>, $category-name, $set-name";
-          # display the set
-          my QAManager::Gui::Set $set .= new(
-            :grid($grid-data<page-grid>), :$grid-row,
-            :$category-name, :$set-name,
-            :user-data-set-part(
-              $!user-data{$page<name>}{$category-name}{$set-name}
-            )
-          );
-          $!sets.push: $set;
-          $grid-row++;
-        }
-
-#        self.show-all;
-#        $alloc = $notebook.get-allocation;
-#        $max-width = max( $max-width, $alloc.width);
-#        $max-height = max( $max-height, $alloc.height);
-#note "max w & h: $max-width, $max-height";
-CATCH {.note;}
       }
-
-#      ( $total-width, $total-height) = ( $max-width, $max-height);
     }
 
     when QAStack {
@@ -139,30 +104,10 @@ CATCH {.note;}
     when QAAssistant {
     }
   }
-
-#  self.show-all;
-#  my Int ( $w, $h);
-#  my List $sizes = self.dialog-content.get-preferred-size;
-#note 'szs: ', $sizes.perl;
-#  my N-GtkRequisition $nat-size = $sizes[0];
-#  $w = $nat-size.width;
-#  $h = $nat-size.height;
-
-#  $alloc = self.get-allocation;
-#  $total-width = max( $total-width, $alloc.width);
-#  $total-height += $alloc.height;
-#note 'alloc: ', $alloc.perl;
-#  self.set-dialog-size( $total-width, $total-height);
-
-
-
-#  $w = self.dialog-content.get-allocated-width;
-#  $h = self.dialog-content.get-allocated-height;
-#  self.set-dialog-size( $w, $h);
 }
 
 #-------------------------------------------------------------------------------
-method set-style ( ) {
+method !set-style ( ) {
   # load the gtk resource file and register resource to make data global to app
   my Gnome::Gio::Resource $r .= new(
     :load(%?RESOURCES<g-resources/QAManager.gresource>.Str)
@@ -201,75 +146,56 @@ method !create-button (
 }
 
 #-------------------------------------------------------------------------------
-method !create-page( Str $title, Str $description --> Hash ) {
+# create page with all widgets on it. it always will return a
+# scrollable window
+method !create-page(
+  Hash $page, Bool :$title = True, Bool :$description = True
+  --> Gnome::Gtk3::ScrolledWindow
+) {
 
-  my Gnome::Gtk3::ScrolledWindow $page .= new;
+  my Gnome::Gtk3::ScrolledWindow $page-window .= new;
   my Gnome::Gtk3::Grid $page-grid .= new;
-  $page.container-add($page-grid);
-  $page-grid.set-border-width(5);
+  $page-window.container-add($page-grid);
+#  $page-grid.set-border-width(5);
   my Int $page-row = 0;
 
-  # place page title in frame
-  my QAManager::Gui::Frame $page-frame .= new(:label($title));
-#  $cat-frame.set-label-align( 4e-2, 5e-1);
-#  $cat-frame.widget-set-hexpand(True);
-#  $cat-frame.widget-set-margin-bottom(3);
-  $page-grid.grid-attach( $page-frame, 0, $page-row++, 2, 1);
-
-  # place description as text in this frame
-  given my Gnome::Gtk3::Label $page-descr .= new(:text($description)) {
-    .set-line-wrap(True);
-    #.set-max-width-chars(60);
-    #.set-justify(GTK_JUSTIFY_LEFT);
-    .widget-set-halign(GTK_ALIGN_START);
-    .widget-set-margin-bottom(3);
-    .widget-set-margin-start(5);
-  }
-  $page-frame.container-add($page-descr);
-
-  # return bip which is used in add-set()
-  %( :$page, :$page-grid, :$page-row)
-}
-
-#-------------------------------------------------------------------------------
-method cancel-dialog ( ) {
-
-#note 'dialog cancelled';
-  my QAManager::Gui::YNMsgDialog $yn .= new(
-    :message("Are you sure to cancel?\nAll changes will be lost!")
-  );
-
-  my $r = GtkResponseType($yn.dialog-run);
-  note "R: $r";
-  $yn.widget-destroy;
-
-  my Bool $done = ( $r ~~ GTK_RESPONSE_YES );
-  self.widget-destroy if $done;
-}
-
-#-------------------------------------------------------------------------------
-method finish-dialog ( ) {
-
-note 'dialog finished';
-
-  if self.query-state {
-note "There are still missing or wrong answers, cannot save data";
-#TODO show message dialog
-#TODO keep dialog open
-    my QAManager::Gui::OkMsgDialog $yn .= new(
-      :message("There are still missing or wrong answers, cannot save data")
+  if $description {
+    # place page title in frame if wished
+    my QAManager::Gui::Frame $page-frame .= new(
+      :label($title ?? $page<title> !! '')
     );
+    $page-grid.grid-attach( $page-frame, 0, $page-row++, 2, 1);
 
-    GtkResponseType($yn.dialog-run);
-    $yn.widget-destroy;
+    # place description as text in this frame
+    given my Gnome::Gtk3::Label $page-descr .= new(:text($page<description>)) {
+      .set-line-wrap(True);
+      #.set-max-width-chars(60);
+      #.set-justify(GTK_JUSTIFY_LEFT);
+      .widget-set-halign(GTK_ALIGN_START);
+      .widget-set-margin-bottom(3);
+      .widget-set-margin-start(5);
+    }
+    $page-frame.container-add($page-descr);
   }
 
-  else {
-    $!result-user-data = $!user-data;
-    my QAManager::QATypes $qa-types .= instance;
-    $qa-types.qa-save( $!sheet-name, $!result-user-data, :userdata);
-    self.widget-destroy;
+  # display all selected sets
+  for @($page<sets>) -> Hash $set-data {
+    # set data consists of a category name and set name. Both are needed
+    # to get the set data we need.
+    my Str $category-name = $set-data<category>;
+    my Str $set-name = $set-data<set>;
+
+    # display a set
+    my QAManager::Gui::Set $set .= new(
+      :grid($page-grid), :grid-row($page-row), :$category-name, :$set-name,
+      :user-data-set-part($!user-data{$page<name>}{$category-name}{$set-name})
+    );
+    $!sets.push: $set;
+    $page-row++;
   }
+
+  # return the page
+  $page-window
 }
 
 #-------------------------------------------------------------------------------
@@ -286,4 +212,39 @@ method query-state ( --> Bool ) {
   }
 
   $faulty-state
+}
+
+#-------------------------------------------------------------------------------
+method cancel-dialog ( ) {
+
+#note 'dialog cancelled';
+  my QAManager::Gui::YNMsgDialog $yn .= new(
+    :message("Are you sure to cancel?\nAll changes will be lost!")
+  );
+
+  my $r = GtkResponseType($yn.dialog-run);
+  $yn.widget-destroy;
+
+  my Bool $done = ( $r ~~ GTK_RESPONSE_YES );
+  self.widget-destroy if $done;
+}
+
+#-------------------------------------------------------------------------------
+method finish-dialog ( ) {
+
+  if self.query-state {
+    my QAManager::Gui::OkMsgDialog $yn .= new(
+      :message("There are still missing or wrong answers, cannot save data")
+    );
+
+    GtkResponseType($yn.dialog-run);
+    $yn.widget-destroy;
+  }
+
+  else {
+    $!result-user-data = $!user-data;
+    my QAManager::QATypes $qa-types .= instance;
+    $qa-types.qa-save( $!sheet-name, $!result-user-data, :userdata);
+    self.widget-destroy;
+  }
 }
