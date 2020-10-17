@@ -112,6 +112,30 @@ checkbutton label {
   /*font-size: medium;*/
 }
 
+statusbar {
+	background-color: #aaaaaa;
+
+/*
+  font-size: smaller;
+  font-weight: normal;
+  font-variant: normal;
+  font-style: normal;
+  font-stretch: normal;
+*/
+}
+
+statusbar label {
+	color: #000000;
+
+  font-variant: normal;
+  font-style: normal;
+  font-size: smaller;
+/*
+  font-weight: normal;
+  font-stretch: normal;
+*/
+}
+
 .labelText {
 	color: @label-text-color;
 
