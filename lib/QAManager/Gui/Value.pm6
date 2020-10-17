@@ -12,6 +12,7 @@ use Gnome::Gtk3::Enums;
 use Gnome::Gtk3::ComboBoxText;
 use Gnome::Gtk3::ToolButton;
 
+use QAManager::Gui::Statusbar;
 use QAManager::Gui::Frame;
 use QAManager::QATypes;
 use QAManager::Question;
@@ -207,31 +208,49 @@ method !check-value ( $w, Int $row ) {
   $!faulty-state = False;
 
   my $input = self.get-value($w);
+  my Str $message;
+  state Int $msg-id;
+  my QAManager::Gui::Statusbar $statusbar .= instance;
+  my Int $cid = $statusbar.get-context-id('input errors');
 
   if $!question.callback {
     my QAManager::QATypes $qa-types .= instance;
     my Array $cb-spec = $qa-types.get-check-handler($!question.callback);
     my ( $handler-object, $method-name, $options) = @$cb-spec;
-    my $message = $handler-object."$method-name"( $input, |%$options);
+    $message = $handler-object."$method-name"( $input, |%$options) // '';
+
     if ?$message {
 #TODO show message dialog
 note $message;
+      $message = "$!question.description(): $message";
+#      $statusbar.statusbar-push( $cid, "$!question.title(): $message");
       $!faulty-state = True;
     }
   }
 
-  # overrule other states if required and still empty
-  $!faulty-state = ($!faulty-state or (?$!question.required and !$input));
+  elsif ?$!question.required {
+    # overrule other states if required and still empty
+    $!faulty-state = ($!faulty-state or (?$!question.required and !$input));
+    $message = "$!question.description(): is required";
+#    $statusbar.statusbar-push( $cid, "$!question.title(): is required");
+  }
+
+  else {
+    $statusbar.remove( $cid, $msg-id) if ?$msg-id;
+    $msg-id = 0;
+  }
+
 
   if $!faulty-state {
     self!set-status-hint( $w, QAStatusFail);
+    $msg-id = $statusbar.statusbar-push( $cid, $message);
   }
-
+#`{{
   elsif ? $!question.required or $!question.callback.defined {
     self!set-status-hint( $w, QAStatusOk);
     self!adjust-user-data( $w, $input, $row);
   }
-
+}}
   else {
     self!set-status-hint( $w, QAStatusNormal);
     self!adjust-user-data( $w, $input, $row);

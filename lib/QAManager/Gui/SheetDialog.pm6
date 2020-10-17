@@ -1,6 +1,8 @@
 #tl:1:QAManager::Gui::SheetDialog
 use v6.d;
 
+#use Gnome::N::X;
+
 use Gnome::Gio::Resource;
 
 use Gnome::Gtk3::Widget;
@@ -42,11 +44,13 @@ unit class QAManager::Gui::SheetDialog:auth<github:MARTIMM>;
 also is QAManager::Gui::Dialog;
 
 #-------------------------------------------------------------------------------
+#has QAManager::Gui::Statusbar $!statusbar;
 has QAManager::Sheet $!sheet;
 has Str $!sheet-name;
 has Hash $!user-data;
 has Hash $.result-user-data;
 has Array $!sets = [];
+has Bool $.faulty-state;
 
 #-------------------------------------------------------------------------------
 # initialize the Gtk Dialog
@@ -79,7 +83,9 @@ submethod BUILD ( Str :$!sheet-name, Hash :$user-data? is copy ) {
       $grid.grid-attach( $notebook, 0, 0, 1, 1);
 
       # add some buttons specific for this notebook
-      self!create-button( 'cancel', 'cancel-dialog', GTK_RESPONSE_CANCEL);
+      self!create-button(
+        'cancel', 'cancel-dialog', GTK_RESPONSE_CANCEL, :default
+      );
       self!create-button( 'finish', 'finish-dialog', GTK_RESPONSE_OK);
 
       # for each page ...
@@ -96,6 +102,10 @@ submethod BUILD ( Str :$!sheet-name, Hash :$user-data? is copy ) {
           $page-window, Gnome::Gtk3::Label.new(:text($page<title>))
         );
       }
+
+      self.register-signal( self, 'dialog-response', 'response');
+      my QAManager::Gui::Statusbar $statusbar .= instance;
+      $grid.grid-attach( $statusbar, 0, 1, 1, 1);
     }
 
     when QAStack {
@@ -129,7 +139,8 @@ method !set-style ( ) {
 
 #-------------------------------------------------------------------------------
 method !create-button (
-  Str $widget-name, Str $method-name, GtkResponseType $response-type
+  Str $widget-name, Str $method-name, GtkResponseType $response-type,
+  Bool :$default = False
 ) {
 
   # change text of label on button when defined in the button map structure
@@ -141,8 +152,13 @@ method !create-button (
   # change some other parameters and register a signal
   $button.set-name($widget-name);
   $button.set-label($button-text.tc);
-  $button.register-signal( self, $method-name, 'clicked');
-  self.add-action-widget( $button, $response-type)
+  if $default {
+    $button.set-can-default(True);
+    self.set-default-response($response-type);
+  }
+
+#  $button.register-signal( self, $method-name, 'clicked');
+  self.add-action-widget( $button, $response-type);
 }
 
 #-------------------------------------------------------------------------------
@@ -199,25 +215,75 @@ method !create-page(
 }
 
 #-------------------------------------------------------------------------------
-method query-state ( --> Bool ) {
+method query-state ( ) {
 
-  my Bool $faulty-state = False;
+  $!faulty-state = False;
   for @$!sets -> $set {
 
     # this question is not ok when True
     if $set.query-state {
-      $faulty-state = True;
+      $!faulty-state = True;
       last;
     }
   }
-
-  $faulty-state
 }
 
 #-------------------------------------------------------------------------------
-method cancel-dialog ( ) {
+method dialog-response (
+  int32 $response, QAManager::Gui::SheetDialog :_widget($dialog)
+) {
+#Gnome::N::debug(:on);
 
-#note 'dialog cancelled';
+#  note "enums: ", GtkResponseType.enums;
+  note "sheet dialog response: $response, ", GtkResponseType($response);
+  if GtkResponseType($response) ~~ GTK_RESPONSE_DELETE_EVENT {
+    note 'Forced dialog close!';
+    $dialog.widget-destroy;
+  }
+
+  elsif GtkResponseType($response) ~~ GTK_RESPONSE_OK {
+
+    self.query-state;
+    if $!faulty-state {
+      my QAManager::Gui::OkMsgDialog $yn .= new(
+        :message("There are still missing or wrong answers, cannot save data")
+      );
+
+      GtkResponseType($yn.dialog-run);
+      $yn.widget-destroy;
+    }
+
+    else {
+      $!result-user-data = $!user-data;
+      my QAManager::QATypes $qa-types .= instance;
+      $qa-types.qa-save( $!sheet-name, $!result-user-data, :userdata);
+#      self.widget-destroy;
+    }
+  }
+
+  elsif GtkResponseType($response) ~~ GTK_RESPONSE_CANCEL {
+
+    my QAManager::Gui::YNMsgDialog $yn .= new(
+      :message("Are you sure to cancel?\nAll changes will be lost!")
+    );
+
+    my $r = GtkResponseType($yn.dialog-run);
+    $yn.widget-destroy;
+
+    my Bool $done = ( $r ~~ GTK_RESPONSE_YES );
+    self.widget-destroy if $done;
+  }
+
+#Gnome::N::debug(:off);
+}
+
+
+
+=finish
+#-------------------------------------------------------------------------------
+method cancel-dialog ( ) {
+return;
+
   my QAManager::Gui::YNMsgDialog $yn .= new(
     :message("Are you sure to cancel?\nAll changes will be lost!")
   );
@@ -231,8 +297,10 @@ method cancel-dialog ( ) {
 
 #-------------------------------------------------------------------------------
 method finish-dialog ( ) {
+return;
 
-  if self.query-state {
+  self.query-state;
+  if $!faulty-state {
     my QAManager::Gui::OkMsgDialog $yn .= new(
       :message("There are still missing or wrong answers, cannot save data")
     );

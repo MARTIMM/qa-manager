@@ -12,49 +12,73 @@ use Gnome::Gtk3::Button;
 use QAManager::Gui::SheetDialog;
 use QAManager::QATypes;
 
+use Gnome::N::X;
+#Gnome::N::debug(:on);
+
 #-------------------------------------------------------------------------------
 class EH {
 
   method show-dialog ( ) {
     my QAManager::Gui::SheetDialog $sheet-dialog .= new(
-      :sheet-name<QAManagerSetDialog> #, :close-message
+      :sheet-name<QAManagerSetDialog>,
+#      :!cancel-warning, :!save-data
     );
-    my Int $response = $sheet-dialog.show-dialog;
-
-    note 'dialog closed: ', GtkResponseType($response);
-    if GtkResponseType($response) ~~ GTK_RESPONSE_DELETE_EVENT {
-      note 'Closing dialog, ignoring all tests!';
-      $sheet-dialog.widget-destroy;
-    }
-
-    my $i = 0;
-    sub show-hash ( Hash $h ) {
-      $i++;
-      for $h.keys.sort -> $k {
-        if $h{$k} ~~ Hash {
-          note '  ' x $i, "$k => \{";
-          show-hash($h{$k});
-          note '  ' x $i, '}';
-        }
-
-        elsif $h{$k} ~~ Array {
-          note '  ' x $i, "$k => $h{$k}.perl()";
-        }
-
-        else {
-          note '  ' x $i, "$k => $h{$k}";
-        }
-      }
-      $i--;
-    }
-
-    show-hash($sheet-dialog.result-user-data);
+#Gnome::N::debug(:on);
+    $sheet-dialog.register-signal( self, 'dialog-response', 'response');
+    $sheet-dialog.show-dialog;
+#Gnome::N::debug(:off);
   }
 
+  #---------
+  method dialog-response (
+    int32 $response, QAManager::Gui::SheetDialog :_widget($dialog)
+  ) {
+    note "dialog response: $response, ", GtkResponseType($response);
+#    if GtkResponseType($response) ~~ GTK_RESPONSE_DELETE_EVENT {
+#      note 'Forced dialog close!';
+#      $dialog.widget-destroy;
+#    }
+
+#    elsif GtkResponseType($response) ~~ GTK_RESPONSE_OK {
+    if GtkResponseType($response) ~~ GTK_RESPONSE_OK {
+      if $dialog.faulty-state {
+        note 'Faulty state';
+      }
+
+      else {
+        my $i = 0;
+        sub show-hash ( Hash $h ) {
+          $i++;
+          for $h.keys.sort -> $k {
+            if $h{$k} ~~ Hash {
+              note '  ' x $i, "$k => \{";
+              show-hash($h{$k});
+              note '  ' x $i, '}';
+            }
+
+            elsif $h{$k} ~~ Array {
+              note '  ' x $i, "$k => $h{$k}.perl()";
+            }
+
+            else {
+              note '  ' x $i, "$k => $h{$k}";
+            }
+          }
+          $i--;
+        }
+
+        show-hash($dialog.result-user-data);
+        $dialog.widget-destroy;
+      }
+    }
+  }
+
+  #---------
   method exit-app ( ) {
     Gnome::Gtk3::Main.new.gtk-main-quit;
   }
 
+  #---------
   # check methods
   method check-char ( Str $input, :$char --> Any ) {
     "No $char allowed in string" if ?($input ~~ m/$char/)

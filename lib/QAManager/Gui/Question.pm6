@@ -4,8 +4,8 @@ use QAManager::QATypes;
 use QAManager::Set;
 use QAManager::Question;
 use QAManager::Gui::QALabel;
-use Gnome::Gtk3::Enums;
 
+use Gnome::Gtk3::Enums;
 use Gnome::Gtk3::Grid;
 use Gnome::Gtk3::Label;
 
