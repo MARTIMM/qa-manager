@@ -41,11 +41,17 @@ has Array $!input-widgets;
 # state of current variable. value is True when answer is incorrect
 has Bool $.faulty-state;
 
+has Int $!msg-id;
+
 #-------------------------------------------------------------------------------
 method initialize ( ) {
 
+  # cannot use .? pseudo op because the FALLBACK routine from the gnome
+  # packages will spoil your ideas.
+  self.input-widget-init() if self.^lookup("input-widget-init");
+
   # clear values
-  $!input-widgets = []; #Array[Gnome::Gtk3::Entry].new;
+  $!input-widgets = [];
   $!values = [];
 
   $!widget-name = $!question.name;
@@ -54,8 +60,6 @@ method initialize ( ) {
   self.set-shadow-type(GTK_SHADOW_NONE) unless ?$!question.repeatable;
 
   # fiddle a bit
-#  self.widget-set-margin-top(3);
-#  self.set-size-request( 200, 1);
   self.widget-set-name($!widget-name);
   self.widget-set-hexpand(True);
 
@@ -180,7 +184,6 @@ method !create-combobox ( Array $select-list --> Gnome::Gtk3::ComboBoxText ) {
 #-------------------------------------------------------------------------------
 method !adjust-user-data ( $w, $input, Int $row ) {
 
-#  my Str ( $widget-name, $row) = $w.get-name.split(':');
   if ? $!question.repeatable {
     if $!question.selectlist.defined {
       my Gnome::Gtk3::ComboBoxText $cbt .= new(
@@ -188,7 +191,6 @@ method !adjust-user-data ( $w, $input, Int $row ) {
       );
 
       my Str $select-item = $cbt.get-active-text // $!question.selectlist[0];
-#note "T: $cbt.get-active-text()";
       $!user-data-set-part{$!widget-name}[$row] = $select-item => $input;
     }
 
@@ -209,41 +211,47 @@ method !check-value ( $w, Int $row ) {
 
   my $input = self.get-value($w);
   my Str $message;
-  state Int $msg-id;
+
+  # get a context id. same string returns same context id.
   my QAManager::Gui::Statusbar $statusbar .= instance;
   my Int $cid = $statusbar.get-context-id('input errors');
 
+  # check if there is a user routine which can check data. requiredness
+  # must be checked too by the routine.
   if $!question.callback {
     my QAManager::QATypes $qa-types .= instance;
     my Array $cb-spec = $qa-types.get-check-handler($!question.callback);
     my ( $handler-object, $method-name, $options) = @$cb-spec;
     $message = $handler-object."$method-name"( $input, |%$options) // '';
 
+    # if routine founds an error, a message returns. prefix message
+    # with the question.
     if ?$message {
-#TODO show message dialog
-note $message;
       $message = "$!question.description(): $message";
-#      $statusbar.statusbar-push( $cid, "$!question.title(): $message");
       $!faulty-state = True;
     }
   }
 
+  # if there is no callback, check if it is required
   elsif ?$!question.required {
-    # overrule other states if required and still empty
     $!faulty-state = ($!faulty-state or (?$!question.required and !$input));
     $message = "$!question.description(): is required";
-#    $statusbar.statusbar-push( $cid, "$!question.title(): is required");
   }
 
-  else {
-    $statusbar.remove( $cid, $msg-id) if ?$msg-id;
-    $msg-id = 0;
+  # no errors, check if there is a message id from previous mesage, remove it.
+  if ?$!msg-id {
+note "remove message: $cid, $!msg-id";
+    $statusbar.remove( $cid, $!msg-id);
+    $!msg-id = 0;
   }
 
 
   if $!faulty-state {
     self!set-status-hint( $w, QAStatusFail);
-    $msg-id = $statusbar.statusbar-push( $cid, $message);
+    # don't add a new message if there is already a message placed
+    # on the statusbar
+    $!msg-id = $statusbar.statusbar-push( $cid, $message) unless $!msg-id;
+note "New message: $cid, $!msg-id, $message";
   }
 #`{{
   elsif ? $!question.required or $!question.callback.defined {
@@ -293,21 +301,18 @@ method !set-status-hint ( $widget, InputStatusHint $status ) {
 # of text-, number- or boolean
 #method set-value ( $data-key, $data-value, Int $row, Bool :$overwrite ) {
 #method set-value ( Any:D $values ) {
-method set-value ( Any:D $widget, Any:D $value ) {
-  ...
-}
+method set-value ( Any:D $widget, Any:D $value ) { ... }
 
 #-------------------------------------------------------------------------------
 # no typing for return value because it can be a single value, an Array of
 # single values or and Array of Pairs.
-method get-value ( $widget --> Any ) {
-  ...
-}
+method get-value ( $widget --> Any ) { ... }
 
 #-------------------------------------------------------------------------------
-method create-widget ( Str $widget-name --> Any ) {
-  ...
-}
+method create-widget ( Str $widget-name --> Any ) { ... }
+
+#-------------------------------------------------------------------------------
+#method input-widget-init ( ) { ... }
 
 #-------------------------------------------------------------------------------
 #--[ Signal Handlers ]----------------------------------------------------------
@@ -349,7 +354,6 @@ method delete-row (
 method check-on-focus-change (
   N-GdkEventFocus $, :_widget($w), Int :$row --> Int
 ) {
-
   self!check-value( $w, $row);
 
   # must propogate further to prevent messages when notebook page is switched
