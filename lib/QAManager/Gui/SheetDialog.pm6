@@ -229,6 +229,8 @@ method query-state ( ) {
 }
 
 #-------------------------------------------------------------------------------
+#--[ Signal Handlers ]----------------------------------------------------------
+#-------------------------------------------------------------------------------
 method dialog-response (
   int32 $response, QAManager::Gui::SheetDialog :_widget($dialog)
 ) {
@@ -275,44 +277,4 @@ method dialog-response (
   }
 
 #Gnome::N::debug(:off);
-}
-
-
-
-=finish
-#-------------------------------------------------------------------------------
-method cancel-dialog ( ) {
-return;
-
-  my QAManager::Gui::YNMsgDialog $yn .= new(
-    :message("Are you sure to cancel?\nAll changes will be lost!")
-  );
-
-  my $r = GtkResponseType($yn.dialog-run);
-  $yn.widget-destroy;
-
-  my Bool $done = ( $r ~~ GTK_RESPONSE_YES );
-  self.widget-destroy if $done;
-}
-
-#-------------------------------------------------------------------------------
-method finish-dialog ( ) {
-return;
-
-  self.query-state;
-  if $!faulty-state {
-    my QAManager::Gui::OkMsgDialog $yn .= new(
-      :message("There are still missing or wrong answers, cannot save data")
-    );
-
-    GtkResponseType($yn.dialog-run);
-    $yn.widget-destroy;
-  }
-
-  else {
-    $!result-user-data = $!user-data;
-    my QAManager::QATypes $qa-types .= instance;
-    $qa-types.qa-save( $!sheet-name, $!result-user-data, :userdata);
-    self.widget-destroy;
-  }
 }
