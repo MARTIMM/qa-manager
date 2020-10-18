@@ -60,7 +60,7 @@ Questions are what it is all about. In short a piece of text to pose the questio
 * **description**; A question. When empty, title is taken.
 * **encode**; Encode the result of the input before giving the answers back to the caller. Used with e.g. password input.
 * **example**; An example answer/format in light gray in an text field.
-* **field**; The widget type to use to provide the answer with. Current enumerated types are: `QAEntry` for text, `QATextView` for multiline text, `QAComboBox` a list of possibilities to chose from, `QARadioButton` a select of one of a set of possebilities, `QACheckButton`, one or more possebilities `QAToggleButton` boolean input, `QAScale` a slider, `QASwitch` also boolean input. Other types are `QADragAndDrop`, `QAColorChooserDialog`, `QAFileChooserDialog`, `QAList` and `QAImage`. These are not yet implemented.
+* **field**; The widget type to use to provide the answer with. Current enumerated types are: `QAEntry` for text, `QATextView` for multiline text, `QAComboBox` a list of possibilities to chose from, `QARadioButton` a select of one of a set of possebilities, `QACheckButton`, one or more possebilities `QAToggleButton` boolean input, `QAScale` a slider, `QASwitch` also boolean input. Other types are `QADragAndDrop`, `QAColorChooserDialog`, `QAFileChooserDialog`, `QAList`, `QASpin` and `QAImage`. These are not yet implemented.
 * **fieldlist**; The fieldlist is used to fill e.g. a combobox or a list input field.
 * **height**; Sometimes a height is needed for a widget.
 * **hide**; Hide this question. A use for it to hide or view a set in an action handler.
