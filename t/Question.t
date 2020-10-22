@@ -2,6 +2,7 @@ use v6.d;
 use Test;
 
 use QAManager::Question;
+use QAManager::QATypes;
 
 #-------------------------------------------------------------------------------
 my QAManager::Question $q .= new(
@@ -23,6 +24,7 @@ subtest 'Manipulations', {
   is $x<description>, 'Username of account', '.description()';
   ok $x<required>, '.required()';
   is $x<default>, 'mickey', '.new()';
+  is $x<fieldtype>, QAEntry, 'default field type';
 
 #  note $q.qa-data;
 }

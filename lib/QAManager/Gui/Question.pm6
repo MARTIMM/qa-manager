@@ -56,7 +56,7 @@ method display ( ) {
 
   # find and load the module for this input type. if found, initialize
   # the module and store in array.
-  my Str $module-name = 'QAManager::Gui::' ~ $!question.field.Str;
+  my Str $module-name = 'QAManager::Gui::' ~ $!question.fieldtype.Str;
   try require ::($module-name);
   if (my $m = ::($module-name)) ~~ Failure {
     # when not found, handle the failure, because one get problems
@@ -159,7 +159,7 @@ method build-set-fields ( ) {
   for $c -> QAManager::Question $question {
 
 #  for @($!set.get-questions) -> QAManager::Question $question {
-#note "kv: $question.name(), $question.field()";
+#note "kv: $question.name(), $question.fieldtype()";
     self.build-entry( :$grid-row, :$question);
     self.check-field( :$grid-row, :$question);
 
@@ -191,7 +191,7 @@ method build-entry (
   );
 
   # and input fields to the right
-  given $question.field {
+  given $question.fieldtype {
     when QAEntry {
       self!entry-field( $grid-row, $question);
     }
@@ -235,7 +235,7 @@ method check-field ( Int :$grid-row, QAManager::Question :$question ) {
   my $no = $!question-grid.get-child-at( 2, $grid-row);
   my Gnome::Gtk3::Widget $w .= new(:native-object($no));
 
-#note "check field, Type: $question.field(), $grid-row, $w.get-name()";
+#note "check field, Type: $question.fieldtype(), $grid-row, $w.get-name()";
   my Hash $kv = $question.qa-data;
   for $kv.keys.sort -> $key {
 #note "  $key";
@@ -246,7 +246,7 @@ method check-field ( Int :$grid-row, QAManager::Question :$question ) {
 method set-value ( Int :$grid-row, QAManager::Question :$question ) {
   my $no = $!question-grid.get-child-at( 2, $grid-row);
   my Gnome::Gtk3::Widget $w .= new(:native-object($no));
-note "set value, type: $question.field(), $grid-row, $w.get-name(), {$!user-data-set-part{$w.get-name()}//'-'}";
+note "set value, type: $question.fieldtype(), $grid-row, $w.get-name(), {$!user-data-set-part{$w.get-name()}//'-'}";
 
 #method set-value (
 #  $data-key, $data-value, $row, Bool :$overwrite = True, Bool :$last-row

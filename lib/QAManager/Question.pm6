@@ -11,20 +11,20 @@ has Any $.default is rw;        # optional default value
 has Str $.description is rw;    # optional
 has Bool $.encode is rw;        # when value must be encoded with sha256
 has Str $.example is rw;        # optional example value for text
-has QAFieldType $.field is rw;  # optional = QAEntry, QADialog or QACheckButton
+has Array $.fieldlist is rw;    # when a list is displayed in e.g. combobox
+has QAFieldType $.fieldtype is rw;  # optional = QAEntry, QADialog or QACheckButton
 has Int $.height is rw;         # optional height in pixels
 has Bool $.hide is rw;          # optional hide question, default False
 has Bool $.invisible is rw;     # when value is displayed as dotted characters
-has Any $.minimum is rw;        # optional range for string or number type
 has Any $.maximum is rw;        # optional range for string or number type
+has Any $.minimum is rw;        # optional range for string or number type
 has Str $.name is required;     # key to values and name in widgets
 has Bool $.repeatable is rw;    # when value is repeatable
 has Bool $.required is rw;      # when value is required
+has Array $.selectlist is rw;   # when a list is displayed in e.g. combobox
 has Any $.step is rw;           # optional step for scale
 has Str $.title is rw;          # optional = $!name.tclc
 has Str $.tooltip is rw;        # optional tooltip value for tooltip
-has Array $.selectlist is rw;   # when a list is displayed in e.g. combobox
-has Array $.fieldlist is rw;    # when a list is displayed in e.g. combobox
 has Int $.width is rw;          # optional width in pixels
 
 #-------------------------------------------------------------------------------
@@ -33,24 +33,25 @@ submethod BUILD ( Str:D :$!name, Hash :$qa-data ) {
 #note "\n", $qa-data.perl;
 
   # if field is defined in approprate type
-  if $qa-data<field> ~~ QAFieldType {
-    $!field = $qa-data<field>;
+  if $qa-data<fieldtype> ~~ QAFieldType {
+    $!fieldtype = $qa-data<fieldtype>;
   }
 
   # it is a string when deserialized from json
-  elsif $qa-data<field> ~~ Str {
-    if QAFieldType.enums{$qa-data<field>}.defined {
-      $!field = QAFieldType(QAFieldType.enums{$qa-data<field>});
+  elsif $qa-data<fieldtype> ~~ Str {
+    if QAFieldType.enums{$qa-data<fieldtype>}.defined {
+      $!fieldtype = QAFieldType(QAFieldType.enums{$qa-data<fieldtype>});
     }
 
     else {
-      die "$qa-data<field> field type does not exist";
+      die "$qa-data<fieldtype> field type does not exist";
     }
   }
 
-  # if field is not defined (or wrong), try to find a default depending on type
+  # if fieldtype is not defined (or wrong), try to find a default
+  # depending on type
   else {
-    $!field = QAEntry;
+    $!fieldtype = QAEntry;
   }
 
 
@@ -79,7 +80,7 @@ submethod BUILD ( Str:D :$!name, Hash :$qa-data ) {
 
 #-------------------------------------------------------------------------------
 method qa-data ( --> Hash ) {
-  my Hash $qa-data = %( :$!name, :$!field);
+  my Hash $qa-data = %( :$!name, :$!fieldtype);
 
   $qa-data<callback> = $!callback if $!callback.defined;
 #  $qa-data<category> = $!category if $!category.defined;
