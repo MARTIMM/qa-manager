@@ -3,8 +3,7 @@
     "QAManagerDialogs": {
       "set-spec": {
         "name": "sdf",
-        "description": "longer text",
-        "title": "whatsemegaddy"
+        "title": "dfg"
       }
     }
   },
@@ -13,22 +12,16 @@
       "entry-spec": {
         "tooltip": [
           {
-            "tt2": "cvcb"
-          },
-          {
-            "tt1": "vbn"
-          },
-          {
-            "tt3": "vbnvbn"
+            "tt1": ""
           }
         ],
-        "callback": "fghj",
-        "maximum": "kjl",
-        "title": "dsfgs",
-        "example": "fgh",
-        "name": "s",
-        "default": "ert",
-        "minimum": "ghjk"
+        "maximum": "",
+        "name": "dfgdfg",
+        "example": "",
+        "minimum": "",
+        "default": "",
+        "callback": "",
+        "title": ""
       }
     }
   }
