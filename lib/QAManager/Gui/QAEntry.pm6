@@ -31,7 +31,7 @@ method create-widget ( Str $widget-name --> Any ) {
   given my Gnome::Gtk3::Entry $entry .= new {
 
     .set-name($widget-name);
-    .set-size-request( 200, 1);
+    .set-size-request( 70, 1);
     .set-hexpand(True);
 
     my Bool $visibility = !$!question.invisible;
