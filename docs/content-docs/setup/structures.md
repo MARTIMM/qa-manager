@@ -60,8 +60,8 @@ Questions are what it is all about. In short a piece of text to pose the questio
 * **description**; A question. When empty, title is taken.
 * **encode**; Encode the result of the input before giving the answers back to the caller. Used with e.g. password input.
 * **example**; An example answer/format in light gray in an text field.
-* **field**; The widget type to use to provide the answer with. Current enumerated types are: `QAEntry` for text, `QATextView` for multiline text, `QAComboBox` a list of possibilities to chose from, `QARadioButton` a select of one of a set of possebilities, `QACheckButton`, one or more possebilities `QAToggleButton` boolean input, `QAScale` a slider, `QASwitch` also boolean input. Other types are `QADragAndDrop`, `QAColorChooserDialog`, `QAFileChooserDialog`, `QAList`, `QASpin` and `QAImage`. These are not yet implemented.
 * **fieldlist**; The fieldlist is used to fill e.g. a combobox or a list input field.
+* **fieldtype**; The widget type to use to provide the answer with. Current enumerated types are: `QAEntry` for text, `QATextView` for multiline text, `QAComboBox` a list of possibilities to chose from, `QARadioButton` a select of one of a set of possebilities, `QACheckButton`, one or more possebilities `QAToggleButton` boolean input, `QAScale` a slider, `QASwitch` also boolean input. Other types are `QADragAndDrop`, `QAColorChooserDialog`, `QAFileChooserDialog`, `QAList`, `QASpin` and `QAImage`. These are not yet implemented.
 * **height**; Sometimes a height is needed for a widget.
 * **hide**; Hide this question. A use for it to hide or view a set in an action handler.
 * **invisible**; Make text input unreadable by showing stars (\*) e.g. password input.
@@ -70,15 +70,15 @@ Questions are what it is all about. In short a piece of text to pose the questio
 * **name**; Used in Gui to set and retrieve data. This name is also set on the input widget to be able to find it.
 * **repeatable**; A field can be extended with another input for the same question. E.g. email addresses or telephone numbers.
 * **required**; An input is required. It is shown with a star at the front of the input.
+* **selectlist**; The selectlist is used with input fields where a combobox is placed in front of the input field. E.g. a text input of a telephone number can be set for a home, work or mobile phone. The names 'home', 'work' or 'mobile' are then showed in the combobox. Other types might also have these possibilities.
 * **step**; Step size for the slider.
 * **title**; unused if there is a description, otherwise it is used as the question text.
 * **tooltip**; Some helpful message shown on the input field.
-* **selectlist**; The selectlist is used with input fields where a combobox is placed in front of the input field. E.g. a text input of a telephone number can be set for a home, work or mobile phone. The names 'home', 'work' or 'mobile' are then showed in the combobox. Other types might also have these possibilities.
 * **width**; sometimes a width is needed for a widget.
 
 
 #### Notes
-
+* Default fieldtype is QAEntry
 * Boolean values like required, encode and hide are `False` if not mentioned.
 * Default values are '' or 0 when absent. Min and Max are -Inf and Inf when absent.
 * Encoding is done using sha256.
@@ -111,13 +111,15 @@ The structure of a value provided by the caller or returned by the program, can 
 
 The formats used are shown below for each input type with the variables which control this output format.
 
-|Input Type|Repeatable|Selectlist|Returned|
+|Field Type        |Repeatable|Selectlist|Returned|
 |------------------|----------|----------|--------|
+|**QACheckButton** |ignored|ignored|`[ $value, ... ]`
+|**QAColorChooserDialog**  |ignored|ignored|`$value`
+|**QAComboBox**    |ignored|ignored|`$value`
 |**QAEntry**       |⊭      |ignored|`$value`
 |                  |⊨      |∅|`[ $value, ... ]`
 |                  |⊨      |`[ $item, ... ]`|`[ :$category($value), ... ]`
-|**QACheckButton** |ignored|ignored|`[ $value, ... ]`
-|**QAComboBox**    |ignored|ignored|`$value`
+|**QAFileChooserDialog**   |ignored|ignored|`$value`
 |**QAImage**       |ignored|ignored|`$value`
 |**QAList**        |ignored|ignored|`[ $value, ... ]`
 |**QARadioButton** |ignored|ignored|`$value`
@@ -125,49 +127,62 @@ The formats used are shown below for each input type with the variables which co
 |**QASwitch**      |ignored|ignored|`$value`
 |**QATextView**    |ignored|ignored|`$value`
 |**QAToggleButton**|ignored|ignored|`$value`
+|**QASpin**        |ignored|ignored|`$value`
 
+<!--
+|**QADragAndDrop** |ignored|ignored|`$value`
+-->
+
+<br/>
 #### A table where field specs are shown for each field type
 
 | Symbol | Explanation
 |--------|-------------------------------------------|
 |!       | Must be provided with used type
 |o       | Optional
-|        | Cannot be used and is ignored
+|-       | Cannot be used and is ignored
+|        | Unknown yet
 
-| Type          | Used letter in table header
-|---------------|------------------------------------|
-| Entry         | E
-| CheckButton   | h
-| ComboBox      | o
-| Image         | I
-| List          | L
-| RadioButton   | R
-| Scale         | c
-| Switch        | w
-| TextView      | x
-| ToggleButton  | g
+<br/>
 
-|             |E|h|o|I|L|R|c|w|x|g|
-|-------------|-|-|-|-|-|-|-|-|-|-|
-|callback     |o| | | | | | | | | |
-|default      |o|o|o|o|o|o|o|o|o|o|
-|description  |o|o|o|o|o|o|o|o|o|o|
-|encode       |o| | | | | | | | | |
-|example      |o| | | | | | | | | |
-|field        |o|!|!|!|!|!|!|!|!|!|
-|height       | | | |o| | | | |o| |
-|hide         |o|o|o|o|o|o|o|o|o|o|
-|invisible    |o| | | | | | | | | |
-|maximum      |o| | | | | |!| | | |
-|minimum      |o| | | | | |!| | | |
-|name         |!|!|!|!|!|!|!|!|!|!|
-|repeatable   |o| | |o| | | | |o| |
-|required     |o| |o|o|o|o| | |o| |
-|step         | | | | | | |!| | | |
-|title        |o|o|o|o|o|o|o|o|o|o|
-|tooltip      |o|o|o|o|o|o|o|o|o|o|
-|selectlist   |o|!|!| |!|!| | | | |
-|width        | | | |o| | | | | | |
+| Field Type              | Used letter in table header
+|-------------------------|----------------------------|
+|**QACheckButton**        | Cb
+|**QAColorChooserDialog** | Cc
+|**QAComboBox**           | Co
+|**QAEntry**              | En
+|**QAFileChooserDialog**  | Fc
+|**QAImage**              | Im
+|**QAList**               | Li
+|**QARadioButton**        | Rb
+|**QAScale**              | Sc
+|**QASpin**               | Sp
+|**QASwitch**             | Sw
+|**QATextView**           | Tv
+|**QAToggleButton**       | Tb
+
+|             |En|Cb|Co|Im|Li|Rb|Sc|Sw|Tv|Tb|Cc|Fc|Sp
+|-------------|--|--|--|--|--|--|--|--|--|--|--|--|--|
+|callback     |o |  |  |  |  |  |  |  |  |  |  |  |  |
+|default      |o |o |o |o |o |o |o |o |o |o |o |o |o |
+|description  |o |o |o |o |o |o |o |o |o |o |o |o |o |
+|encode       |o |- |- |- |- |- |- |- |- |- |- |- |- |
+|example      |o |- |- |- |- |- |- |- |- |- |- |- |- |
+|fieldlist    |o |! |! |  |! |! |  |  |  |  |  |  |  |
+|fieldtype    |o |! |! |! |! |! |! |! |! |! |! |! |! |
+|height       |  |  |  |o |  |  |  |  |o |  |  |  |  |
+|hide         |o |o |o |o |o |o |o |o |o |o |o |o |o |
+|invisible    |o |- |- |- |- |- |- |- |- |- |- |- |- |
+|maximum      |o |  |  |  |  |  |! |  |  |  |  |  |! |
+|minimum      |o |  |  |  |  |  |! |  |  |  |  |  |! |
+|name         |! |! |! |! |! |! |! |! |! |! |! |! |! |
+|repeatable   |o |  |  |o |  |  |  |  |  |  |o |o |  |
+|required     |o |o |o |o |o |o |o |o |o |o |o |o |o |
+|step         |  |  |  |  |  |  |! |  |  |  |  |  |  |
+|title        |o |o |o |o |o |o |o |o |o |o |o |o |o |
+|tooltip      |o |o |o |o |o |o |o |o |o |o |o |o |o |
+|selectlist   |o |- |- |o |- |- |- |- |- |- |- |- |- |
+|width        |  |  |  |o |  |  |  |  |  |  |  |  |  |
 
 ## Sheet
 
