@@ -62,7 +62,9 @@ submethod new ( |c ) {
 submethod BUILD ( Str :$!sheet-name, Hash :$user-data? is copy ) {
 
   my QAManager::QATypes $qa-types .= instance;
-  $!user-data = $user-data // $qa-types.qa-load( $!sheet-name, :userdata);
+  $!user-data = $user-data //
+                $qa-types.qa-load( $!sheet-name, :userdata) //
+                %();
 
   $!sheet .= new(:$!sheet-name);
 
@@ -200,6 +202,10 @@ method !create-page(
     # to get the set data we need.
     my Str $category-name = $set-data<category>;
     my Str $set-name = $set-data<set>;
+
+    # check if userdata exists
+    $!user-data{$page<name>}{$category-name}{$set-name} = %()
+      unless $!user-data{$page<name>}{$category-name}{$set-name} ~~ Hash;
 
     # display a set
     my QAManager::Gui::Set $set .= new(
