@@ -83,7 +83,6 @@ method !create-input-row ( Int $row ) {
     .register-signal( self, 'check-on-focus-change', 'focus-out-event', :$row);
   }
 
-#note "W: $input-widget.get-name()";
   # add to the grid
   $!grid.grid-attach( $input-widget, QAInputColumn, $row, 1, 1);
   $!input-widgets[$row] = $input-widget;
@@ -240,7 +239,6 @@ method !check-value ( $w, Int $row ) {
 
   # no errors, check if there is a message id from previous mesage, remove it.
   if ?$!msg-id {
-note "remove message: $cid, $!msg-id";
     $statusbar.remove( $cid, $!msg-id);
     $!msg-id = 0;
   }
@@ -251,7 +249,6 @@ note "remove message: $cid, $!msg-id";
     # don't add a new message if there is already a message placed
     # on the statusbar
     $!msg-id = $statusbar.statusbar-push( $cid, $message) unless $!msg-id;
-note "New message: $cid, $!msg-id, $message";
   }
 #`{{
   elsif ? $!question.required or $!question.callback.defined {
@@ -276,7 +273,6 @@ method !set-status-hint ( $widget, InputStatusHint $status ) {
   $context.remove-class('fieldOk');
   $context.remove-class('fieldFail');
 
-#note "Status of '$widget.get-name()': {InputStatusHint($status)}";
   # add class depending on status
   if $status ~~ QAStatusNormal {
     $context.add-class('fieldNormal');
@@ -297,10 +293,8 @@ method !set-status-hint ( $widget, InputStatusHint $status ) {
 #-------------------------------------------------------------------------------
 #--[ Abstract Methods ]---------------------------------------------------------
 #-------------------------------------------------------------------------------
-# no typing of $data-key and $data-value because data can be any
-# of text-, number- or boolean
-#method set-value ( $data-key, $data-value, Int $row, Bool :$overwrite ) {
-#method set-value ( Any:D $values ) {
+# no typing of arguments because widget can be any input widget and value
+# can be any of text-, number- or boolean
 method set-value ( Any:D $widget, Any:D $value ) { ... }
 
 #-------------------------------------------------------------------------------
@@ -310,9 +304,6 @@ method get-value ( $widget --> Any ) { ... }
 
 #-------------------------------------------------------------------------------
 method create-widget ( Str $widget-name --> Any ) { ... }
-
-#-------------------------------------------------------------------------------
-#method input-widget-init ( ) { ... }
 
 #-------------------------------------------------------------------------------
 #--[ Signal Handlers ]----------------------------------------------------------
