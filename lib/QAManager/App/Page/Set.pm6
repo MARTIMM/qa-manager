@@ -25,7 +25,7 @@ use Gnome::Gtk3::Dialog;
 
 use QAManager::Category;
 use QAManager::Set;
-use QAManager::KV;
+use QAManager::Question;
 use QAManager::Gui::YNMsgDialog;
 use QAManager::Gui::Part::Set;
 
@@ -115,7 +115,7 @@ method !create-treeview (
       );
 
       my QAManager::Set $set = $cat.get-set($set-name);
-      for @($set.get-kv) -> QAManager::KV $kv {
+      for @($set.get-kv) -> QAManager::Question $kv {
 
         ## $qa-child-iter is not really used but needed to clear the object.
         ## later it will be done in one go.
