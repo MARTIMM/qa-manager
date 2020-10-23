@@ -223,15 +223,16 @@ method !check-value ( $w, Int $row ) {
     $!faulty-state = True if ?$message;
   }
 
+  # if there is no callback, check a widgets check method
   # cannot use .? pseudo op because the FALLBACK routine from the gnome
   # packages will spoil your ideas.
-  elsif self.^lookup("check-value") {
+  if !$!faulty-state and self.^lookup("check-value") {
     $message = self.check-value($input);
     $!faulty-state = True if ?$message;
   }
 
-  # if there is no callback, check if it is required
-  elsif ?$!question.required {
+  # if there is no check mehod, check if it is required
+  if !$!faulty-state and ?$!question.required {
     $!faulty-state = ($!faulty-state or (?$!question.required and !$input));
     $message = "is required" if $!faulty-state;
   }
