@@ -313,7 +313,9 @@ Remove a QA type data file. There is no use for it directly. To remove data, use
 method qa-remove (
   Str:D $qa-filename, Bool :$sheet = False, Str :$qa-path is copy
 ) {
-  $qa-path //= self.qa-path( $qa-filename, :$sheet);
+  $qa-path //= $sheet
+            ?? self.qa-path( $qa-filename, :sheet)
+            !! self.qa-path( $qa-filename);
   unlink $qa-path;
 }
 

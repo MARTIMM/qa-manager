@@ -101,13 +101,13 @@ method !load ( ) {
 
 #-------------------------------------------------------------------------------
 method save ( ) {
-  $!qa-types.qa-save( $!category-name, self.category, :!sheet);
+  $!qa-types.qa-save( $!category-name, self.category);
 }
 
 #-------------------------------------------------------------------------------
 method save-as ( Str $new-category --> Bool ) {
 
-  $!qa-types.qa-save( $new-category, self.category, :!sheet);
+  $!qa-types.qa-save( $new-category, self.category);
   $!category-name = $new-category;
   True
 }

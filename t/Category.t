@@ -64,7 +64,7 @@ subtest 'Save elsewhere', {
   my QAManager::Category $category .= new(:category-name('__category'));
   $category.save;
 
-  my Str $qa-path = $qa-types.qa-path( '__category', :!sheet);
+  my Str $qa-path = $qa-types.qa-path( '__category');
   ok $qa-path.IO.r, 'category file found';
 
   ok $category.remove(:ignore-changes), '.remove()';
