@@ -225,8 +225,8 @@ method !check-value ( $w, Int $row ) {
 
   # cannot use .? pseudo op because the FALLBACK routine from the gnome
   # packages will spoil your ideas.
-  elsif self.^lookup("check-widget-value") {
-    $message = self.check-widget-value($input);
+  elsif self.^lookup("check-value") {
+    $message = self.check-value($input);
     $!faulty-state = True if ?$message;
   }
 

@@ -53,6 +53,21 @@ method set-value ( Any:D $entry, $text ) {
   $entry.set-text($text) if ?$text;
 }
 
+#-------------------------------------------------------------------------------
+method check-value ( Str $input --> Str ) {
+  my Str $message;
+  my Int $nc = $input.chars;
+  if ?$!question.minimum and $nc < $!question.minimum {
+    $message = "Minimum number of characters = $!question.minimum()";
+  }
+
+  elsif ?$!question.maximum and $nc > $!question.maximum {
+    $message = "Maximum number of characters = $!question.maximum()";
+  }
+
+  $message
+}
+
 
 
 
