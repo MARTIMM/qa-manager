@@ -4,6 +4,8 @@ use QAManager::QATypes;
 use QAManager::Set;
 use QAManager::Question;
 use QAManager::Gui::QALabel;
+use QAManager::Gui::QAEntry;
+use QAManager::Gui::QATextView;
 
 use Gnome::Gtk3::Enums;
 use Gnome::Gtk3::Grid;
@@ -57,18 +59,22 @@ method display ( ) {
   # find and load the module for this input type. if found, initialize
   # the module and store in array.
   my Str $module-name = 'QAManager::Gui::' ~ $!question.fieldtype.Str;
-  try require ::($module-name);
-  if (my $m = ::($module-name)) ~~ Failure {
-    # when not found, handle the failure, because one get problems
-    # with unhandled failures in DESTROY.
-    $m.Bool;
-  }
+#note "Input widget class: $module-name";
 
-  else {
+  # test existence of an abstract method 'set-value'. it must be defined here.
+  # save module in $m, when module is not found, a failure can then be handled.
+  # otherwise there are unhandled failure problems in DESTROY.
+  if (my $m = ::($module-name)).^lookup('set-value') ~~ Method {
     $!input-widget = ::($module-name).new(
       :$!question, :$!user-data-set-part
     );
     $!question-grid.grid-attach( $!input-widget, QAAnswer, $!grid-row, 1, 1);
+  }
+
+  else {
+    # handle failure
+    $m.Bool;
+    note "fail to use  $module-name";
   }
 }
 
