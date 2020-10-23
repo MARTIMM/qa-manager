@@ -145,23 +145,23 @@ The formats used are shown below for each input type with the variables which co
 
 <br/>
 
-| Field Type              | Used letter in table header
+| Field Type              | Used letter in table header|
 |-------------------------|----------------------------|
-|**QACheckButton**        | Cb
-|**QAColorChooserDialog** | Cc
-|**QAComboBox**           | Co
-|**QAEntry**              | En
-|**QAFileChooserDialog**  | Fc
-|**QAImage**              | Im
-|**QAList**               | Li
-|**QARadioButton**        | Rb
-|**QAScale**              | Sc
-|**QASpin**               | Sp
-|**QASwitch**             | Sw
-|**QATextView**           | Tv
-|**QAToggleButton**       | Tb
+|**QACheckButton**        | Cb                         |
+|**QAColorChooserDialog** | Cc                         |
+|**QAComboBox**           | Co                         |
+|**QAEntry**              | En                         |
+|**QAFileChooserDialog**  | Fc                         |
+|**QAImage**              | Im                         |
+|**QAList**               | Li                         |
+|**QARadioButton**        | Rb                         |
+|**QAScale**              | Sc                         |
+|**QASpin**               | Sp                         |
+|**QASwitch**             | Sw                         |
+|**QATextView**           | Tv                         |
+|**QAToggleButton**       | Tb                         |
 
-|             |En|Cb|Co|Im|Li|Rb|Sc|Sw|Tv|Tb|Cc|Fc|Sp
+|             |En|Cb|Co|Im|Li|Rb|Sc|Sw|Tv|Tb|Cc|Fc|Sp|
 |-------------|--|--|--|--|--|--|--|--|--|--|--|--|--|
 |callback     |o |  |  |  |  |  |  |  |  |  |  |  |  |
 |default      |o |o |o |o |o |o |o |o |o |o |o |o |o |
@@ -173,20 +173,20 @@ The formats used are shown below for each input type with the variables which co
 |height       |  |  |  |o |  |  |  |  |o |  |  |  |  |
 |hide         |o |o |o |o |o |o |o |o |o |o |o |o |o |
 |invisible    |o |- |- |- |- |- |- |- |- |- |- |- |- |
-|maximum      |o |  |  |  |  |  |! |  |  |  |  |  |! |
-|minimum      |o |  |  |  |  |  |! |  |  |  |  |  |! |
+|maximum      |o |- |- |- |- |- |o |- |o |- |- |- |o |
+|minimum      |o |- |- |- |- |- |o |- |o |- |- |- |o |
 |name         |! |! |! |! |! |! |! |! |! |! |! |! |! |
 |repeatable   |o |  |  |o |  |  |  |  |  |  |o |o |  |
 |required     |o |o |o |o |o |o |o |o |o |o |o |o |o |
-|step         |  |  |  |  |  |  |! |  |  |  |  |  |  |
+|step         |- |- |- |- |- |- |o |- |- |- |- |- |  |
 |title        |o |o |o |o |o |o |o |o |o |o |o |o |o |
 |tooltip      |o |o |o |o |o |o |o |o |o |o |o |o |o |
-|selectlist   |o |- |- |o |- |- |- |- |- |- |- |- |- |
+|selectlist   |o |- |- |o |- |- |- |- |- |- |o |o |- |
 |width        |  |  |  |o |  |  |  |  |  |  |  |  |  |
 
 ## Sheet
 
-The sheet is is used to present questions to the user. In a sheet there are pages which hold sets of questions. When shown there is only one page visible and using tabs or buttons you can show another.
+The sheet is used to present questions to the user. In a sheet there are pages which hold sets of questions. When shown there is only one page visible and using tabs or buttons you can show another.
 
 * **display**; The type of dialog. One can choose from `QADialog`, `QANoteBook`, `QAStack` or `QAAssistant`.
 * **width**; The minimum width of the dialog.
