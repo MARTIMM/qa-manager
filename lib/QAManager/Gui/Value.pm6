@@ -46,10 +46,6 @@ has Int $!msg-id;
 #-------------------------------------------------------------------------------
 method initialize ( ) {
 
-  # cannot use .? pseudo op because the FALLBACK routine from the gnome
-  # packages will spoil your ideas.
-  self.input-widget-init() if self.^lookup("input-widget-init");
-
   # clear values
   $!input-widgets = [];
   $!values = [];
@@ -60,8 +56,8 @@ method initialize ( ) {
   self.set-shadow-type(GTK_SHADOW_NONE) unless ?$!question.repeatable;
 
   # fiddle a bit
-  self.widget-set-name($!widget-name);
-  self.widget-set-hexpand(True);
+  self.set-name($!widget-name);
+  self.set-hexpand(True);
 
   # add a grid to the frame. a grid is used to cope with repeatable values.
   # the input fields are placed under each other in one column. furthermore,
@@ -223,18 +219,21 @@ method !check-value ( $w, Int $row ) {
     my ( $handler-object, $method-name, $options) = @$cb-spec;
     $message = $handler-object."$method-name"( $input, |%$options) // '';
 
-    # if routine founds an error, a message returns. prefix message
-    # with the question.
-    if ?$message {
-      $message = "$!question.description(): $message";
-      $!faulty-state = True;
-    }
+    # if routine founds an error, a message returns.
+    $!faulty-state = True if ?$message;
+  }
+
+  # cannot use .? pseudo op because the FALLBACK routine from the gnome
+  # packages will spoil your ideas.
+  elsif self.^lookup("check-widget-value") {
+    $message = self.check-widget-value($input);
+    $!faulty-state = True if ?$message;
   }
 
   # if there is no callback, check if it is required
   elsif ?$!question.required {
     $!faulty-state = ($!faulty-state or (?$!question.required and !$input));
-    $message = "$!question.description(): is required";
+    $message = "is required" if $!faulty-state;
   }
 
   # no errors, check if there is a message id from previous mesage, remove it.
@@ -248,6 +247,7 @@ method !check-value ( $w, Int $row ) {
     self!set-status-hint( $w, QAStatusFail);
     # don't add a new message if there is already a message placed
     # on the statusbar
+    $message = "$!question.description(): $message";
     $!msg-id = $statusbar.statusbar-push( $cid, $message) unless $!msg-id;
   }
 #`{{
