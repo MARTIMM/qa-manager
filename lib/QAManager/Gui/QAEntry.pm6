@@ -30,7 +30,6 @@ method create-widget ( Str $widget-name --> Any ) {
   # create a text input widget
   given my Gnome::Gtk3::Entry $entry .= new {
 
-    .set-name($widget-name);
     .set-size-request( 70, 1);
     .set-hexpand(True);
 
@@ -45,15 +44,14 @@ method create-widget ( Str $widget-name --> Any ) {
 }
 
 #-------------------------------------------------------------------------------
-method get-value ( $widget --> Any ) {
-  $widget.get-text
+method get-value ( $entry --> Any ) {
+  $entry.get-text
 }
 
 #-------------------------------------------------------------------------------
-method set-value ( Any:D $widget, $value ) {
-  $widget.set-text($value) if ?$value;
+method set-value ( Any:D $entry, $text ) {
+  $entry.set-text($text) if ?$text;
 }
-
 
 
 
