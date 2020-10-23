@@ -1,8 +1,5 @@
-/*
-window {
-  background-color: Yellow;
-}
-*/
+/* Run glib-compile-resources resources/g-resources/QAManager.xml */
+
 @define-color regular-text-color #005050;
 @define-color label-text-color #0060af;
 @define-color title-text-color #0060af;
@@ -39,6 +36,10 @@ window {
 .fieldOk {
 /*  border-color: @field-ok-color;*/
   border-width: 1px;
+}
+
+textview.fieldFail {
+  background-color: @field-fail-color;
 }
 
 grid {

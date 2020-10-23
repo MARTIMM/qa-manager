@@ -44,6 +44,7 @@ method create-widget ( Str $widget-name --> Any ) {
     .set-hexpand(True);
     .set-size-request( 1, $!question.height // 50);
     .set-wrap-mode(GTK_WRAP_WORD);
+    .set-border-width(1);
   }
 
   $textview
@@ -69,6 +70,21 @@ method set-value ( Any:D $text-view, $text ) {
 
     $text-buffer.set-text($text);
   }
+}
+
+#-------------------------------------------------------------------------------
+method check-value ( Str $input --> Str ) {
+  my Str $message;
+  my Int $nw = $input.comb(/\w+/).elems;
+  if ?$!question.minimum and $nw < $!question.minimum {
+    $message = "Minimum number of words = $!question.minimum()";
+  }
+
+  elsif ?$!question.maximum and $nw > $!question.maximum {
+    $message = "Maximum number of words = $!question.maximum()";
+  }
+
+  $message
 }
 
 
