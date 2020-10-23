@@ -1,29 +1,29 @@
 {
+  "page1": {
+    "QAManagerDialogs": {
+      "set-spec": {
+        "description": "cvbdfgdf xc xcv cv_bcévb",
+        "name": "sd",
+        "title": "dfgxzc"
+      }
+    }
+  },
   "page2": {
     "QAManagerDialogs": {
       "entry-spec": {
-        "name": "sdf",
+        "description": "",
         "tooltip": [
           {
             "tt2": "fgh"
           }
         ],
-        "callback": "fg",
-        "default": "dfg",
         "example": "",
         "maximum": "fghfgh",
-        "description": "",
         "minimum": "fghfgh",
-        "title": "dfg"
-      }
-    }
-  },
-  "page1": {
-    "QAManagerDialogs": {
-      "set-spec": {
-        "name": "sd",
         "title": "dfg",
-        "description": "cvbdfgdf\ndfdfgg"
+        "callback": "fg",
+        "name": "sdf",
+        "default": "dfg"
       }
     }
   }
