@@ -26,10 +26,7 @@ submethod BUILD (
 ) {
 
   $!question.repeatable = False;
-#  $!question.encode = False;
-#  $!question.example = '';
-#  $!question.fieldlist = [];
-#  $!question.invisible = False;
+  $!question.encode = False;
 
   self.initialize;
 }
