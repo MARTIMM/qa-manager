@@ -238,7 +238,7 @@ method !check-value ( $w, Int $row ) {
   }
 
   # no errors, check if there is a message id from previous mesage, remove it.
-  if ?$!msg-id {
+  if !$!faulty-state and ?$!msg-id {
     $statusbar.remove( $cid, $!msg-id);
     $!msg-id = 0;
   }
