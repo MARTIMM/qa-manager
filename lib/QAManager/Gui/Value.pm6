@@ -326,7 +326,8 @@ method add-row (
 
 #-------------------------------------------------------------------------------
 method delete-row (
-  Gnome::Gtk3::ToolButton :_widget($toolbutton), Int :$_handler-id, :$row
+  Gnome::Gtk3::ToolButton :_widget($toolbutton), Int :$_handler-id,
+  :$row is copy
 ) {
 
   # delete a row using the name of the toolbutton, see also rename-buttons().
