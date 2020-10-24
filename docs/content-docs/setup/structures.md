@@ -61,7 +61,7 @@ Questions are what it is all about. In short a piece of text to pose the questio
 * **encode**; Encode the result of the input before giving the answers back to the caller. Used with e.g. password input.
 * **example**; An example answer/format in light gray in an text field.
 * **fieldlist**; The fieldlist is used to fill e.g. a combobox or a list input field.
-* **fieldtype**; The widget type to use to provide the answer with. Current enumerated types are: `QAEntry` for text, `QATextView` for multiline text, `QAComboBox` a list of possibilities to chose from, `QARadioButton` a select of one of a set of possebilities, `QACheckButton`, one or more possebilities `QAToggleButton` boolean input, `QAScale` a slider, `QASwitch` also boolean input. Other types are `QADragAndDrop`, `QAColorChooserDialog`, `QAFileChooserDialog`, `QAList`, `QASpin` and `QAImage`. These are not yet implemented.
+* **fieldtype**; The widget type to use to provide the answer with. Current enumerated types are: `QAEntry` for text, `QATextView` for multiline text, `QAComboBox` a list of possibilities to chose from, `QARadioButton` a select of one of a set of possebilities, `QACheckButton`, one or more possebilities `QAToggleButton` boolean input, `QAScale` a slider, `QASwitch` also boolean input. Other types are `QADragAndDrop`, `QAColorChooser`, `QAFileChooser`, `QAList`, `QASpin` and `QAImage`. These are not yet implemented.
 * **height**; Sometimes a height is needed for a widget.
 * **hide**; Hide this question. A use for it to hide or view a set in an action handler.
 * **invisible**; Make text input unreadable by showing stars (\*) e.g. password input.
@@ -114,12 +114,12 @@ The formats used are shown below for each input type with the variables which co
 |Field Type        |Repeatable|Selectlist|Returned|
 |------------------|----------|----------|--------|
 |**QACheckButton** |ignored|ignored|`[ $value, ... ]`
-|**QAColorChooserDialog**  |ignored|ignored|`$value`
+|**QAColorChooser**|ignored|ignored|`$value`
 |**QAComboBox**    |ignored|ignored|`$value`
 |**QAEntry**       |⊭      |ignored|`$value`
 |                  |⊨      |∅|`[ $value, ... ]`
 |                  |⊨      |`[ $item, ... ]`|`[ :$category($value), ... ]`
-|**QAFileChooserDialog**   |ignored|ignored|`$value`
+|**QAFileChooser** |ignored|ignored|`$value`
 |**QAImage**       |ignored|ignored|`$value`
 |**QAList**        |ignored|ignored|`[ $value, ... ]`
 |**QARadioButton** |ignored|ignored|`$value`
@@ -145,25 +145,25 @@ The formats used are shown below for each input type with the variables which co
 
 <br/>
 
-| Field Type              | Used letter in table header|
-|-------------------------|----------------------------|
-|**QACheckButton**        | Cb                         |
-|**QAColorChooserDialog** | Cc                         |
-|**QAComboBox**           | Co                         |
-|**QAEntry**              | En                         |
-|**QAFileChooserDialog**  | Fc                         |
-|**QAImage**              | Im                         |
-|**QAList**               | Li                         |
-|**QARadioButton**        | Rb                         |
-|**QAScale**              | Sc                         |
-|**QASpin**               | Sp                         |
-|**QASwitch**             | Sw                         |
-|**QATextView**           | Tv                         |
-|**QAToggleButton**       | Tb                         |
+| Field Type              | Used letter in table header| Implemented |
+|-------------------------|----------------------------|-------------|
+|**QACheckButton**        | Cb                         |             |
+|**QAColorChooser**       | Cc                         |             |
+|**QAComboBox**           | Co                         | 🗸           |
+|**QAEntry**              | En                         | 🗸           |
+|**QAFileChooser**        | Fc                         |             |
+|**QAImage**              | Im                         |             |
+|**QAList**               | Li                         |             |
+|**QARadioButton**        | Rb                         |             |
+|**QAScale**              | Sc                         |             |
+|**QASpin**               | Sp                         |             |
+|**QASwitch**             | Sw                         | 🗸           |
+|**QATextView**           | Tv                         | 🗸           |
+|**QAToggleButton**       | Tb                         |             |
 
 |             |En|Cb|Co|Im|Li|Rb|Sc|Sw|Tv|Tb|Cc|Fc|Sp|
 |-------------|--|--|--|--|--|--|--|--|--|--|--|--|--|
-|callback     |o |  |  |  |  |  |  |  |  |  |  |  |  |
+|callback     |o |- |- |  |  |- |  |  |o |  |  |  |  |
 |default      |o |o |o |o |o |o |o |o |o |o |o |o |o |
 |description  |o |o |o |o |o |o |o |o |o |o |o |o |o |
 |encode       |o |- |- |- |- |- |- |- |- |- |- |- |- |

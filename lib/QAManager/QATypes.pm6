@@ -32,10 +32,10 @@ QAFieldType is an enumeration of field types to provide an anwer. The types are 
 
 =item QACheckButton; A group of checkbuttons.
 =comment item QADragAndDrop;
-=comment item QAColorChooserDialog;
+=comment item QAColorChooser;
 =item QAComboBox; A pulldown list with items.
 =item QAEntry; A single line of text.
-=comment item QAFileChooserDialog;
+=item QAFileChooser;
 =comment item QAImage; An image.
 =comment item QAList; An list.
 =item QARadioButton; A group of radiobuttons.
@@ -50,8 +50,8 @@ QAFieldType is an enumeration of field types to provide an anwer. The types are 
 #tt:1:QAFieldType:
 enum QAFieldType is export <
   QAEntry QATextView QAComboBox QARadioButton QACheckButton
-  QAToggleButton QAScale QASwitch QAImage QAList QAFileChooserDialog
-  QAColorChooserDialog QADragAndDrop
+  QAToggleButton QAScale QASwitch QAImage QAList QAFileChooser
+  QAColorChooser QADragAndDrop
 >;
 
 #-------------------------------------------------------------------------------
