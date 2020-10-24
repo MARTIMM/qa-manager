@@ -6,6 +6,8 @@ use QAManager::Question;
 use QAManager::Gui::QALabel;
 use QAManager::Gui::QAEntry;
 use QAManager::Gui::QATextView;
+use QAManager::Gui::QAComboBox;
+use QAManager::Gui::QASwitch;
 
 use Gnome::Gtk3::Enums;
 use Gnome::Gtk3::Grid;
