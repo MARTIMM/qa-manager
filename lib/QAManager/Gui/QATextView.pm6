@@ -40,7 +40,6 @@ method create-widget ( Str $widget-name --> Any ) {
   # create a text input widget
   given my Gnome::Gtk3::TextView $textview .= new {
 
-    .set-size-request( 70, 1);
     .set-hexpand(True);
     .set-size-request( 1, $!question.height // 50);
     .set-wrap-mode(GTK_WRAP_WORD);
@@ -51,24 +50,24 @@ method create-widget ( Str $widget-name --> Any ) {
 }
 
 #-------------------------------------------------------------------------------
-method get-value ( $text-view --> Any ) {
-  my Gnome::Gtk3::TextBuffer $text-buffer .= new(
-    :native-object($text-view.get-buffer)
+method get-value ( $textview --> Any ) {
+  my Gnome::Gtk3::TextBuffer $textbuffer .= new(
+    :native-object($textview.get-buffer)
   );
 
-  my Gnome::Gtk3::TextIter $start = $text-buffer.get-start-iter;
-  my Gnome::Gtk3::TextIter $end = $text-buffer.get-end-iter;
-  $text-buffer.get-text( $start, $end, True)
+  my Gnome::Gtk3::TextIter $start = $textbuffer.get-start-iter;
+  my Gnome::Gtk3::TextIter $end = $textbuffer.get-end-iter;
+  $textbuffer.get-text( $start, $end, True)
 }
 
 #-------------------------------------------------------------------------------
-method set-value ( Any:D $text-view, $text ) {
+method set-value ( Any:D $textview, $text ) {
   if ?$text {
-    my Gnome::Gtk3::TextBuffer $text-buffer .= new(
-      :native-object($text-view.get-buffer)
+    my Gnome::Gtk3::TextBuffer $textbuffer .= new(
+      :native-object($textview.get-buffer)
     );
 
-    $text-buffer.set-text($text);
+    $textbuffer.set-text($text);
   }
 }
 
