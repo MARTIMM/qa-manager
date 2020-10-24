@@ -366,7 +366,7 @@ method check-on-focus-change (
 
 #-------------------------------------------------------------------------------
 # called when a selection changes in the input widget combobox.
-# it must adjust the selection value. no checks are needed.
+# it must adjust the user data. no checks are needed.
 method changed-event ( :_widget($w), Int :$row ) {
 
   my $input = self.get-value($w);
@@ -374,8 +374,7 @@ method changed-event ( :_widget($w), Int :$row ) {
 }
 
 #-------------------------------------------------------------------------------
-# called when a selection changes in the input widget combobox.
-# it must adjust the selection value. no checks are needed.
+# called when a switch changes state. no checks are needed.
 method changed-state ( Int $state, :_widget($w), Int :$row ) {
 
   self!adjust-user-data( $w, $state.Bool, $row);
