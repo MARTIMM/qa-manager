@@ -76,7 +76,20 @@ method !create-input-row ( Int $row ) {
   given my $input-widget = self.create-widget("$!widget-name:$row") {
     my Str $tooltip = $!question.tooltip;
     .set-tooltip-text($tooltip) if ?$tooltip;
-    .register-signal( self, 'check-on-focus-change', 'focus-out-event', :$row);
+
+    if .get-class-name eq 'GtkComboBoxText' {
+      .register-signal( self, 'changed-event', 'changed', :$row);
+    }
+
+    elsif .get-class-name eq 'GtkSwitch' {
+      .register-signal( self, 'changed-state', 'state-set', :$row);
+    }
+
+    else {
+      .register-signal(
+        self, 'check-on-focus-change', 'focus-out-event', :$row
+      );
+    }
   }
 
   # add to the grid
@@ -330,8 +343,6 @@ method delete-row (
 ) {
 
   # delete a row using the name of the toolbutton, see also rename-buttons().
-#  my Int $row;
-#  $row = $r.Int;
   $!grid.remove-row($row);
   $!input-widgets.splice( $row, 1);
 
@@ -354,12 +365,27 @@ method check-on-focus-change (
 }
 
 #-------------------------------------------------------------------------------
+# called when a selection changes in the input widget combobox.
+# it must adjust the selection value. no checks are needed.
+method changed-event ( :_widget($w), Int :$row ) {
+
+  my $input = self.get-value($w);
+  self!adjust-user-data( $w, $input, $row);
+}
+
+#-------------------------------------------------------------------------------
+# called when a selection changes in the input widget combobox.
+# it must adjust the selection value. no checks are needed.
+method changed-state ( Int $state, :_widget($w), Int :$row ) {
+
+  self!adjust-user-data( $w, $state.Bool, $row);
+}
+
+#-------------------------------------------------------------------------------
 # called when a selection changes in the $!question.selectlist combobox.
 # it must adjust the selection value. no check is needed because
 # input field is not changed.
-method combobox-change (
-  :_widget($w), :$input-widget, Int :$row --> Int
-) {
+method combobox-change ( :_widget($w), :$input-widget, Int :$row --> Int ) {
 
   my $input = self.get-value($input-widget);
   self!adjust-user-data( $input-widget, $input, $row);
