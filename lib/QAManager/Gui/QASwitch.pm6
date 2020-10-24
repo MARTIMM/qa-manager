@@ -28,11 +28,12 @@ submethod BUILD (
 }
 
 #-------------------------------------------------------------------------------
-method create-widget ( Str $widget-name --> Any ) {
+method create-widget ( Str $widget-name, Int $row --> Any ) {
 
   # create a text input widget
   my Gnome::Gtk3::Switch $switch .= new;
   $switch.set-hexpand(False);
+  $switch.register-signal( self, 'changed-state', 'state-set', :$row);
 
   $switch
 }
@@ -44,8 +45,14 @@ method get-value ( $switch --> Any ) {
 
 #-------------------------------------------------------------------------------
 method set-value ( Any:D $switch, $state ) {
-
   $switch.set-active($state.Bool);
+}
+
+#-------------------------------------------------------------------------------
+# called when a selection changes in the input widget combobox.
+# it must adjust the user data. no checks are needed.
+method changed-state ( Int $state, :_widget($w), Int :$row ) {
+  self.process-widget-signal( $w, $row, :!do-check, :input($state.Bool));
 }
 
 

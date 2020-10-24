@@ -73,23 +73,9 @@ method initialize ( ) {
 method !create-input-row ( Int $row ) {
 
   # create input widget and add or change some general items
-  given my $input-widget = self.create-widget("$!widget-name:$row") {
+  given my $input-widget = self.create-widget( "$!widget-name:$row", $row) {
     my Str $tooltip = $!question.tooltip;
     .set-tooltip-text($tooltip) if ?$tooltip;
-
-    if .get-class-name eq 'GtkComboBoxText' {
-      .register-signal( self, 'changed-event', 'changed', :$row);
-    }
-
-    elsif .get-class-name eq 'GtkSwitch' {
-      .register-signal( self, 'changed-state', 'state-set', :$row);
-    }
-
-    else {
-      .register-signal(
-        self, 'check-on-focus-change', 'focus-out-event', :$row
-      );
-    }
   }
 
   # add to the grid
@@ -213,11 +199,12 @@ method !adjust-user-data ( $w, $input, Int $row ) {
 }
 
 #-------------------------------------------------------------------------------
-method !check-value ( $w, Int $row ) {
+method !check-value ( $w, Int $row, :$input is copy ) {
 
   $!faulty-state = False;
 
-  my $input = self.get-value($w);
+  # if not delivered, get the value ourselves
+  $input //= self.get-value($w);
   my Str $message;
 
   # get a context id. same string returns same context id.
@@ -267,12 +254,12 @@ method !check-value ( $w, Int $row ) {
 #`{{
   elsif ? $!question.required or $!question.callback.defined {
     self!set-status-hint( $w, QAStatusOk);
-    self!adjust-user-data( $w, $input, $row);
+#    self!adjust-user-data( $w, $input, $row);
   }
 }}
   else {
     self!set-status-hint( $w, QAStatusNormal);
-    self!adjust-user-data( $w, $input, $row);
+#    self!adjust-user-data( $w, $input, $row);
   }
 }
 
@@ -317,7 +304,7 @@ method set-value ( Any:D $widget, Any:D $value ) { ... }
 method get-value ( $widget --> Any ) { ... }
 
 #-------------------------------------------------------------------------------
-method create-widget ( Str $widget-name --> Any ) { ... }
+method create-widget ( Str $widget-name, Int $row --> Any ) { ... }
 
 #-------------------------------------------------------------------------------
 #--[ Signal Handlers ]----------------------------------------------------------
@@ -354,10 +341,12 @@ method delete-row (
 }
 
 #-------------------------------------------------------------------------------
-method check-on-focus-change (
-  N-GdkEventFocus $, :_widget($w), Int :$row --> Int
-) {
-  self!check-value( $w, $row);
+# called when a selection changes in the $!question.selectlist combobox.
+# it must adjust the selection value. no check is needed because
+# input field is not changed.
+method combobox-change ( :_widget($w), :$input-widget, Int :$row --> Int ) {
+
+  self.process-widget-signal( $input-widget, $row, :!do-check);
 
   # must propogate further to prevent messages when notebook page is switched
   # otherwise it would do ok to return 1.
@@ -367,34 +356,14 @@ method check-on-focus-change (
 #-------------------------------------------------------------------------------
 # called when a selection changes in the input widget combobox.
 # it must adjust the user data. no checks are needed.
-method changed-event ( :_widget($w), Int :$row ) {
+method process-widget-signal (
+  $w, Int $row, Bool :$do-check = False, :$input is copy
+) {
 
-  my $input = self.get-value($w);
-  self!adjust-user-data( $w, $input, $row);
+  $input //= self.get-value($w);
+  self!check-value( $w, $row, :$input) if $do-check;
+  self!adjust-user-data( $w, $input, $row) unless $!faulty-state;
 }
-
-#-------------------------------------------------------------------------------
-# called when a switch changes state. no checks are needed.
-method changed-state ( Int $state, :_widget($w), Int :$row ) {
-
-  self!adjust-user-data( $w, $state.Bool, $row);
-}
-
-#-------------------------------------------------------------------------------
-# called when a selection changes in the $!question.selectlist combobox.
-# it must adjust the selection value. no check is needed because
-# input field is not changed.
-method combobox-change ( :_widget($w), :$input-widget, Int :$row --> Int ) {
-
-  my $input = self.get-value($input-widget);
-  self!adjust-user-data( $input-widget, $input, $row);
-
-
-  # must propogate further to prevent messages when notebook page is switched
-  # otherwise it would do ok to return 1.
-  0
-}
-
 
 
 
