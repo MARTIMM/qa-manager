@@ -8,6 +8,13 @@ layout: sidebar
 
 See [semantic versioning](http://semver.org/). Please note point 4. on that page: **_Major version zero (0.y.z) is for initial development. Anything may change at any time. The public API should not be considered stable._**
 
+#### 2020-10-24 0.11.0
+* Add QAComboBox and QASwitch input fields
+
+#### 2020-10-20 0.10.0
+* Add QATextView input field
+* Finished work on QAEntry input field and the role **QAManager::Gui::Value** extended with general tests.
+
 #### 2020-10-15 0.9.0
 * Add Statusbar module to show up at the bottom of sheet dialogs
 

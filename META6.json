@@ -1,7 +1,7 @@
 {
   "description": "Q & A Manager",
   "name": "QAManager",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "authors": [ "Marcel Timmerman"],
   "tags": [ "questionnaire", "configuration", "application", "tool", "gtk"],
 
@@ -26,8 +26,10 @@
     "QAManager::Gui::Dialog": "lib/QAManager/Gui/Dialog.pm6",
     "QAManager::Gui::Frame": "lib/QAManager/Gui/Frame.pm6",
     "QAManager::Gui::OkMsgDialog": "lib/QAManager/Gui/OkMsgDialog.pm6",
+    "QAManager::Gui::QAComboBox": "lib/QAManager/Gui/QAComboBox.pm6",
     "QAManager::Gui::QAEntry": "lib/QAManager/Gui/QAEntry.pm6",
     "QAManager::Gui::QALabel": "lib/QAManager/Gui/QALabel.pm6",
+    "QAManager::Gui::QASwitch": "lib/QAManager/Gui/QASwitch.pm6",
     "QAManager::Gui::QATextView": "lib/QAManager/Gui/QATextView.pm6",
     "QAManager::Gui::Question": "lib/QAManager/Gui/Question.pm6",
     "QAManager::Gui::Set": "lib/QAManager/Gui/Set.pm6",
