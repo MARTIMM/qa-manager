@@ -49,8 +49,6 @@ method set-value ( Any:D $switch, $state ) {
 }
 
 #-------------------------------------------------------------------------------
-# called when a selection changes in the input widget combobox.
-# it must adjust the user data. no checks are needed.
 method changed-state ( Int $state, :_widget($w), Int :$row ) {
   self.process-widget-signal( $w, $row, :!do-check, :input($state.Bool));
 }
