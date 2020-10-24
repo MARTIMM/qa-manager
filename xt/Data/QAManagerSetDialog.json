@@ -1,29 +1,45 @@
 {
-  "page1": {
-    "QAManagerDialogs": {
-      "set-spec": {
-        "description": "cvbdfgdf xc xcv cv_bcévb",
-        "name": "sd",
-        "title": "dfgxzc"
-      }
-    }
-  },
   "page2": {
     "QAManagerDialogs": {
       "entry-spec": {
-        "description": "",
+        "title": "df",
+        "maximum": "fghfgh",
         "tooltip": [
           {
-            "tt2": "fgh"
+            "tt3": "fgh"
+          },
+          {
+            "tt2": "dfg"
           }
         ],
-        "example": "",
-        "maximum": "fghfgh",
         "minimum": "fghfgh",
-        "title": "dfg",
+        "example": "",
         "callback": "fg",
-        "name": "sdf",
-        "default": "dfg"
+        "invisible": false,
+        "fieldtype": "QAComboBox",
+        "default": "dfg",
+        "description": "",
+        "required": true,
+        "name": "dfg",
+        "encode": true
+      }
+    }
+  },
+  "page1": {
+    "QAManagerDialogs": {
+      "set-spec": {
+        "title": "123sdf",
+        "name": "sd",
+        "onefilename": "/home/marcel/Pictures/IMG_5179.JPG",
+        "filename": [
+          {
+            "Config": "/home/marcel/Pictures/Peter/p0021.jpeg"
+          },
+          {
+            "Output": "/home/Data/Fotos/Huis en Tuin/Computer stuff/20120807_114525.jpg"
+          }
+        ],
+        "description": "cvbdfg dfxc xcv cv_bcévb"
       }
     }
   }
