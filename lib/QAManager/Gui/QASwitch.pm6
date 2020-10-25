@@ -33,7 +33,7 @@ method create-widget ( Str $widget-name, Int $row --> Any ) {
   # create a text input widget
   my Gnome::Gtk3::Switch $switch .= new;
   $switch.set-hexpand(False);
-  $switch.register-signal( self, 'changed-state', 'state-set', :$row);
+  $switch.register-signal( self, 'changed-state', 'state-set');
 
   $switch
 }
@@ -49,8 +49,10 @@ method set-value ( Any:D $switch, $state ) {
 }
 
 #-------------------------------------------------------------------------------
-method changed-state ( Int $state, :_widget($w), Int :$row ) {
-  self.process-widget-signal( $w, $row, :!do-check, :input($state.Bool));
+method changed-state ( Int $state, :_widget($switch) ) {
+  my ( $n, $row ) = $switch.get-name.split(':');
+  $row .= Int;
+  self.process-widget-signal( $switch, $row, :!do-check, :input($state.Bool));
 }
 
 

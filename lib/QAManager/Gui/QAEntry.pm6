@@ -41,7 +41,7 @@ method create-widget ( Str $widget-name, Int $row --> Any ) {
     my Str $example = $!question.example;
     .set-placeholder-text($example) if ?$example;
 
-    .register-signal( self, 'check-on-focus-change', 'focus-out-event', :$row);
+    .register-signal( self, 'check-on-focus-change', 'focus-out-event');
   }
 
   $entry
@@ -74,10 +74,12 @@ method check-value ( Str $input --> Str ) {
 
 #-------------------------------------------------------------------------------
 method check-on-focus-change (
-  N-GdkEventFocus $, :_widget($w), Int :$row --> Int
+  N-GdkEventFocus $, :_widget($entry) --> Int
 ) {
   #self!check-value( $w, $row, :input(self.get-value($w)));
-  self.process-widget-signal( $w, $row, :do-check);
+  my ( $n, $row ) = $entry.get-name.split(':');
+  $row .= Int;
+  self.process-widget-signal( $entry, $row, :do-check);
 
   # must propogate further to prevent messages when notebook page is switched
   # otherwise it would do ok to return 1.

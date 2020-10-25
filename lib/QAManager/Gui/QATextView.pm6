@@ -44,7 +44,7 @@ method create-widget ( Str $widget-name, Int $row --> Any ) {
     .set-wrap-mode(GTK_WRAP_WORD);
     .set-border-width(1);
 
-    .register-signal( self, 'check-on-focus-change', 'focus-out-event', :$row);
+    .register-signal( self, 'check-on-focus-change', 'focus-out-event');
   }
 
   $textview
@@ -89,10 +89,12 @@ method check-value ( Str $input --> Str ) {
 
 #-------------------------------------------------------------------------------
 method check-on-focus-change (
-  N-GdkEventFocus $, :_widget($w), Int :$row --> Int
+  N-GdkEventFocus $, :_widget($textview) --> Int
 ) {
   #self!check-value( $w, $row, :input(self.get-value($w)));
-  self.process-widget-signal( $w, $row, :do-check);
+  my ( $n, $row ) = $textview.get-name.split(':');
+  $row .= Int;
+  self.process-widget-signal( $textview, $row, :do-check);
 
   # must propogate further to prevent messages when notebook page is switched
   # otherwise it would do ok to return 1.

@@ -39,7 +39,7 @@ method create-widget ( Str $widget-name, Int $row --> Any ) {
     $combobox.append-text($fielditem);
   }
   $combobox.set-active(0);
-  $combobox.register-signal( self, 'changed-event', 'changed', :$row);
+  $combobox.register-signal( self, 'changed-event', 'changed');
 
   $combobox
 }
@@ -60,8 +60,10 @@ method set-value ( Any:D $combobox, $text ) {
 #-------------------------------------------------------------------------------
 # called when a selection changes in the input widget combobox.
 # it must adjust the user data. no checks are needed.
-method changed-event ( :_widget($w), Int :$row ) {
-  self.process-widget-signal( $w, $row, :!do-check);
+method changed-event ( :_widget($combobox) ) {
+  my ( $n, $row ) = $combobox.get-name.split(':');
+  $row .= Int;
+  self.process-widget-signal( $combobox, $row, :!do-check);
 }
 
 

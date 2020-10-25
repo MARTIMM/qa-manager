@@ -34,7 +34,7 @@ method create-widget ( Str $widget-name, Int $row --> Any ) {
     :title($!question.title)
   );
   $filechooserbutton.set-hexpand(True);
-  $filechooserbutton.register-signal( self, 'file-selected', 'file-set', :$row);
+  $filechooserbutton.register-signal( self, 'file-selected', 'file-set');
 
   $filechooserbutton
 }
@@ -51,8 +51,10 @@ method set-value ( Any:D $filechooserbutton, $filename ) {
 }
 
 #-------------------------------------------------------------------------------
-method file-selected ( :_widget($w), Int :$row ) {
-  self.process-widget-signal( $w, $row, :!do-check);
+method file-selected ( :_widget($filechooserbutton) ) {
+  my ( $n, $row ) = $filechooserbutton.get-name.split(':');
+  $row .= Int;
+  self.process-widget-signal( $filechooserbutton, $row, :!do-check);
 }
 
 

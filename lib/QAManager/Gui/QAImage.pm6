@@ -40,7 +40,7 @@ method create-widget ( Str $widget-name, Int $row --> Any ) {
 
   my Gnome::Gtk3::FileChooserButton $fcb .= new(:title($!question.title));
   $fcb.set-hexpand(True);
-  $fcb.register-signal( self, 'file-selected', 'file-set', :$row);
+  $fcb.register-signal( self, 'file-selected', 'file-set');
   my Gnome::Gtk3::FileFilter $filter .= new;
   $filter.set-name('images');
   $filter.add-mime-type('image/x-icon');
@@ -77,10 +77,12 @@ method set-value ( Any:D $grid, $filename ) {
 }
 
 #-------------------------------------------------------------------------------
-method file-selected ( :_widget($fcb), Int :$row ) {
+method file-selected ( :_widget($fcb) ) {
 
   # must get the grid because the unit is a grid
   my Gnome::Gtk3::Grid $grid .= new(:native-object($fcb.get-parent));
+  my ( $n, $row ) = $grid.get-name.split(':');
+  $row .= Int;
 
   # store in user data without checks
   self.process-widget-signal( $grid, $row, :!do-check);
