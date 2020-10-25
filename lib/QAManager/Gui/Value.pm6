@@ -73,10 +73,10 @@ method initialize ( ) {
 method !create-input-row ( Int $row ) {
 
   # create input widget and add or change some general items
-  given my $input-widget = self.create-widget( "$!widget-name:$row", $row) {
-    my Str $tooltip = $!question.tooltip;
-    .set-tooltip-text($tooltip) if ?$tooltip;
-  }
+  my $input-widget = self.create-widget( "$!widget-name:$row", $row);
+  my Str $tooltip = $!question.tooltip;
+  $input-widget.set-tooltip-text($tooltip) if ?$tooltip;
+  $input-widget.set-name("$!widget-name:$row");
 
   # add to the grid
   $!grid.grid-attach( $input-widget, QAInputColumn, $row, 1, 1);
@@ -158,7 +158,8 @@ method !create-toolbutton ( $row --> Gnome::Gtk3::ToolButton ) {
   $image.set-from-icon-name( 'list-add', GTK_ICON_SIZE_BUTTON);
 
   my Gnome::Gtk3::ToolButton $tb .= new(:icon($image));
-  $tb.register-signal( self, 'add-row', 'clicked', :$row);
+  $tb.set-name("tb:$row");
+  $tb.register-signal( self, 'add-row', 'clicked');
 
   $tb
 }
@@ -178,6 +179,7 @@ method !create-combobox ( Array $select-list --> Gnome::Gtk3::ComboBoxText ) {
 #-------------------------------------------------------------------------------
 method !adjust-user-data ( $w, $input, Int $row ) {
 
+#Gnome::N::debug(:on);
   if ? $!question.repeatable {
     if $!question.selectlist.defined {
       my Gnome::Gtk3::ComboBoxText $cbt .= new(
@@ -196,6 +198,7 @@ method !adjust-user-data ( $w, $input, Int $row ) {
   else {
     $!user-data-set-part{$!widget-name} = $input;
   }
+#Gnome::N::debug(:off);
 }
 
 #-------------------------------------------------------------------------------
@@ -309,36 +312,53 @@ method create-widget ( Str $widget-name, Int $row --> Any ) { ... }
 #-------------------------------------------------------------------------------
 #--[ Signal Handlers ]----------------------------------------------------------
 #-------------------------------------------------------------------------------
-method add-row (
-  Gnome::Gtk3::ToolButton :_widget($toolbutton), Int :$_handler-id, :$row
-) {
+method add-row ( Gnome::Gtk3::ToolButton :_widget($tb), Int :$_handler-id ) {
 
-  # modify this buttons icon and signal handler
+  # modify this buttons icon
   my Gnome::Gtk3::Image $image .= new;
   $image.set-from-icon-name( 'list-remove', GTK_ICON_SIZE_BUTTON);
-  $toolbutton.set-icon-widget($image);
-  $toolbutton.handler-disconnect($_handler-id);
-  $toolbutton.register-signal( self, 'delete-row', 'clicked', :$row);
+  $tb.set-icon-widget($image);
+
+  # and signal handler
+  $tb.handler-disconnect($_handler-id);
+  $tb.register-signal( self, 'delete-row', 'clicked');
 
   # create a new row
   self!create-input-row($!input-widgets.elems);
 }
 
 #-------------------------------------------------------------------------------
-method delete-row (
-  Gnome::Gtk3::ToolButton :_widget($toolbutton), Int :$_handler-id,
-  :$row is copy
-) {
+method delete-row ( Gnome::Gtk3::ToolButton :_widget($tb), Int :$_handler-id ) {
 
-  # delete a row using the name of the toolbutton, see also rename-buttons().
+Gnome::N::debug(:on);
+
+  my ( $x, $row ) = $tb.get-name.split(':');
+  $row .= Int;
+
+  # all toolbuttons below this one must change its name
+  loop ( my Int $r = $row.Int + 1; $r < $!input-widgets.elems; $r++ ) {
+    my Gnome::Gtk3::ToolButton $tbn .= new(
+      :native-object($!grid.get-child-at( QAButtonColumn, $r))
+    );
+    my ( $x, $row) = $tbn.get-name.split(':');
+    $tbn.set-name('tb:' ~ ($row.Int - 1).Str);
+  }
+
+  # delete a row from grid, an item from the widget and user data array
   $!grid.remove-row($row);
   $!input-widgets.splice( $row, 1);
+  $!user-data-set-part{$!widget-name}.splice( $row, 1);;
 
+  # rename input widgets
   $row = 0;
   for @$!input-widgets -> $iw {
     $iw.set-name("$!widget-name:$row");
+#    my $input = self.get-value($iw);
+#    self!adjust-user-data( $iw, $input, $row);
     $row++;
   }
+
+Gnome::N::debug(:off);
 }
 
 #-------------------------------------------------------------------------------
