@@ -1,45 +1,48 @@
 {
+  "page1": {
+    "QAManagerDialogs": {
+      "set-spec": {
+        "description": "cvbdfg dfxc xcv cv_bcévb",
+        "an-image": "/home/marcel/Pictures/49896502_2121115534578332_1384835921681055744_o.jpg",
+        "filename": [
+          {
+            "Log": "/home/marcel/Pictures/Peter/p0021.jpeg"
+          },
+          {
+            "Config": "/home/Data/Fotos/Huis en Tuin/Computer stuff/20120807_114525.jpg"
+          }
+        ],
+        "name": "sd",
+        "more-image": [
+          {
+            "Icon": "/home/marcel/Pictures/01-queens-princess-vintage.adapt.470.1.jpg"
+          }
+        ],
+        "onefilename": "/home/marcel/Pictures/Screenshot_20200608_154034.png",
+        "title": "123sdf"
+      }
+    }
+  },
   "page2": {
     "QAManagerDialogs": {
       "entry-spec": {
         "title": "df",
-        "maximum": "fghfgh",
-        "tooltip": [
-          {
-            "tt3": "fgh"
-          },
-          {
-            "tt2": "dfg"
-          }
-        ],
-        "minimum": "fghfgh",
-        "example": "",
         "callback": "fg",
         "invisible": false,
-        "fieldtype": "QAComboBox",
         "default": "dfg",
+        "fieldtype": "QARadioButton",
+        "minimum": "3",
+        "name": "fgh",
+        "encode": false,
         "description": "",
+        "example": "",
         "required": true,
-        "name": "dfg",
-        "encode": true
-      }
-    }
-  },
-  "page1": {
-    "QAManagerDialogs": {
-      "set-spec": {
-        "title": "123sdf",
-        "name": "sd",
-        "onefilename": "/home/marcel/Pictures/IMG_5179.JPG",
-        "filename": [
+        "tooltip": [
           {
-            "Config": "/home/marcel/Pictures/Peter/p0021.jpeg"
-          },
-          {
-            "Output": "/home/Data/Fotos/Huis en Tuin/Computer stuff/20120807_114525.jpg"
+            "tt1": "qweqwe"
           }
         ],
-        "description": "cvbdfg dfxc xcv cv_bcévb"
+        "maximum": "8"
       }
     }
   }
