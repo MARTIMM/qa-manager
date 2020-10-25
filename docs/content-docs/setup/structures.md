@@ -168,7 +168,7 @@ The formats used are shown below for each input type with the variables which co
 |description  |o |o |o |o |o |o |o |o |o |o |o |o |o |
 |encode       |o |- |- |- |- |- |- |- |- |- |- |- |- |
 |example      |o |- |- |- |- |- |- |- |- |- |- |- |- |
-|fieldlist    |o |! |! |  |! |! |  |  |  |  |  |  |  |
+|fieldlist    |o |! |! |- |! |! |  |  |  |  |  |  |  |
 |fieldtype    |o |! |! |! |! |! |! |! |! |! |! |! |! |
 |height       |  |  |  |o |  |  |  |  |o |  |  |  |  |
 |hide         |o |o |o |o |o |o |o |o |o |o |o |o |o |
