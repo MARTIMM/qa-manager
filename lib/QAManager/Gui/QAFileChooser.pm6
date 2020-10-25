@@ -33,7 +33,7 @@ method create-widget ( Str $widget-name, Int $row --> Any ) {
   my Gnome::Gtk3::FileChooserButton $filechooserbutton .= new(
     :title($!question.title)
   );
-  $filechooserbutton.set-hexpand(False);
+  $filechooserbutton.set-hexpand(True);
   $filechooserbutton.register-signal( self, 'file-selected', 'file-set', :$row);
 
   $filechooserbutton
