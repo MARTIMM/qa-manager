@@ -28,6 +28,7 @@
     "QAManager::Gui::OkMsgDialog": "lib/QAManager/Gui/OkMsgDialog.pm6",
     "QAManager::Gui::QAComboBox": "lib/QAManager/Gui/QAComboBox.pm6",
     "QAManager::Gui::QAEntry": "lib/QAManager/Gui/QAEntry.pm6",
+    "QAManager::Gui::QAImage": "lib/QAManager/Gui/QAImage.pm6",
     "QAManager::Gui::QALabel": "lib/QAManager/Gui/QALabel.pm6",
     "QAManager::Gui::QASwitch": "lib/QAManager/Gui/QASwitch.pm6",
     "QAManager::Gui::QATextView": "lib/QAManager/Gui/QATextView.pm6",

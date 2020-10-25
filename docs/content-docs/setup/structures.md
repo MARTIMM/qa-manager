@@ -151,8 +151,8 @@ The formats used are shown below for each input type with the variables which co
 |**QAColorChooser**       | Cc                         |             |
 |**QAComboBox**           | Co                         | 🗸           |
 |**QAEntry**              | En                         | 🗸           |
-|**QAFileChooser**        | Fc                         |             |
-|**QAImage**              | Im                         |             |
+|**QAFileChooser**        | Fc                         | 🗸           |
+|**QAImage**              | Im                         | 🗸           |
 |**QAList**               | Li                         |             |
 |**QARadioButton**        | Rb                         |             |
 |**QAScale**              | Sc                         |             |

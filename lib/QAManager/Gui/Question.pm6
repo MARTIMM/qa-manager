@@ -9,6 +9,7 @@ use QAManager::Gui::QATextView;
 use QAManager::Gui::QAComboBox;
 use QAManager::Gui::QASwitch;
 use QAManager::Gui::QAFileChooser;
+use QAManager::Gui::QAImage;
 
 use Gnome::Gtk3::Enums;
 use Gnome::Gtk3::Grid;
