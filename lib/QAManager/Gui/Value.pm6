@@ -44,6 +44,12 @@ has Bool $.faulty-state;
 has Int $!msg-id;
 
 #-------------------------------------------------------------------------------
+submethod new ( |c ) {
+  # let the Gnome::Gtk3::Frame class process the options
+  self.bless( :GtkFrame, |c);
+}
+
+#-------------------------------------------------------------------------------
 method initialize ( ) {
 
   # clear values

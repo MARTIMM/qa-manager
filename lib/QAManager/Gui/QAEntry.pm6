@@ -14,12 +14,6 @@ unit class QAManager::Gui::QAEntry;
 also does QAManager::Gui::Value;
 
 #-------------------------------------------------------------------------------
-submethod new ( |c ) {
-  # let the Gnome::Gtk3::Frame class process the options
-  self.bless( :GtkFrame, |c);
-}
-
-#-------------------------------------------------------------------------------
 submethod BUILD (
   QAManager::Question:D :$!question, Hash:D :$!user-data-set-part
 ) {

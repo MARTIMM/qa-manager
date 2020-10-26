@@ -9,19 +9,12 @@ use Gnome::Gtk3::FileChooser;
 use Gnome::Gtk3::FileChooserButton;
 
 use QAManager::QATypes;
-use QAManager::Gui::Frame;
 use QAManager::Question;
 use QAManager::Gui::Value;
 
 #-------------------------------------------------------------------------------
 unit class QAManager::Gui::QAImage;
 also does QAManager::Gui::Value;
-
-#-------------------------------------------------------------------------------
-submethod new ( |c ) {
-  # let the Gnome::Gtk3::Frame class process the options
-  self.bless( :GtkFrame, |c);
-}
 
 #-------------------------------------------------------------------------------
 submethod BUILD (
