@@ -1,5 +1,8 @@
 use v6.d;
 
+#TODO is encoding a string necessary? isn't it users aftermath?
+#TODO when to fill in default values? also users work later?
+
 use Gnome::Gdk3::Events;
 
 #use Gnome::Gtk3::Widget;
@@ -52,6 +55,11 @@ submethod new ( |c ) {
 #-------------------------------------------------------------------------------
 method initialize ( ) {
 
+  # check if things are defined properly. must be done here because
+  # user defined widgets may forget to handle them
+  die 'question data not defined' unless ?$!question and ?$!question.name;
+  die 'user data not defined' unless ?$!user-data-set-part;
+
   # clear values
   $!input-widgets = [];
   $!values = [];
@@ -72,6 +80,7 @@ method initialize ( ) {
   self.container-add($!grid);
   self!create-input-row(0);
 
+  # fill in user data
   self!set-values;
 }
 
@@ -185,7 +194,6 @@ method !create-combobox ( Array $select-list --> Gnome::Gtk3::ComboBoxText ) {
 #-------------------------------------------------------------------------------
 method !adjust-user-data ( $w, $input, Int $row ) {
 
-#Gnome::N::debug(:on);
   if ? $!question.repeatable {
     if $!question.selectlist.defined {
       my Gnome::Gtk3::ComboBoxText $cbt .= new(
@@ -204,7 +212,6 @@ method !adjust-user-data ( $w, $input, Int $row ) {
   else {
     $!user-data-set-part{$!widget-name} = $input;
   }
-#Gnome::N::debug(:off);
 }
 
 #-------------------------------------------------------------------------------
@@ -336,8 +343,6 @@ method add-row ( Gnome::Gtk3::ToolButton :_widget($tb), Int :$_handler-id ) {
 #-------------------------------------------------------------------------------
 method delete-row ( Gnome::Gtk3::ToolButton :_widget($tb), Int :$_handler-id ) {
 
-Gnome::N::debug(:on);
-
   my ( $x, $row ) = $tb.get-name.split(':');
   $row .= Int;
 
@@ -359,12 +364,8 @@ Gnome::N::debug(:on);
   $row = 0;
   for @$!input-widgets -> $iw {
     $iw.set-name("$!widget-name:$row");
-#    my $input = self.get-value($iw);
-#    self!adjust-user-data( $iw, $input, $row);
     $row++;
   }
-
-Gnome::N::debug(:off);
 }
 
 #-------------------------------------------------------------------------------
