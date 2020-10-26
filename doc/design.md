@@ -555,7 +555,7 @@ There is a possibility to name the buttons differently. This is done using a but
 * Grid row
   * Grid col 0 (QAQuestion): Label with question.
   * Grid col 1 (QARequired): Label with optional star (**\***) if answer is required.
-  * Grid col 2 (QAAnswer): The structure wherein the input widget resides
+  * Grid col 2 (QAAnswer): A structure wherein the input widget resides
     * Frame; border is made visible when multiple answers are set (repeatable). Its widget name will be set to the name of the question.
       * Grid; mostly one row. more rows when repeatable.
         * Grid col 0 (QACatColumn): A ComboBox when repeatable and selectlist are set.

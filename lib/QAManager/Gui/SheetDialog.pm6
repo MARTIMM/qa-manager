@@ -37,7 +37,7 @@ use QAManager::QATypes;
 =begin pod
 =head1 QAManager::Gui::SheetDialog
 
-This module shows a dialog wherein a sheet configuration is displayed. Several ways to display the sheet are available
+This module shows a dialog wherein sets of questions are displayed. Several ways to display the sheet are available
 =end pod
 
 unit class QAManager::Gui::SheetDialog:auth<github:MARTIMM>;
