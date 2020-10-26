@@ -179,8 +179,6 @@ my QAManager::QATypes $qa-types .= instance;
 $qa-types.data-file-type = QAJSON;
 $qa-types.cfgloc-userdata = 'xt/Data';
 $qa-types.set-check-handler( 'check-exclam', $eh, 'check-char', :char<!>);
-#note $qa-types.get-check-handler('check-exclam');
-#exit(0);
 
 
 my Gnome::Gtk3::Window $top-window .= new;
