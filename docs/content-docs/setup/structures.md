@@ -61,7 +61,7 @@ Questions are what it is all about. In short a piece of text to pose the questio
 * **encode**; Encode the result of the input before giving the answers back to the caller. Used with e.g. password input.
 * **example**; An example answer/format in light gray in an text field.
 * **fieldlist**; The fieldlist is used to fill e.g. a combobox or a list input field.
-* **fieldtype**; The widget type to use to provide the answer with. Current enumerated types are: `QAEntry` for text, `QATextView` for multiline text, `QAComboBox` a list of possibilities to chose from, `QARadioButton` a select of one of a set of possebilities, `QACheckButton`, one or more possebilities `QAToggleButton` boolean input, `QAScale` a slider, `QASwitch` also boolean input. Other types are `QADragAndDrop`, `QAColorChooser`, `QAFileChooser`, `QAList`, `QASpin` and `QAImage`. These are not yet implemented.
+* **fieldtype**; The widget type to use to provide the answer with. Current enumerated types are: `QAEntry` for text, `QATextView` for multiline text, `QAComboBox` a list of possibilities to chose from, `QARadioButton` a select of one of a set of possebilities, `QACheckButton`, one or more possebilities `QAToggleButton` boolean input, `QAScale` a slider, `QASwitch` also boolean input, `QAUserWidget` with a user definable input. Other types are `QADragAndDrop`, `QAColorChooser`, `QAFileChooser`, `QAList`, `QASpin` and `QAImage`. These are not yet implemented.
 * **height**; Sometimes a height is needed for a widget.
 * **hide**; Hide this question. A use for it to hide or view a set in an action handler.
 * **invisible**; Make text input unreadable by showing stars (\*) e.g. password input.
@@ -74,6 +74,7 @@ Questions are what it is all about. In short a piece of text to pose the questio
 * **step**; Step size for the slider.
 * **title**; unused if there is a description, otherwise it is used as the question text.
 * **tooltip**; Some helpful message shown on the input field.
+* **userwidget**; Key to the previously stored user widget as input widget.
 * **width**; sometimes a width is needed for a widget.
 
 
@@ -128,6 +129,7 @@ The formats used are shown below for each input type with the variables which co
 |**QATextView**    |ignored|ignored|`$value`
 |**QAToggleButton**|ignored|ignored|`$value`
 |**QASpin**        |ignored|ignored|`$value`
+|**QAUserWidget**  |user definable|user definable|user definable
 
 <!--
 |**QADragAndDrop** |ignored|ignored|`$value`
@@ -160,29 +162,31 @@ The formats used are shown below for each input type with the variables which co
 |**QASwitch**             | Sw                         | 🗸           |
 |**QATextView**           | Tv                         | 🗸           |
 |**QAToggleButton**       | Tb                         |             |
+|**QAUserWidget**         | Uw                         |             |
 
-|             |En|Cb|Co|Im|Li|Rb|Sc|Sw|Tv|Tb|Cc|Fc|Sp|
-|-------------|--|--|--|--|--|--|--|--|--|--|--|--|--|
-|callback     |o |- |- |  |  |- |  |  |o |  |  |  |  |
-|default      |o |o |o |o |o |o |o |o |o |o |o |o |o |
-|description  |o |o |o |o |o |o |o |o |o |o |o |o |o |
-|encode       |o |- |- |- |- |- |- |- |- |- |- |- |- |
-|example      |o |- |- |- |- |- |- |- |- |- |- |- |- |
-|fieldlist    |o |! |! |- |! |! |  |  |  |  |  |  |  |
-|fieldtype    |o |! |! |! |! |! |! |! |! |! |! |! |! |
-|height       |  |  |  |o |  |  |  |  |o |  |  |  |  |
-|hide         |o |o |o |o |o |o |o |o |o |o |o |o |o |
-|invisible    |o |- |- |- |- |- |- |- |- |- |- |- |- |
-|maximum      |o |- |- |- |- |- |o |- |o |- |- |- |o |
-|minimum      |o |- |- |- |- |- |o |- |o |- |- |- |o |
-|name         |! |! |! |! |! |! |! |! |! |! |! |! |! |
-|repeatable   |o |  |  |o |  |  |  |  |  |  |o |o |  |
-|required     |o |o |o |o |o |o |o |o |o |o |o |o |o |
-|step         |- |- |- |- |- |- |o |- |- |- |- |- |  |
-|title        |o |o |o |o |o |o |o |o |o |o |o |o |o |
-|tooltip      |o |o |o |o |o |o |o |o |o |o |o |o |o |
-|selectlist   |o |- |- |o |- |- |- |- |- |- |o |o |- |
-|width        |  |  |  |o |  |  |  |  |  |  |  |  |  |
+|             |En|Cb|Co|Im|Li|Rb|Sc|Sw|Tv|Tb|Cc|Fc|Sp|Uw|
+|-------------|--|--|--|--|--|--|--|--|--|--|--|--|--|--|
+|callback     |o |- |- |  |  |- |  |  |o |  |  |  |  |  |
+|default      |o |o |o |o |o |o |o |o |o |o |o |o |o |  |
+|description  |o |o |o |o |o |o |o |o |o |o |o |o |o |  |
+|encode       |o |- |- |- |- |- |- |- |- |- |- |- |- |  |
+|example      |o |- |- |- |- |- |- |- |- |- |- |- |- |  |
+|fieldlist    |o |! |! |- |! |! |  |  |  |  |  |  |  |  |
+|fieldtype    |o |! |! |! |! |! |! |! |! |! |! |! |! |! |
+|height       |  |  |  |o |  |  |  |  |o |  |  |  |  |  |
+|hide         |o |o |o |o |o |o |o |o |o |o |o |o |o |  |
+|invisible    |o |- |- |- |- |- |- |- |- |- |- |- |- |  |
+|maximum      |o |- |- |- |- |- |o |- |o |- |- |- |o |  |
+|minimum      |o |- |- |- |- |- |o |- |o |- |- |- |o |  |
+|name         |! |! |! |! |! |! |! |! |! |! |! |! |! |! |
+|repeatable   |o |  |  |o |  |  |  |  |  |  |o |o |  |  |
+|required     |o |o |o |o |o |o |o |o |o |o |o |o |o |  |
+|selectlist   |o |- |- |o |- |- |- |- |- |- |o |o |- |  |
+|step         |- |- |- |- |- |- |o |- |- |- |- |- |  |  |
+|title        |o |o |o |o |o |o |o |o |o |o |o |o |o |o |
+|tooltip      |o |o |o |o |o |o |o |o |o |o |o |o |o |o |
+|userwidget   |- |- |- |- |- |- |- |- |- |- |- |- |- |! |
+|width        |  |  |  |o |  |  |  |  |  |  |  |  |  |  |
 
 ## Sheet
 

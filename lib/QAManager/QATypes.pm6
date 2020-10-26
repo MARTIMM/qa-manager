@@ -44,6 +44,7 @@ QAFieldType is an enumeration of field types to provide an anwer. The types are 
 =item QASwitch; On/Off, Yes/No kind of input.
 =item QATextView; Multy line input.
 =item QAToggleButton; Like switch.
+=item QAUserWidget; A user widget. The key is given with userwidget.
 
 =end pod
 
@@ -51,7 +52,7 @@ QAFieldType is an enumeration of field types to provide an anwer. The types are 
 enum QAFieldType is export <
   QAEntry QATextView QAComboBox QARadioButton QACheckButton
   QAToggleButton QAScale QASwitch QAImage QAList QAFileChooser
-  QAColorChooser QADragAndDrop
+  QAColorChooser QADragAndDrop QAUserWidget
 >;
 
 #-------------------------------------------------------------------------------
@@ -95,7 +96,7 @@ has QADataFileType $.data-file-type is rw;
 has Str $.cfgloc-userdata is rw;
 has Str $.cfgloc-category is rw;
 has Str $.cfgloc-sheet is rw;
-has Hash $!callback-objects;
+has Hash $!user-objects;
 
 #-------------------------------------------------------------------------------
 =begin pod
@@ -366,33 +367,45 @@ set-handler is used to set a user defined callback handler. When in a question t
 
 #tm:0:set-action-handler
 method set-action-handler (
-  Str:D $callback-key, Mu:D $handler-object, Str:D $method-name, *%options
+  Str:D $action-key, Mu:D $handler-object, Str:D $method-name, *%options
 ) {
-  $!callback-objects<actions>{$callback-key} = [
+  $!user-objects<actions>{$action-key} = [
     $handler-object, $method-name, %options
   ];
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#tm:1:
+#tm:1:set-check-handler
 method set-check-handler (
-  Str:D $callback-key, Mu:D $handler-object, Str:D $method-name, *%options
+  Str:D $check-key, Mu:D $handler-object, Str:D $method-name, *%options
 ) {
-  $!callback-objects<checks>{$callback-key} = [
+  $!user-objects<checks>{$check-key} = [
     $handler-object, $method-name, %options
   ];
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#tm:1:set-widget-object
+method set-widget-object ( Str:D $widget-key, Mu:D $widget-object ) {
+  $!user-objects<widgets>{$widget-key} = $widget-object;
 }
 
 #-------------------------------------------------------------------------------
-#tm:0:get-handler(:action)
-method get-action-handler ( Str:D $callback-key --> Array ) {
-  $!callback-objects<actions>{$callback-key}
+#tm:0:get-action-handler
+method get-action-handler ( Str:D $action-key --> Array ) {
+  $!user-objects<actions>{$action-key}
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#tm:1:get-handler(:check)
-method get-check-handler ( Str:D $callback-key --> Array ) {
-  $!callback-objects<checks>{$callback-key}
+#tm:1:get-check-handler
+method get-check-handler ( Str:D $check-key --> Array ) {
+  $!user-objects<checks>{$check-key}
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#tm:1:get-widget-object
+method get-widget-object ( Str:D $widget-key --> Any ) {
+  $!user-objects<widgets>{$widget-key}
 }
 
 #-------------------------------------------------------------------------------
@@ -400,9 +413,10 @@ method get-check-handler ( Str:D $callback-key --> Array ) {
 method !init ( ) {
 
   $!data-file-type = QAJSON;
-  $!callback-objects = %(
+  $!user-objects = %(
     actions => %(),
     checks => %(),
+    widgets => %(),
   );
 
   if $*DISTRO.is-win {

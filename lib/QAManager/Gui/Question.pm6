@@ -31,12 +31,8 @@ submethod BUILD (
   QAManager::Question :$!question, Gnome::Gtk3::Grid:D :$!question-grid,
   Int:D :row($!grid-row), Hash:D :$!user-data-set-part
 ) {
-#  $!input-widgets = [];
-#note 'Q: ', $!question.name, ' => ', ($!user-data-set-part{$!question.name} // '--x--');
 
   self.display;
-
-#  self.set-values;
 }
 
 #-------------------------------------------------------------------------------
@@ -63,12 +59,27 @@ method display ( ) {
   # find and load the module for this input type. if found, initialize
   # the module and store in array.
   my Str $module-name = 'QAManager::Gui::' ~ $!question.fieldtype.Str;
-#note "Input widget class: $module-name";
+#note "Input widget class: $module-name, $!grid-row";
+
+  # if this is a user widget, the object is already created. get the object
+  # from <userwidget> and get the object, then call instantiate().
+  if $!question.fieldtype eq QAUserWidget {
+    my QAManager::QATypes $qa-types .= instance;
+    $!input-widget = $qa-types.get-widget-object($!question.userwidget);
+    if ?$!input-widget and $!input-widget.^lookup('instantiate') ~~ Method {
+      $!input-widget.instantiate( :$!question, :$!user-data-set-part);
+      $!question-grid.grid-attach( $!input-widget, QAAnswer, $!grid-row, 1, 1);
+    }
+
+    else {
+      note "fail to use QAUserWidget, $!question.userwidget() instantiate";
+    }
+  }
 
   # test existence of an abstract method 'set-value'. it must be defined here.
   # save module in $m, when module is not found, a failure can then be handled.
   # otherwise there are unhandled failure problems in DESTROY.
-  if (my $m = ::($module-name)).^lookup('set-value') ~~ Method {
+  elsif (my $m = ::($module-name)).^lookup('set-value') ~~ Method {
     $!input-widget = ::($module-name).new(
       :$!question, :$!user-data-set-part
     );

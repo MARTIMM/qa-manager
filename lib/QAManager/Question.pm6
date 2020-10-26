@@ -5,7 +5,7 @@ unit class QAManager::Question:auth<github:MARTIMM>;
 
 use QAManager::QATypes;
 
-has Str $.callback is rw;       # optional to check value
+has Str $.callback is rw;       # optional key to check value
 has Str $.cmpwith is rw;        # optional to check value against other field
 has Any $.default is rw;        # optional default value
 has Str $.description is rw;    # optional
@@ -25,6 +25,7 @@ has Array $.selectlist is rw;   # when a list is displayed in e.g. combobox
 has Any $.step is rw;           # optional step for scale
 has Str $.title is rw;          # optional = $!name.tclc
 has Str $.tooltip is rw;        # optional tooltip value for tooltip
+has Str $.userwidget is rw;     # key to user widget object
 has Int $.width is rw;          # optional width in pixels
 
 #-------------------------------------------------------------------------------
@@ -57,25 +58,27 @@ submethod BUILD ( Str:D :$!name, Hash :$qa-data ) {
 
   $!default = $qa-data<default> if $qa-data<default>.defined;
   $!description = $qa-data<description> if $qa-data<description>.defined;
-  $!encode = $qa-data<encode> if $qa-data<encode>.defined;# // False;
+  $!encode = $qa-data<encode> if $qa-data<encode>.defined;
   $!example = $qa-data<example> if $qa-data<example>.defined;
   $!tooltip = $qa-data<tooltip> if $qa-data<tooltip>.defined;
   $!callback = $qa-data<callback> if $qa-data<callback>.defined;
   $!cmpwith = $qa-data<cmpwith> if $qa-data<cmpwith>.defined;
   $!height = $qa-data<height> if $qa-data<height>.defined;
   $!hide = $qa-data<hide> if $qa-data<hide>.defined;
-  $!invisible = $qa-data<invisible> if $qa-data<invisible>.defined;# // False;
+  $!invisible = $qa-data<invisible> if $qa-data<invisible>.defined;
   $!minimum = $qa-data<minimum> if $qa-data<minimum>.defined;
   $!maximum = $qa-data<maximum> if $qa-data<maximum>.defined;
   $!selectlist = $qa-data<selectlist> if $qa-data<selectlist>.defined;
   $!fieldlist = $qa-data<fieldlist> if $qa-data<fieldlist>.defined;
-  $!required = $qa-data<required> if $qa-data<required>.defined;# // False;
-  $!repeatable = $qa-data<repeatable> if $qa-data<repeatable>.defined;    # // False;
+  $!required = $qa-data<required> if $qa-data<required>.defined;
+  $!repeatable = $qa-data<repeatable> if $qa-data<repeatable>.defined;
   $!step = $qa-data<step> if $qa-data<step>.defined;
   $!title = $qa-data<title> // $!name.tclc;
+  $!userwidget = $qa-data<userwidget> if $qa-data<userwidget>.defined;
+  $!width = $qa-data<width> if $qa-data<width>.defined;
+
 #  $!category = $qa-data<category> if $qa-data<category>.defined;
 #  $!set = $qa-data<set> if $qa-data<set>.defined;
-  $!width = $qa-data<width> if $qa-data<width>.defined;
 }
 
 #-------------------------------------------------------------------------------
@@ -83,11 +86,11 @@ method qa-data ( --> Hash ) {
   my Hash $qa-data = %( :$!name, :$!fieldtype);
 
   $qa-data<callback> = $!callback if $!callback.defined;
-#  $qa-data<category> = $!category if $!category.defined;
   $qa-data<default> = $!default if $!default.defined;
   $qa-data<description> = $!description if $!description.defined;
   $qa-data<encode> = $!encode if $!encode.defined;
   $qa-data<example> = $!example if $!example.defined;
+  $qa-data<fieldlist> = $!fieldlist if $!fieldlist.defined;
   $qa-data<height> = $!height if $!height.defined;
   $qa-data<hide> = $!hide if $!hide.defined;
   $qa-data<invisible> = $!invisible if $!invisible.defined;
@@ -95,13 +98,15 @@ method qa-data ( --> Hash ) {
   $qa-data<maximum> = $!maximum if $!maximum.defined;
   $qa-data<required> = $!required if $!required.defined;
   $qa-data<repeatable> = $!repeatable if $!repeatable.defined;
-#  $qa-data<set> = $!set if $!set.defined;
+  $qa-data<selectlist> = $!selectlist if $!selectlist.defined;
   $qa-data<step> = $!step if $!step.defined;
   $qa-data<title> = $!title if $!title.defined;
   $qa-data<tooltip> = $!tooltip if $!tooltip.defined;
-  $qa-data<selectlist> = $!selectlist if $!selectlist.defined;
-  $qa-data<fieldlist> = $!fieldlist if $!fieldlist.defined;
+  $qa-data<userwidget> = $!userwidget if $!userwidget.defined;
   $qa-data<width> = $!width if $!width.defined;
+
+#  $qa-data<set> = $!set if $!set.defined;
+#  $qa-data<category> = $!category if $!category.defined;
 
   $qa-data
 }
