@@ -95,18 +95,11 @@ submethod BUILD (
   $sep.set-margin-end(10);
   $question-grid.grid-attach( $sep, 0, $question-grid-row++, 3, 1);
 
-  # show set with user data if any
-#  my QAManager::Gui::Question $question .= new(
-#    :$!set, :$question-grid, :starting-grid-row($question-grid-row),
-#    :$!user-data-set-part
-#  );
-  #$question.build-set-fields;
-  #$question.set-field-values;
-
+  # show set with user data if any on subsequent rows counting from 2
   my $c := $!set.clone;
   for $c -> QAManager::Question $question {
     my QAManager::Gui::Question $gui-q .= new(
-      :$question, :$question-grid, :row($question-grid-row++), :$!user-data-set-part
+      :$question, :$question-grid, :row($question-grid-row), :$!user-data-set-part
     );
     $!questions.push: $gui-q;
     $question-grid-row++;
