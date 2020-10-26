@@ -10,23 +10,79 @@ use Gnome::Gtk3::Window;
 use Gnome::Gtk3::Button;
 
 use QAManager::Gui::SheetDialog;
+use QAManager::Gui::Frame;
+use QAManager::Gui::Value;
 use QAManager::QATypes;
+use QAManager::Question;
 
 use Gnome::N::X;
 #Gnome::N::debug(:on);
 
 #-------------------------------------------------------------------------------
+class MyWidget does QAManager::Gui::Value {
+
+  #---------
+  method instantiate (
+    QAManager::Question:D :$!question, Hash:D :$!user-data-set-part
+  ) {
+
+    # widget is not repeatable
+    $!question.repeatable = False;
+
+    self.initialize;
+  }
+
+  #---------
+  method create-widget ( Str $widget-name, Int $row --> Any ) {
+
+    # create a text input widget
+    my Gnome::Gtk3::Button $button .= new;
+    $button.set-label('0');
+    $button.set-hexpand(False);
+    $button.register-signal( self, 'change-label', 'clicked');
+
+    $button
+  }
+
+  #---------
+  method get-value ( $button --> Any ) {
+    $button.get-label;
+  }
+
+  #---------
+  method set-value ( Any:D $button, $label ) {
+    $button.set-label($label);
+  }
+
+  #---------
+  method change-label ( :_widget($button) ) {
+    my ( $n, $row ) = $button.get-name.split(':');
+    $row .= Int;
+    my Str $l = $button.get-label // '0';
+    my Int $i = $l.Int + 1;
+    $button.set-label("$i");
+    self.process-widget-signal( $button, $row, :!do-check);
+  }
+}
+
+
+#-------------------------------------------------------------------------------
 class EH {
 
   method show-dialog ( ) {
+    # important to initialize here because destroy of dialogs native object
+    # destroyes everything on it including this objects native objects.
+    # we need to rebuild it everytime the dialog is (re)run.
+    my QAManager::QATypes $qa-types .= instance;
+    $qa-types.set-widget-object( 'use-my-widget', MyWidget.new);
+
     my QAManager::Gui::SheetDialog $sheet-dialog .= new(
       :sheet-name<QAManagerSetDialog>,
 #      :!cancel-warning, :!save-data
     );
-#Gnome::N::debug(:on);
+
     $sheet-dialog.register-signal( self, 'dialog-response', 'response');
     $sheet-dialog.show-dialog;
-#Gnome::N::debug(:off);
   }
 
   #---------
@@ -34,12 +90,7 @@ class EH {
     int32 $response, QAManager::Gui::SheetDialog :_widget($dialog)
   ) {
     note "dialog response: $response, ", GtkResponseType($response);
-#    if GtkResponseType($response) ~~ GTK_RESPONSE_DELETE_EVENT {
-#      note 'Forced dialog close!';
-#      $dialog.widget-destroy;
-#    }
 
-#    elsif GtkResponseType($response) ~~ GTK_RESPONSE_OK {
     if GtkResponseType($response) ~~ GTK_RESPONSE_OK {
       if $dialog.faulty-state {
         note 'Faulty state';
@@ -71,6 +122,7 @@ class EH {
         $dialog.widget-destroy;
       }
     }
+
   }
 
   #---------
@@ -87,7 +139,8 @@ class EH {
 
 #-------------------------------------------------------------------------------
 # data structure
-my EH $eh .= new,
+my EH $eh .= new;
+
 #`{{
 my Hash $user-data = %(
   page1 => %(
