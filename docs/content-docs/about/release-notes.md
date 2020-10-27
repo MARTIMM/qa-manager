@@ -10,7 +10,7 @@ See [semantic versioning](http://semver.org/). Please note point 4. on that page
 
 #### 2020-10-27 0.12.0
 * User definable input field widgets are now possible to use. The type used is `QAUserWidget` and used question parameter is `userwidget`. Userwidget is a key pointing to a previously created object stored with method `.set-widget-object()` found in module QATypes.
-* Type QARadioButton input field added.
+* Type QARadioButton, QACheckButton input fields added.
 
 #### 2020-10-24 0.11.0
 * Add QAComboBox, QASwitch, QAFileChooser, QAImage input fields
