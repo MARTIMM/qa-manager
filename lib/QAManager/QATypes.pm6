@@ -35,8 +35,8 @@ QAFieldType is an enumeration of field types to provide an anwer. The types are 
 =comment item QAColorChooser;
 =item QAComboBox; A pulldown list with items.
 =item QAEntry; A single line of text.
-=item QAFileChooser;
-=comment item QAImage; An image.
+=item QAFileChooser; A button to open a file dialog and choose a file.
+=item QAImage; A button to open a file dialog and choose an image.
 =comment item QAList; An list.
 =item QARadioButton; A group of radiobuttons.
 =item QAScale; A scale for numeric input.
