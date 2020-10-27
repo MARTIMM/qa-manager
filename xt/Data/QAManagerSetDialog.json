@@ -1,40 +1,21 @@
 {
-  "page2": {
-    "QAManagerDialogs": {
-      "entry-spec": {
-        "example": "",
-        "invisible": false,
-        "description": "",
-        "mywidget": "13",
-        "default": "dfg",
-        "minimum": "3",
-        "encode": false,
-        "maximum": "8",
-        "title": "df",
-        "callback": "fg",
-        "name": "fgh",
-        "required": true,
-        "tooltip": [
-          {
-            "tt1": "qweqwe"
-          }
-        ],
-        "fieldtype": "QARadioButton"
-      }
-    }
-  },
   "page1": {
     "QAManagerDialogs": {
       "set-spec": {
         "onefilename": "/home/marcel/Videos/simplescreenrecorder-2020-09-23_21.59.23.mkv",
-        "title": "123sdf",
-        "description": "cvbdfg dfxc xcv cv_bcévb",
-        "an-image": "/home/marcel/Pictures/Pinterest/827d804fdad133e86501a7e0055498ed.jpg",
         "more-image": [
           {
             "Icon": "/home/marcel/Pictures/01-queens-princess-vintage.adapt.470.1.jpg"
+          },
+          {
+            "Icon": "/home/marcel/Pictures/Old/Beauty/Jolanda/j1/2020-09-14-15-05-18-464.jpg"
+          },
+          {
+            "Icon": "/home/marcel/Pictures/Old/Beauty/Jolanda/j5/YuFace_2020091708330319_save.jpg"
           }
         ],
+        "title": "123sdf",
+        "radio": "Pop 90-ies",
         "filename": [
           {
             "Config": "/home/marcel/Pictures/Henrikje & Peter.zip"
@@ -43,7 +24,33 @@
             "Output": "/home/Data/AC-Ryan-disk-Film/Komedie/Dumb and Dumber/Dumb and Dumber (Divx).avi"
           }
         ],
+        "description": "cvbdfg dfxc xcv cv_bcévb",
+        "an-image": "/home/marcel/Pictures/Pinterest/827d804fdad133e86501a7e0055498ed.jpg",
         "name": "fgh"
+      }
+    }
+  },
+  "page2": {
+    "QAManagerDialogs": {
+      "entry-spec": {
+        "tooltip": [
+          {
+            "tt1": "qweqwe"
+          }
+        ],
+        "callback": "fg",
+        "description": "",
+        "name": "fgh",
+        "title": "df",
+        "example": "",
+        "required": true,
+        "maximum": "8",
+        "default": "dfg",
+        "mywidget": "14",
+        "fieldtype": "QARadioButton",
+        "encode": false,
+        "invisible": false,
+        "minimum": "3"
       }
     }
   }

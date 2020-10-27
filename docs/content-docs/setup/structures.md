@@ -156,7 +156,7 @@ The formats used are shown below for each input type with the variables which co
 |**QAFileChooser**        | Fc                         | 🗸           |
 |**QAImage**              | Im                         | 🗸           |
 |**QAList**               | Li                         |             |
-|**QARadioButton**        | Rb                         |             |
+|**QARadioButton**        | Rb                         | 🗸           |
 |**QAScale**              | Sc                         |             |
 |**QASpin**               | Sp                         |             |
 |**QASwitch**             | Sw                         | 🗸           |
@@ -173,20 +173,20 @@ The formats used are shown below for each input type with the variables which co
 |example      |o |- |- |- |- |- |- |- |- |- |- |- |- |  |
 |fieldlist    |o |! |! |- |! |! |  |  |  |  |  |  |  |  |
 |fieldtype    |o |! |! |! |! |! |! |! |! |! |! |! |! |! |
-|height       |  |  |  |o |  |  |  |  |o |  |  |  |  |  |
+|height       |  |  |- |o |  |- |  |  |o |  |  |  |  |  |
 |hide         |o |o |o |o |o |o |o |o |o |o |o |o |o |  |
 |invisible    |o |- |- |- |- |- |- |- |- |- |- |- |- |  |
 |maximum      |o |- |- |- |- |- |o |- |o |- |- |- |o |  |
 |minimum      |o |- |- |- |- |- |o |- |o |- |- |- |o |  |
 |name         |! |! |! |! |! |! |! |! |! |! |! |! |! |! |
-|repeatable   |o |  |  |o |  |  |  |  |  |  |o |o |  |  |
+|repeatable   |o |  |- |o |  |- |  |  |  |  |o |o |  |  |
 |required     |o |o |o |o |o |o |o |o |o |o |o |o |o |  |
 |selectlist   |o |- |- |o |- |- |- |- |- |- |o |o |- |  |
 |step         |- |- |- |- |- |- |o |- |- |- |- |- |  |  |
 |title        |o |o |o |o |o |o |o |o |o |o |o |o |o |o |
 |tooltip      |o |o |o |o |o |o |o |o |o |o |o |o |o |o |
 |userwidget   |- |- |- |- |- |- |- |- |- |- |- |- |- |! |
-|width        |  |  |  |o |  |  |  |  |  |  |  |  |  |  |
+|width        |- |  |- |o |  |- |  |  |  |  |  |  |  |  |
 
 ## Sheet
 
