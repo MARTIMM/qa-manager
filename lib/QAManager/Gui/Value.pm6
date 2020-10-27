@@ -161,6 +161,8 @@ method !set-values ( ) {
   }
 
   else {
+# TODO checkbutton needs an array without having repeatable set. here,
+# setting the value will go wrong and program crashes.
     self.set-value( $!input-widgets[0], @values[0]);
     self!check-value( $!input-widgets[0], 0);
   }
