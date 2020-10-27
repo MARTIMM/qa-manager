@@ -78,7 +78,7 @@ class EH {
 
     my QAManager::Gui::SheetDialog $sheet-dialog .= new(
       :sheet-name<QAManagerSetDialog>,
-#      :!cancel-warning, :!save-data
+      :!cancel-warning, :!save-data
     );
 
     $sheet-dialog.register-signal( self, 'dialog-response', 'response');
@@ -122,7 +122,6 @@ class EH {
         $dialog.widget-destroy;
       }
     }
-
   }
 
   #---------

@@ -59,7 +59,10 @@ submethod new ( |c ) {
 }
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( Str :$!sheet-name, Hash :$user-data? is copy ) {
+submethod BUILD (
+  Str :$!sheet-name, Hash :$user-data? is copy,
+  Bool :$cancel-warning, Bool :$save-data
+) {
 
   my QAManager::QATypes $qa-types .= instance;
   $!user-data = $user-data //
