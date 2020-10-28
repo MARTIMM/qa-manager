@@ -67,18 +67,15 @@ method get-value ( $button-grid --> Any ) {
 
 #-------------------------------------------------------------------------------
 method set-value ( Any:D $button-grid, $labels ) {
-note "labels: $button-grid.get-name(), $labels.perl()";
-
-  return unless ?$labels;
+  # user data is stored as a hash to make the check more easily
+  my $v = $labels // [];
+  my Hash $reversed-v = $v.kv.reverse.hash;
 
   loop ( my Int $row = 0; $row < $!question.fieldlist.elems; $row++ ) {
     my Gnome::Gtk3::CheckButton $cb .= new(
       :native-object($button-grid.get-child-at( 0, $row))
     );
-    if $cb.get-label eq $labels[$row] {
-      # set-active() will also trigger signal
-      $cb.set-active(True);
-    }
+    $cb.set-active($reversed-v{$!question.fieldlist[$row]}:exists);
   }
 }
 

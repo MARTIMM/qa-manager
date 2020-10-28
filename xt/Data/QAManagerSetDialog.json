@@ -1,44 +1,8 @@
 {
-  "page2": {
-    "QAManagerDialogs": {
-      "entry-spec": {
-        "example": "",
-        "tooltip": [
-          {
-            "tt1": "qweqwe"
-          }
-        ],
-        "title": "df",
-        "mywidget": "14",
-        "name": "fgh",
-        "default": "dfg",
-        "encode": false,
-        "invisible": false,
-        "maximum": "8",
-        "required": true,
-        "minimum": "3",
-        "description": "",
-        "fieldtype": "QARadioButton",
-        "callback": "fg"
-      }
-    }
-  },
   "page1": {
     "QAManagerDialogs": {
       "set-spec": {
-        "name": "fgh",
-        "onefilename": "/home/marcel/Videos/simplescreenrecorder-2020-09-23_21.59.23.mkv",
-        "title": "123sdf",
-        "radio": "Pop 90-ies",
-        "filename": [
-          {
-            "Config": "/home/marcel/Pictures/Henrikje & Peter.zip"
-          },
-          {
-            "Output": "/home/Data/AC-Ryan-disk-Film/Komedie/Dumb and Dumber/Dumb and Dumber (Divx).avi"
-          }
-        ],
-        "description": "cvbdfg dfxc xcv cv_bcévb",
+        "radio": "Classic FM",
         "more-image": [
           {
             "Icon": "/home/marcel/Pictures/01-queens-princess-vintage.adapt.470.1.jpg"
@@ -50,11 +14,47 @@
             "Icon": "/home/marcel/Pictures/Old/Beauty/Jolanda/j5/YuFace_2020091708330319_save.jpg"
           }
         ],
+        "title": "123sdf",
+        "onefilename": "/home/marcel/Videos/simplescreenrecorder-2020-09-23_21.59.23.mkv",
+        "an-image": "/home/marcel/Pictures/Pinterest/827d804fdad133e86501a7e0055498ed.jpg",
+        "filename": [
+          {
+            "Config": "/home/marcel/Pictures/Henrikje & Peter.zip"
+          },
+          {
+            "Output": "/home/Data/AC-Ryan-disk-Film/Komedie/Dumb and Dumber/Dumb and Dumber (Divx).avi"
+          }
+        ],
         "check": [
           "Purple",
           "Orange"
         ],
-        "an-image": "/home/marcel/Pictures/Pinterest/827d804fdad133e86501a7e0055498ed.jpg"
+        "name": "fgh",
+        "description": "cvbdfg dfxc xcv cv_bcévb"
+      }
+    }
+  },
+  "page2": {
+    "QAManagerDialogs": {
+      "entry-spec": {
+        "encode": false,
+        "maximum": "8",
+        "callback": "fg",
+        "title": "df",
+        "required": true,
+        "name": "fgh",
+        "minimum": "3",
+        "tooltip": [
+          {
+            "tt1": "qweqwe"
+          }
+        ],
+        "mywidget": "14",
+        "invisible": false,
+        "default": "dfg",
+        "fieldtype": "QARadioButton",
+        "description": "",
+        "example": ""
       }
     }
   }
