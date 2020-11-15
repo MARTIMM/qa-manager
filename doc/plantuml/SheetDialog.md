@@ -28,6 +28,8 @@ class QAManager::Gui::Value <<(R,#80ffff)>> {
   -Array $!input-widgets
 }
 
+note right of QAManager::Gui::Value : <b>Value</b> is responsible for creating the\nsub widgets and read and write the user\nvalues in every sub widget.
+
 class "Some Gtk\nInput Widget" as QAManager::Gui::GtkIOWidget
 
 class "Some QA\nInput Widget" as QAManager::Gui::QAIOWidget {
@@ -37,7 +39,7 @@ class "Some QA\nInput Widget" as QAManager::Gui::QAIOWidget {
   +create-widget()
 }
 
-note right of QAManager::Gui::QAIOWidget : <b>QAEntry</b> is one of the possible types\nand is created at runtime. Also it is\nresponsible for creating the Gtk\nwidgets which are saved by <b>Value</b>.
+note right of QAManager::Gui::QAIOWidget : <b>QAEntry</b> is one of the possible types.\nIt is responsible for creating the input\nwidget of which its values are saved\nby <b>Value</b>.
 
 class QAManager::Gui::Set {
   -Array $questions
