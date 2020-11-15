@@ -40,9 +40,9 @@ QAFieldType is an enumeration of field types to provide an anwer. The types are 
 =comment item QAList; An list.
 =item QARadioButton; A group of radiobuttons.
 =item QAScale; A scale for numeric input.
-=comment item QASpin; A spinbutton for numeric input.
+=comment item QASpinButton; A spinbutton for numeric input.
 =item QASwitch; On/Off, Yes/No kind of input.
-=item QATextView; Multy line input.
+=item QATextView; Multi line input.
 =item QAToggleButton; Like switch.
 =item QAUserWidget; A user widget. The key is given with userwidget.
 
@@ -50,7 +50,7 @@ QAFieldType is an enumeration of field types to provide an anwer. The types are 
 
 #tt:1:QAFieldType:
 enum QAFieldType is export <
-  QAEntry QATextView QAComboBox QARadioButton QACheckButton
+  QAEntry QATextView QAComboBox QARadioButton QACheckButton QASpinButton
   QAToggleButton QAScale QASwitch QAImage QAList QAFileChooser
   QAColorChooser QADragAndDrop QAUserWidget
 >;

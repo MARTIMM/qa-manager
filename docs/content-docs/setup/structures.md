@@ -132,7 +132,7 @@ The formats used are shown below for each input type with the variables which co
 |**QASwitch**      |ignored|ignored|`$value`
 |**QATextView**    |ignored|ignored|`$value`
 |**QAToggleButton**|ignored|ignored|`$value`
-|**QASpin**        |ignored|ignored|`$value`
+|**QASpinButton**  |ignored|ignored|`$value`
 |**QAUserWidget**  |user definable|user definable|user definable
 
 <!--
@@ -162,7 +162,7 @@ The formats used are shown below for each input type with the variables which co
 |**QAList**               | Li                         |             |
 |**QARadioButton**        | Rb                         | 🗸           |
 |**QAScale**              | Sc                         |             |
-|**QASpin**               | Sp                         |             |
+|**QASpinButton**         | Sp                         |             |
 |**QASwitch**             | Sw                         | 🗸           |
 |**QATextView**           | Tv                         | 🗸           |
 |**QAToggleButton**       | Tb                         |             |
