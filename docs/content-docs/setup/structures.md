@@ -114,19 +114,19 @@ The formats used are shown below for each input type with the variables which co
 
 |Field Type        |Repeatable|Selectlist|Returned|
 |------------------|----------|----------|--------|
-|**QACheckButton** |ignored|ignored|`[ $value, ... ]`
+|**QACheckButton** |ignored|ignored|`[ $value, … ]`
 |**QAColorChooser**|ignored|ignored|`$value`
 |**QAComboBox**    |ignored|ignored|`$value`
-|**QAEntry**       |⊭      |ignored|`$value`
-|                  |⊨      |∅|`[ $value, ... ]`
-|                  |⊨      |`[ $item, ... ]`|`[ :$category($value), ... ]`
-|**QAFileChooser** |⊭      |ignored|`$value`
-|**QAFileChooser** |⊨      |∅|`[ $value, ... ]`
-|**QAFileChooser** |⊨      |`[ $item, ... ]`|`[ :$category($value), ... ]`
-|**QAImage**       |⊭      |ignored|`$value`
-|**QAImage**       |⊨      |∅|`[ $value, ... ]`
-|**QAImage**       |⊨      |`[ $item, ... ]`|`[ :$category($value), ... ]`
-|**QAList**        |ignored|ignored|`[ $value, ... ]`
+|**QAEntry**       |False  |ignored|`$value`
+|                  |True   |∅|`[ $value, … ]`
+|                  |True   |`[ $item, … ]`|`[ :$category($value), … ]`
+|**QAFileChooser** |False  |ignored|`$value`
+|**QAFileChooser** |True   |∅|`[ $value, … ]`
+|**QAFileChooser** |True   |`[ $item, … ]`|`[ :$category($value), … ]`
+|**QAImage**       |False  |ignored|`$value`
+|**QAImage**       |True   |∅|`[ $value, … ]`
+|**QAImage**       |True   |`[ $item, … ]`|`[ :$category($value), … ]`
+|**QAList**        |ignored|ignored|`[ $value, … ]`
 |**QARadioButton** |ignored|ignored|`$value`
 |**QAScale**       |ignored|ignored|`$value`
 |**QASwitch**      |ignored|ignored|`$value`
@@ -166,7 +166,7 @@ The formats used are shown below for each input type with the variables which co
 |**QASwitch**             | Sw                         | 🗸           |
 |**QATextView**           | Tv                         | 🗸           |
 |**QAToggleButton**       | Tb                         |             |
-|**QAUserWidget**         | Uw                         |             |
+|**QAUserWidget**         | Uw                         | 🗸           |
 
 |             |En|Cb|Co|Im|Li|Rb|Sc|Sw|Tv|Tb|Cc|Fc|Sp|Uw|
 |-------------|--|--|--|--|--|--|--|--|--|--|--|--|--|--|
