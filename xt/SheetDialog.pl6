@@ -19,10 +19,11 @@ use Gnome::N::X;
 #Gnome::N::debug(:on);
 
 #-------------------------------------------------------------------------------
+# A user definable widget
 class MyWidget does QAManager::Gui::Value {
 
   #---------
-  method instantiate (
+  method init-widget (
     QAManager::Question:D :$!question, Hash:D :$!user-data-set-part
   ) {
 
@@ -78,7 +79,7 @@ class EH {
 
     my QAManager::Gui::SheetDialog $sheet-dialog .= new(
       :sheet-name<QAManagerSetDialog>,
-      :!cancel-warning, :!save-data
+      :show-cancel-warning, :!save-data
     );
 
     $sheet-dialog.register-signal( self, 'dialog-response', 'response');

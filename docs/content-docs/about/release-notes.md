@@ -8,6 +8,11 @@ layout: sidebar
 
 See [semantic versioning](http://semver.org/). Please note point 4. on that page: **_Major version zero (0.y.z) is for initial development. Anything may change at any time. The public API should not be considered stable._**
 
+#### 2020-10-27 0.12.1
+* Added two named arguments to `.new()` of **QAManager::Gui::SheetDialog**.
+  * :show-cancel-warning to prevent a dialog with an 'are you sure?' message.
+  * :save-data to store the data on disk or not. It is read if there is any.
+
 #### 2020-10-27 0.12.0
 * User definable input field widgets are now possible to use. The type used is `QAUserWidget` and used question parameter is `userwidget`. Userwidget is a key pointing to a previously created object stored with method `.set-widget-object()` found in module QATypes.
 * Type QARadioButton, QACheckButton input fields added.

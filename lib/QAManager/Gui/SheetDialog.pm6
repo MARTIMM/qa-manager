@@ -51,6 +51,8 @@ has Hash $!user-data;
 has Hash $.result-user-data;
 has Array $!sets = [];
 has Bool $.faulty-state;
+has Bool $!show-cancel-warning;
+has Bool $!save-data;
 
 #-------------------------------------------------------------------------------
 # initialize the Gtk Dialog
@@ -61,7 +63,7 @@ submethod new ( |c ) {
 #-------------------------------------------------------------------------------
 submethod BUILD (
   Str :$!sheet-name, Hash :$user-data? is copy,
-  Bool :$cancel-warning, Bool :$save-data
+  Bool :$!show-cancel-warning = True, Bool :$!save-data = True
 ) {
 
   my QAManager::QATypes $qa-types .= instance;
@@ -267,21 +269,25 @@ method dialog-response (
     else {
       $!result-user-data = $!user-data;
       my QAManager::QATypes $qa-types .= instance;
-      $qa-types.qa-save( $!sheet-name, $!result-user-data, :userdata);
+      $qa-types.qa-save( $!sheet-name, $!result-user-data, :userdata)
+        if $!save-data;
 #      self.widget-destroy;
     }
   }
 
   elsif GtkResponseType($response) ~~ GTK_RESPONSE_CANCEL {
 
-    my QAManager::Gui::YNMsgDialog $yn .= new(
-      :message("Are you sure to cancel?\nAll changes will be lost!")
-    );
+    my Bool $done = True;
+    if $!show-cancel-warning {
+      my QAManager::Gui::YNMsgDialog $yn .= new(
+        :message("Are you sure to cancel?\nAll changes will be lost!")
+      );
 
-    my $r = GtkResponseType($yn.dialog-run);
-    $yn.widget-destroy;
+      my $r = GtkResponseType($yn.dialog-run);
+      $yn.widget-destroy;
+      $done = ( $r ~~ GTK_RESPONSE_YES );
+    }
 
-    my Bool $done = ( $r ~~ GTK_RESPONSE_YES );
     self.widget-destroy if $done;
   }
 
