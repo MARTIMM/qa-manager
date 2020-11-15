@@ -13,7 +13,7 @@
 
 .background {
 	/*background-color: #480044;*/
-	color: blue
+	color: blue;
 }
 
 /*
@@ -145,8 +145,15 @@ container {
   border-width: 1px;
 }
 */
+
 /*
 textview {
   background-color: #ff8000;
+}
+*/
+
+/* example background image
+grid {
+  background-image: url('file:///home/marcel/Languages/Raku/Projects/qa-manager/xt/Data/f1.png');
 }
 */
