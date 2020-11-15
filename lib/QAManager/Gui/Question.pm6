@@ -64,12 +64,12 @@ method display ( ) {
 #note "Input widget class: $module-name, $!grid-row";
 
   # if this is a user widget, the object is already created. get the object
-  # from <userwidget> and get the object, then call instantiate().
+  # from <userwidget> and get the object, then call .init-widget().
   if $!question.fieldtype eq QAUserWidget {
     my QAManager::QATypes $qa-types .= instance;
     $!input-widget = $qa-types.get-widget-object($!question.userwidget);
-    if ?$!input-widget and $!input-widget.^lookup('instantiate') ~~ Method {
-      $!input-widget.instantiate( :$!question, :$!user-data-set-part);
+    if ?$!input-widget and $!input-widget.^lookup('init-widget') ~~ Method {
+      $!input-widget.init-widget( :$!question, :$!user-data-set-part);
       $!question-grid.grid-attach( $!input-widget, QAAnswer, $!grid-row, 1, 1);
     }
 
