@@ -171,8 +171,10 @@ The formats used are shown below for each input type with the variables which co
 |             |En|Cb|Co|Im|Li|Rb|Sc|Sw|Tv|Tb|Cc|Fc|Sp|Uw|
 |-------------|--|--|--|--|--|--|--|--|--|--|--|--|--|--|
 |callback     |o |- |- |  |  |- |  |  |o |  |  |  |  |  |
+|climbrate    |- |- |- |- |- |- |o |- |- |- |- |- |o |  |
 |default      |o |o |o |o |o |o |o |o |o |o |o |o |o |  |
 |description  |o |o |o |o |o |o |o |o |o |o |o |o |o |  |
+|digits       |- |- |- |- |- |- |o |- |- |- |- |- |o |  |
 |encode       |o |- |- |- |- |- |- |- |- |- |- |- |- |  |
 |example      |o |- |- |- |- |- |- |- |- |- |- |- |- |  |
 |fieldlist    |- |! |! |- |! |! |  |  |  |  |  |  |  |  |
@@ -183,10 +185,12 @@ The formats used are shown below for each input type with the variables which co
 |maximum      |o |- |- |- |- |- |o |- |o |- |- |- |o |  |
 |minimum      |o |- |- |- |- |- |o |- |o |- |- |- |o |  |
 |name         |! |! |! |! |! |! |! |! |! |! |! |! |! |! |
+|page-incr    |- |- |- |- |- |- |o |- |- |- |- |- |o |  |
+|page-size    |- |- |- |- |- |- |o |- |- |- |- |- |o |  |
 |repeatable   |o |- |- |o |  |- |  |  |  |  |o |o |  |  |
 |required     |o |o |o |o |o |o |o |o |o |o |o |o |o |  |
 |selectlist   |o |- |- |o |- |- |- |- |- |- |o |o |- |  |
-|step         |- |- |- |- |- |- |o |- |- |- |- |- |  |  |
+|step-incr    |- |- |- |- |- |- |o |- |- |- |- |- |o |  |
 |title        |o |o |o |o |o |o |o |o |o |o |o |o |o |o |
 |tooltip      |o |o |o |o |o |o |o |o |o |o |o |o |o |o |
 |userwidget   |- |- |- |- |- |- |- |- |- |- |- |- |- |! |
