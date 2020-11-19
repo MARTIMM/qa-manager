@@ -40,7 +40,7 @@ QAFieldType is an enumeration of field types to provide an anwer. The types are 
 =comment item QAList; An list.
 =item QARadioButton; A group of radiobuttons.
 =item QAScale; A scale for numeric input.
-=comment item QASpinButton; A spinbutton for numeric input.
+=item QASpinButton; A spinbutton for numeric input.
 =item QASwitch; On/Off, Yes/No kind of input.
 =item QATextView; Multi line input.
 =item QAToggleButton; Like switch.
