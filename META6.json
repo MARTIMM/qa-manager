@@ -1,7 +1,7 @@
 {
   "description": "Q & A Manager",
   "name": "QAManager",
-  "version": "0.12.1",
+  "version": "0.13.0",
   "authors": [ "Marcel Timmerman"],
   "tags": [ "questionnaire", "configuration", "application", "tool", "gtk"],
 
@@ -32,6 +32,7 @@
     "QAManager::Gui::QAImage": "lib/QAManager/Gui/QAImage.pm6",
     "QAManager::Gui::QALabel": "lib/QAManager/Gui/QALabel.pm6",
     "QAManager::Gui::QARadioButton": "lib/QAManager/Gui/QARadioButton.pm6",
+    "QAManager::Gui::QASpinButton": "lib/QAManager/Gui/QASpinButton.pm6",
     "QAManager::Gui::QASwitch": "lib/QAManager/Gui/QASwitch.pm6",
     "QAManager::Gui::QATextView": "lib/QAManager/Gui/QATextView.pm6",
     "QAManager::Gui::Question": "lib/QAManager/Gui/Question.pm6",

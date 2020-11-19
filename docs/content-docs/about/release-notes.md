@@ -8,6 +8,9 @@ layout: sidebar
 
 See [semantic versioning](http://semver.org/). Please note point 4. on that page: **_Major version zero (0.y.z) is for initial development. Anything may change at any time. The public API should not be considered stable._**
 
+#### 2020-11-18 0.13.0
+* Add **QAManager::Gui::QASpinButton** for type QASpinButton.
+
 #### 2020-10-27 0.12.1
 * Added two named arguments to `.new()` of **QAManager::Gui::SheetDialog**.
   * :show-cancel-warning to prevent a dialog with an 'are you sure?' message.
