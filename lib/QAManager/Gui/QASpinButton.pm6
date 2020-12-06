@@ -36,7 +36,7 @@ method create-widget ( Str $widget-name, Int $row --> Any ) {
   );
 
   my Gnome::Gtk3::SpinButton $spin-button .= new(
-    :$adjustment, :climb_rate($!question.climbrate // 2),
+    :$adjustment, :climb-rate($!question.climbrate // 2),
     :digits($!question.digits // 0)
   );
 
