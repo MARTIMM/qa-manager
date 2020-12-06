@@ -1,9 +1,12 @@
 {
   "description": "Q & A Manager",
   "name": "QAManager",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "authors": [ "Marcel Timmerman"],
-  "tags": [ "questionnaire", "configuration", "application", "tool", "gtk"],
+  "tags": [
+    "questionnaire", "configuration", "application", "tool", "gtk", "manager",
+    "question", "answer", "Raku"
+  ],
 
   "perl": "6.d",
   "license": "Artistic-2.0",
@@ -23,9 +26,6 @@
   },
 
   "provides": {
-    "QAManager::Gui::Dialog": "lib/QAManager/Gui/Dialog.pm6",
-    "QAManager::Gui::Frame": "lib/QAManager/Gui/Frame.pm6",
-    "QAManager::Gui::OkMsgDialog": "lib/QAManager/Gui/OkMsgDialog.pm6",
     "QAManager::Gui::QACheckButton": "lib/QAManager/Gui/QACheckButton.pm6",
     "QAManager::Gui::QAComboBox": "lib/QAManager/Gui/QAComboBox.pm6",
     "QAManager::Gui::QAEntry": "lib/QAManager/Gui/QAEntry.pm6",
@@ -35,18 +35,7 @@
     "QAManager::Gui::QASpinButton": "lib/QAManager/Gui/QASpinButton.pm6",
     "QAManager::Gui::QASwitch": "lib/QAManager/Gui/QASwitch.pm6",
     "QAManager::Gui::QATextView": "lib/QAManager/Gui/QATextView.pm6",
-    "QAManager::Gui::Question": "lib/QAManager/Gui/Question.pm6",
-    "QAManager::Gui::Set": "lib/QAManager/Gui/Set.pm6",
-    "QAManager::Gui::SheetDialog": "lib/QAManager/Gui/SheetDialog.pm6",
-    "QAManager::Gui::Statusbar": "lib/QAManager/Gui/Statusbar.pm6",
-    "QAManager::Gui::Value": "lib/QAManager/Gui/Value.pm6",
-    "QAManager::Gui::YNMsgDialog": "lib/QAManager/Gui/YNMsgDialog.pm6",
-
-    "QAManager::Category": "lib/QAManager/Category.pm6",
-    "QAManager::QATypes": "lib/QAManager/QATypes.pm6",
-    "QAManager::Question": "lib/QAManager/Question.pm6",
-    "QAManager::Set": "lib/QAManager/Set.pm6",
-    "QAManager::Sheet": "lib/QAManager/Sheet.pm6"
+    "QAManager::Gui::Value": "lib/QAManager/Gui/Value.pm6"
   },
 
   "source-url": "git://github.com/MARTIMM/qa-manager.git",
