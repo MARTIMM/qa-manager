@@ -5,7 +5,7 @@
 
 [![License](http://martimm.github.io/label/License-label.svg)](http://www.perlfoundation.org/artistic_license_2_0)
 
-Documentation, references and examples are (or at least, will be 😄) displayed [here](https://martimm.github.io/qa-manager/).
+Documentation, references and examples are (or at least, will be 😄) displayed [here](https://martimm.github.io/question-answer/).
 
 
 # Versions of involved software
@@ -19,7 +19,7 @@ Documentation, references and examples are (or at least, will be 😄) displayed
 
 Simple and strait forward.
 
-`zef install QAManager`
+`zef install QA::Manager`
 
 
 # Issues
