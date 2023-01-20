@@ -1,38 +1,39 @@
 {
-  "description": "Q & A Manager",
-  "name": "QAManager",
-  "version": "0.13.1",
+  "description": "Question Answer Manager",
+  "name": "QA::Manager",
+  "version": "0.14.0",
   "authors": [ "Marcel Timmerman"],
   "tags": [
-    "questionnaire", "configuration", "application", "tool", "gtk", "manager",
-    "question", "answer", "Raku"
+    "questionnaire", "configuration", "invoice", "survey"
   ],
 
-  "perl": "6.d",
+  "perl": "6",
   "license": "Artistic-2.0",
 
   "provides": {
-    "QAManager::App::Application": "lib/QAManager/App/Application.pm6",
-    "QAManager::App::ApplicationWindow": "lib/QAManager/App/ApplicationWindow.pm6",
+    "QA::Manager::App::Application": "lib/QA/Manager/App/Application.rakumod",
+    "QA::Manager::App::ApplicationWindow": "lib/QA/Manager/App/ApplicationWindow.rakumod",
 
-    "QAManager::App::Menu::File": "lib/QAManager/App/Menu/File.pm6",
-    "QAManager::App::Menu::Help": "lib/QAManager/App/Menu/Help.pm6",
+    "QA::AManager::App::Menu::File": "lib/QA/Manager/App/Menu/File.rakumod",
+    "QA::Manager::App::Menu::Help": "lib/QA/Manager/App/Menu/Help.rakumod"
+  },
 
-    "QAManager::App::Page::Category": "lib/QAManager/App/Page/Category.pm6",
-    "QAManager::App::Page::Set": "lib/QAManager/App/Page/Set.pm6",
-    "QAManager::App::Page::Sheet": "lib/QAManager/App/Page/Sheet.pm6",
+  "x-provides": {
+    "QA::Manager::App::Page::Category": "lib/QA/Manager/App/Page/Category.rakumod",
+    "QA::Manager::App::Page::Set": "lib/Q/AManager/App/Page/Set.rakumod",
+    "QA::Manager::App::Page::Sheet": "lib/QA/Manager/App/Page/Sheet.rakumod",
 
-    "QAManager::Gui::GroupFrame": "lib/QAManager/Gui/GroupFrame.pm6"
-
+    "QA::Manager::Gui::GroupFrame": "lib/QA/Manager/Gui/GroupFrame.rakumod"
   },
 
   "source-url": "git://github.com/MARTIMM/qa-manager.git",
 
-  "depends": [ "JSON::Fast", "Config::TOML", "YAMLish", "QA"],
+  "depends": ["QA"],
 
   "test-depends": [ ],
   "build-depends": [ ],
   "resources": [
     "g-resources/QAManager.gresource"
+
   ]
 }
