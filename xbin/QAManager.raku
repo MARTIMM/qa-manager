@@ -1,20 +1,42 @@
 #!/usr/bin/env raku
 
-=begin pod
-=head1
 
-This program creates a questionaire for the QAManager system. This sheet is for questions to create a questionaire for the user. The result is stored in the resources directory of the QAManager.
+=begin pod
+
+=head1 QAManager.raku
+
+=head1 Description
+
+This program creates sets of questions. The sets are combined into pages and pages into a questionnaire using the QA::Manager system. The sets are stored in the managers config environment and the questionnaire in a location defined by the user.
 
 =end pod
 
-use v6.d;
+use v6;
 
-#use QAManager::Gui::Application;
+use QA::Manager::App::Application;
 #use lib 'qa-manager/lib';
 
 #use Gnome::N::X;
 #Gnome::N::debug(:on);
 
+#sub Main ( ) {
+  my QA::Manager::App::Application $app .= new;
+#  exit($app.run);
+#}
+
+
+
+
+
+
+
+
+
+
+
+
+
+=finish
 use QAManager::Set;
 use QAManager::KV;
 use QAManager::QATypes;
